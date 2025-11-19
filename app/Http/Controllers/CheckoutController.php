@@ -5,37 +5,45 @@ namespace App\Http\Controllers;
 use App\Models\Produk;
 use App\Models\Pesanan;
 use App\Models\DetailPesanan;
+use App\Models\Keranjang; // [PENTING] Gunakan Model Keranjang
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Untuk user login
-use Illuminate\Support\Facades\DB; // Untuk Database Transaction
-use Illuminate\Support\Str; // Untuk membuat kode pesanan
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
     /**
      * Tampilkan halaman checkout.
-     * Halaman ini hanya bisa diakses jika user sudah login.
      */
     public function index()
     {
-        // 1. Ambil keranjang dari session
-        $cart = session()->get('cart', []);
+        // [FIX] Ambil keranjang dari DATABASE, bukan Session
+        $userId = Auth::id();
+        $cartItems = Keranjang::where('user_id', $userId)->with('produk')->get();
 
-        // 2. Jika keranjang kosong, kembalikan ke halaman produk
+        // Konversi format agar sesuai dengan tampilan view
+        $cart = [];
+        $total = 0;
+
+        foreach($cartItems as $item) {
+            $cart[$item->produk_id] = [
+                "nama" => $item->produk->nama_produk,
+                "jumlah" => $item->jumlah,
+                "harga" => $item->produk->harga,
+                "foto" => $item->produk->foto_produk
+            ];
+            $total += $item->produk->harga * $item->jumlah;
+        }
+
+        // [FIX] Cek apakah hasil query database kosong
         if (empty($cart)) {
             return redirect()->route('produk.index')->with('error', 'Keranjang belanja Anda kosong.');
         }
 
-        // 3. Ambil data user yang sedang login (untuk alamat)
+        // Ambil data user untuk alamat
         $user = Auth::user();
 
-        // 4. Hitung total
-        $total = 0;
-        foreach ($cart as $detail) {
-            $total += $detail['harga'] * $detail['jumlah'];
-        }
-
-        // 5. Tampilkan view checkout
         return view('checkout.index', [
             'cart' => $cart,
             'user' => $user,
@@ -48,81 +56,70 @@ class CheckoutController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Ambil keranjang dari session
-        $cart = session()->get('cart', []);
-        if (empty($cart)) {
+        $userId = Auth::id();
+        
+        // [FIX] Ambil data dari Database lagi untuk validasi akhir
+        $cartItems = Keranjang::where('user_id', $userId)->with('produk')->get();
+
+        if ($cartItems->isEmpty()) {
             return redirect()->route('produk.index')->with('error', 'Keranjang belanja Anda kosong.');
         }
 
-        // 2. Ambil user yang login
-        $user = Auth::user();
-
-        // 3. Validasi input (jika ada alamat baru, dll)
         $request->validate([
-            // (Kita asumsikan alamat diambil dari profil user)
             'alamat_kirim' => 'required|string',
         ]);
 
-        // Mulai Database Transaction
         DB::beginTransaction();
 
         try {
-            // --- Langkah A: Cek Stok Produk ---
+            // --- Langkah A: Hitung Total & Cek Stok ---
             $totalHarga = 0;
-            foreach ($cart as $id => $detail) {
-                $produk = Produk::find($id);
-                // Cek apakah stok masih mencukupi
-                if ($produk->stok < $detail['jumlah']) {
-                    // Jika stok tidak cukup, batalkan transaksi
+            foreach ($cartItems as $item) {
+                if ($item->produk->stok < $item->jumlah) {
                     DB::rollBack();
                     return redirect()->route('cart.index')
-                                     ->with('error', 'Stok untuk produk ' . $produk->nama_produk . ' tidak mencukupi!');
+                                     ->with('error', 'Stok untuk produk ' . $item->produk->nama_produk . ' tidak mencukupi!');
                 }
-                $totalHarga += $detail['harga'] * $detail['jumlah'];
+                $totalHarga += $item->produk->harga * $item->jumlah;
             }
 
-            // --- Langkah B: Buat data di tabel 'pesanan' ---
+            // --- Langkah B: Buat Pesanan ---
             $pesanan = new Pesanan();
-            $pesanan->user_id = $user->id;
+            $pesanan->user_id = $userId;
             $pesanan->kode_pesanan = 'INV/' . date('Ymd') . '/' . strtoupper(Str::random(6));
-            $pesanan->total_harga = $totalHarga; // (Belum termasuk ongkir, dll)
-            $pesanan->alamat_kirim = $request->alamat_kirim; // Alamat dari form
-            $pesanan->status = 'pending'; // Status awal
+            $pesanan->total_harga = $totalHarga;
+            $pesanan->alamat_kirim = $request->alamat_kirim;
+            $pesanan->status = 'pending';
             $pesanan->save();
 
-            // --- Langkah C: Buat data di 'detail_pesanan' dan kurangi stok ---
-            foreach ($cart as $id => $detail) {
-                // 1. Simpan ke detail_pesanan
+            // --- Langkah C: Simpan Detail & Kurangi Stok ---
+            foreach ($cartItems as $item) {
+                // Simpan ke detail_pesanan
                 $detailPesanan = new DetailPesanan();
-                $detailPesanan->pesanan_id = $pesanan->id; // ID dari pesanan yang baru dibuat
-                $detailPesanan->produk_id = $id;
-                $detailPesanan->jumlah = $detail['jumlah'];
-                $detailPesanan->harga_satuan = $detail['harga'];
+                $detailPesanan->pesanan_id = $pesanan->id;
+                $detailPesanan->produk_id = $item->produk_id;
+                $detailPesanan->jumlah = $item->jumlah;
+                $detailPesanan->harga_satuan = $item->produk->harga;
                 $detailPesanan->save();
 
-                // 2. Kurangi stok produk
-                $produk = Produk::find($id);
-                $produk->stok = $produk->stok - $detail['jumlah'];
+                // Kurangi stok produk
+                $produk = Produk::find($item->produk_id);
+                $produk->stok = $produk->stok - $item->jumlah;
                 $produk->save();
             }
 
-            // --- Langkah D: Jika semua berhasil, 'commit' transaksi ---
+            // --- Langkah D: Hapus Keranjang dari DATABASE ---
+            Keranjang::where('user_id', $userId)->delete(); // [FIX] Hapus dari DB
+
             DB::commit();
 
-            // --- Langkah E: Hapus keranjang dari session ---
-            session()->forget('cart');
-
-            // --- Langkah F: Redirect ke halaman riwayat pesanan ---
             return redirect()->route('konsumen.pesanan.index')
                              ->with('success', 'Pesanan Anda dengan kode ' . $pesanan->kode_pesanan . ' telah berhasil dibuat!');
 
         } catch (\Exception $e) {
-            // --- Langkah G: Jika terjadi error, 'rollback' semua perubahan ---
             DB::rollBack();
-            
-            // Tampilkan pesan error
             return redirect()->route('checkout.index')
-                             ->with('error', 'Terjadi kesalahan saat memproses pesanan Anda. Silakan coba lagi.' . $e->getMessage());
+                             ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 }
