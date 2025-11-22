@@ -11,8 +11,9 @@ use App\Http\Controllers\EdukasiController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\PesanOrderController; // Pastikan ini ada
-use App\Http\Controllers\ChatController;
+use App\Http\Controllers\PesanOrderController;
+use App\Http\Controllers\ChatController;       // [FIX 1] Tambahkan Import ini
+use App\Http\Controllers\KontakController;
 
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
@@ -26,16 +27,18 @@ use App\Http\Controllers\Petani\PesananController as PetaniPesananController;
 
 // Konsumen
 use App\Http\Controllers\Konsumen\PesananController as KonsumenPesanan;
-use App\Http\Controllers\Konsumen\DashboardController as KonsumenDashboard;
 
 
 /*
 |--------------------------------------------------------------------------
-| BAGIAN 1: RUTE PUBLIK & TAMU (TIDAK PERLU LOGIN)
+| BAGIAN 1: RUTE PUBLIK & TAMU
 |--------------------------------------------------------------------------
 */
 
-// --- Auth Manual (Login & Register) ---
+// Form Kontak (Publik)
+Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
+
+// Auth Manual
 Route::middleware('guest')->group(function () {
     Route::get('/register', [CustomAuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [CustomAuthController::class, 'processRegister']);
@@ -44,10 +47,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [CustomAuthController::class, 'processLogin']);
 });
 
-// Logout
 Route::post('/logout', [CustomAuthController::class, 'logout'])->name('logout');
 
-// Halaman Publik Lainnya
+// Halaman Publik
 Route::get('/', [HomepageController::class, 'index'])->name('homepage');
 Route::get('/edukasi', [EdukasiController::class, 'index'])->name('edukasi.index');
 Route::get('/edukasi/{slug}', [EdukasiController::class, 'show'])->name('edukasi.show');
@@ -63,24 +65,23 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 */
 Route::middleware(['auth'])->group(function () {
 
-    // Di dalam routes/web.php (di dalam group auth)
-
-// --- FITUR CHAT REALTIME ---
-Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
-Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
-
-// API Routes untuk AJAX (Digunakan oleh JavaScript)
-Route::get('/api/chat/{id}/messages', [chatController::class, 'getMessages'])->name('api.chat.messages');
-Route::post('/api/chat/{id}/send', [ChatController::class, 'sendMessage'])->name('api.chat.send');
-
-Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.destroy');
+    // --- Fitur Chat Realtime ---
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
+    
+    // API Routes (AJAX)
+    // [FIX 2] Ubah chatController menjadi ChatController (Kapital)
+    Route::get('/api/chat/{id}/messages', [ChatController::class, 'getMessages'])->name('api.chat.messages');
+    Route::post('/api/chat/{id}/send', [ChatController::class, 'sendMessage'])->name('api.chat.send');
+    
+    Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.destroy');
 
     // Aksi Keranjang
     Route::post('/cart/add/{id}', [CartController::class, 'store'])->name('cart.store');
     Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-    // [PERBAIKAN: Rute Chat diletakkan di sini agar Petani & Konsumen bisa akses]
+    // Kirim pesan dari detail order
     Route::post('/pesan-order/{id}', [PesanOrderController::class, 'store'])->name('pesan.store');
 
     // Dashboard Redirector
@@ -89,17 +90,17 @@ Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.dest
         switch ($role) {
             case 'admin': return redirect()->route('admin.dashboard');
             case 'petani': return redirect()->route('petani.dashboard');
-            case 'konsumen': return redirect()->route('produk.index'); 
+            case 'konsumen': return redirect()->route('homepage'); 
             default: return redirect('/'); 
         }
     })->name('dashboard');
 
-    // Rute Profil Manual
+    // Profil
     Route::get('/profile', [CustomAuthController::class, 'showProfile'])->name('profile.edit');
     Route::patch('/profile/info', [CustomAuthController::class, 'updateProfile'])->name('profile.update');
     Route::put('/profile/password', [CustomAuthController::class, 'updatePassword'])->name('password.update');
 
-    // Rute Verifikasi
+    // Verifikasi Email (Opsional)
     Route::post('/email/verification-notification', function (Request $request) {
         $request->user()->sendEmailVerificationNotification();
         return back()->with('status', 'verification-link-sent');
@@ -111,6 +112,10 @@ Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.dest
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
         Route::resource('konten-edukasi', AdminKontenEdukasi::class);
         Route::resource('users', AdminUserController::class);
+
+        // [FIX 3] Rute Inbox dipindah ke sini (karena Admin yang baca)
+        Route::get('/inbox', [KontakController::class, 'index'])->name('kontak.index');
+        Route::delete('/inbox/{id}', [KontakController::class, 'destroy'])->name('kontak.destroy');
     });
 
     // --- Petani Routes ---
@@ -122,11 +127,10 @@ Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.dest
 
     // --- Konsumen Routes ---
     Route::middleware(['role:konsumen'])->prefix('konsumen')->name('konsumen.')->group(function () {
-        // Rute chat sudah dipindah ke atas agar Petani juga bisa akses
         Route::resource('pesanan', KonsumenPesanan::class);
     });
 
-    // Checkout (Khusus Konsumen, tapi nama route netral)
+    // Checkout
     Route::middleware(['role:konsumen'])->group(function () {
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');

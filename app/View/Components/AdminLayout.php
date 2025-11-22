@@ -22,6 +22,6 @@ class AdminLayout extends Component
     public function render(): View|Closure|string
     {
         // Ubah ini agar menunjuk ke file layout kita
-        return view('layouts.admin');
+        return view('components.admin-layout');
     }
 }

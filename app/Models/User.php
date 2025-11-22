@@ -24,6 +24,7 @@ class User extends Authenticatable
         'role', // Tambahkan ini
         'no_telepon', // Tambahkan ini
         'alamat', // Tambahkan ini
+        'foto_profil',
     ];
 
     /**

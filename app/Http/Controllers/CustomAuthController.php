@@ -6,8 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule; // <-- Tambahkan ini
-use Illuminate\Validation\Rules\Password; // <-- Tambahkan ini
+use Illuminate\Validation\Rule; // <-- Penting untuk validasi unik saat update
+use Illuminate\Validation\Rules\Password; // <-- Penting untuk validasi password
 
 class CustomAuthController extends Controller
 {
@@ -29,10 +29,11 @@ class CustomAuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'konsumen',
+            'role' => 'konsumen', // Default role konsumen
         ]);
 
         Auth::login($user);
+        // Setelah daftar, arahkan ke Marketplace (Produk) sesuai permintaan awal Anda
         return redirect()->route('produk.index');
     }
 
@@ -49,13 +50,16 @@ class CustomAuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) { // Tambahkan 'remember'
+        if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             
             $role = Auth::user()->role;
             if ($role === 'admin') return redirect()->route('admin.dashboard');
             if ($role === 'petani') return redirect()->route('petani.dashboard');
-            return redirect()->route('homepage'); // Konsumen langsung ke produk
+            
+            // Konsumen diarahkan ke Homepage (Beranda) sesuai permintaan terakhir
+            // (Atau bisa ganti ke 'produk.index' jika ingin ke marketplace)
+            return redirect()->route('homepage'); 
         }
 
         return back()->withErrors([
@@ -72,7 +76,7 @@ class CustomAuthController extends Controller
         return redirect('/');
     }
 
-    // --- [KODE BARU] PROFIL MANAJEMEN ---
+    // --- [PROFIL MANAJEMEN] ---
     
     // 1. Tampilkan Halaman Edit Profil
     public function showProfile()
@@ -89,9 +93,12 @@ class CustomAuthController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            // Validasi email unik, tapi abaikan ID user sendiri
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'no_telepon' => ['nullable', 'string', 'max:20'],
             'alamat' => ['nullable', 'string', 'max:255'],
+            // Tambahkan validasi foto profil jika fitur upload foto aktif
+            'foto_profil' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ]);
 
         $user->name = $request->name;
@@ -99,7 +106,16 @@ class CustomAuthController extends Controller
         $user->no_telepon = $request->no_telepon;
         $user->alamat = $request->alamat;
 
-        // Jika email diubah, reset verifikasi (jika Anda pakai verifikasi)
+        // Logika Upload Foto (Jika ada di form)
+        if ($request->hasFile('foto_profil')) {
+            if ($user->foto_profil) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->foto_profil);
+            }
+            $path = $request->file('foto_profil')->store('profil', 'public');
+            $user->foto_profil = $path;
+        }
+
+        // Jika email diubah, reset verifikasi
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }

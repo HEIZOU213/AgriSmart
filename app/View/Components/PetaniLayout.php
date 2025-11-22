@@ -22,6 +22,6 @@ class PetaniLayout extends Component
     public function render(): View|Closure|string
     {
         // Ubah ini agar menunjuk ke file layout kita
-        return view('layouts.petani');
+        return view('components.petani-layout');
     }
 }
