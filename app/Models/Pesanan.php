@@ -33,4 +33,10 @@ class Pesanan extends Model
     {
         return $this->hasMany(DetailPesanan::class);
     }
+
+    // Tambahkan ini di dalam class Pesanan
+    public function pesanOrders()
+    {
+        return $this->hasMany(PesanOrder::class);
+    }
 }

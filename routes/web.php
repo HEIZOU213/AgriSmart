@@ -12,6 +12,7 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PesanOrderController; // Pastikan ini ada
+use App\Http\Controllers\ChatController;
 
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
@@ -61,6 +62,18 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
+
+    // Di dalam routes/web.php (di dalam group auth)
+
+// --- FITUR CHAT REALTIME ---
+Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
+Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
+
+// API Routes untuk AJAX (Digunakan oleh JavaScript)
+Route::get('/api/chat/{id}/messages', [chatController::class, 'getMessages'])->name('api.chat.messages');
+Route::post('/api/chat/{id}/send', [ChatController::class, 'sendMessage'])->name('api.chat.send');
+
+Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.destroy');
 
     // Aksi Keranjang
     Route::post('/cart/add/{id}', [CartController::class, 'store'])->name('cart.store');

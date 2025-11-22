@@ -6,7 +6,6 @@
     </x-slot>
 
     <div class="text-gray-900">
-        {{-- Notifikasi Sukses atau Error --}}
         @if (session('success'))
             <div class="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
                 {{ session('success') }}
@@ -89,42 +88,9 @@
                         </tbody>
                     </table>
                 </div>
-
-                {{-- Chat Log & Form --}}
-                <div class="mt-6 bg-white shadow sm:rounded-lg border border-gray-200">
-                    <h3 class="text-lg font-semibold mb-3 p-6 border-b">Log Pesan (Chat)</h3>
-                    
-                    {{-- Area Tampilan Chat --}}
-                    <div class="p-6 space-y-4 max-h-96 overflow-y-auto">
-                        @forelse($pesanLog as $pesan)
-                            <div class="flex {{ $pesan->user_id == Auth::id() ? 'justify-end' : 'justify-start' }}">
-                                <div class="max-w-xs lg:max-w-md p-4 rounded-lg {{ $pesan->user_id == Auth::id() ? 'bg-green-100 text-green-900' : 'bg-gray-100 text-gray-800' }}">
-                                    <p class="text-sm font-bold">{{ $pesan->user->nama }} ({{ $pesan->user->role }})</p>
-                                    <p class="text-md mt-1">{{ $pesan->body }}</p>
-                                    <p class="text-xs text-gray-500 mt-2 text-right">{{ $pesan->created_at->format('d M, H:i') }}</p>
-                                </div>
-                            </div>
-                        @empty
-                            <p class="text-gray-500 text-center">Belum ada pesan. Mulai percakapan.</p>
-                        @endforelse
-                    </div>
-
-                    {{-- Form Kirim Pesan --}}
-                    <div class="p-6 border-t bg-gray-50">
-                        <form action="{{ route('pesan.store', $pesanan->id) }}" method="POST">
-                            @csrf
-                            <label for="body" class="block text-sm font-medium text-gray-700">Kirim Balasan:</label>
-                            <textarea name="body" id="body" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Tulis pesan Anda di sini... (Contoh: Baik, pesanan akan segera saya batalkan.)"></textarea>
-                            @error('body')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                            <button type="submit" class="mt-3 w-full px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
-                                Kirim Pesan
-                            </button>
-                        </form>
-                    </div>
-                </div>
                 
+                {{-- (BAGIAN LOG PESAN SUDAH DIHAPUS DARI SINI) --}}
+
             </div>
         </div>
     </div>
