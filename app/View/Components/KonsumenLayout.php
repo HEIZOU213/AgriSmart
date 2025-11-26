@@ -22,6 +22,6 @@ class KonsumenLayout extends Component
     public function render(): View|Closure|string
     {
         // Ubah ini agar menunjuk ke file layout kita
-        return view('layouts.konsumen');
+        return view('components.konsumen-layout');
     }
 }

@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     {{-- SCRIPT --}}
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -50,7 +50,7 @@
             {{-- Dropdown Content --}}
             <div id="adminUserDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
                 <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600">
-                    Edit Profil
+                    Profil saya
                 </a>
                 <div class="border-t border-gray-100 my-1"></div>
                 <form method="POST" action="{{ route('logout') }}">

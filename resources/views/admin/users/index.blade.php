@@ -60,8 +60,9 @@
                                             @endif
                                         </div>
                                         <div class="ml-4">
+                                            {{-- [FIX] Hapus ID --}}
                                             <div class="text-sm font-semibold text-gray-900">{{ $user->name }}</div>
-                                            <div class="text-xs text-gray-500">ID: #{{ $user->id }}</div>
+                                            <div class="text-xs text-gray-500">Bergabung: {{ $user->created_at->format('d M Y') }}</div>
                                         </div>
                                     </div>
                                 </td>

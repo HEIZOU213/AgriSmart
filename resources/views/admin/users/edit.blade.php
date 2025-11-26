@@ -67,7 +67,6 @@
                     <label for="role" class="block text-sm font-medium text-gray-700">Role (Peran)</label>
                     <select name="role" id="role" 
                             class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
                         <option value="petani" {{ old('role', $user->role) == 'petani' ? 'selected' : '' }}>Petani</option>
                         <option value="konsumen" {{ old('role', $user->role) == 'konsumen' ? 'selected' : '' }}>Konsumen</option>
                     </select>
