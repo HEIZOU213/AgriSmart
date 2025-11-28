@@ -1,84 +1,72 @@
-{{-- Menggunakan layout konsumen baru kita --}}
-<x-app-layout>
-    
-    {{-- Slot untuk Judul Halaman --}}
+<x-konsumen-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Detail Pesanan: ') }} {{ $pesanan->kode_pesanan }}
-            </h2>
-            <a href="{{ route('konsumen.pesanan.index') }}" 
-               class="text-sm text-gray-600 hover:text-gray-900">
-                &larr; Kembali ke Riwayat Pesanan
-            </a>
+            <span>{{ __('Detail Pesanan: ') }} {{ $pesanan->kode_pesanan }}</span>
+            <a href="{{ route('konsumen.pesanan.index') }}" class="text-sm text-gray-500 hover:text-gray-800 font-normal">&larr; Kembali</a>
         </div>
     </x-slot>
 
-    {{-- Slot untuk Konten Utama --}}
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-
-            {{-- Ringkasan Detail Pesanan --}}
-            <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold mb-4 border-b pb-2">Ringkasan</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Tanggal Pesan</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $pesanan->created_at->format('d M Y, H:i') }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Status</dt>
-                        <dd class="mt-1 text-sm text-gray-900 capitalize">{{ $pesanan->status }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Total Tagihan</dt>
-                        <dd class="mt-1 text-sm font-bold text-red-600">Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Alamat Kirim</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $pesanan->alamat_kirim }}</dd>
-                    </div>
+    <div class="space-y-6">
+        {{-- (Isi konten detail pesanan sama seperti sebelumnya, hanya dibungkus x-konsumen-layout) --}}
+        {{-- Saya salin ulang isi kontennya agar lengkap --}}
+        
+        <div class="bg-white shadow-sm sm:rounded-lg border border-gray-100 p-6">
+            <h3 class="text-lg font-bold mb-4 border-b pb-2 text-gray-800">Ringkasan</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <dt class="text-xs font-bold text-gray-400 uppercase tracking-wider">Tanggal Pesan</dt>
+                    <dd class="mt-1 text-sm text-gray-900 font-medium">{{ $pesanan->created_at->format('d M Y, H:i') }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-bold text-gray-400 uppercase tracking-wider">Status</dt>
+                    <dd class="mt-1">
+                        <span class="px-2 py-1 text-xs font-bold rounded bg-gray-100 text-gray-800 capitalize">{{ $pesanan->status }}</span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Tagihan</dt>
+                    <dd class="mt-1 text-lg font-bold text-green-600">Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-bold text-gray-400 uppercase tracking-wider">Alamat Kirim</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ $pesanan->alamat_kirim }}</dd>
                 </div>
             </div>
-
-            {{-- Daftar Produk yang Dibeli --}}
-            <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200">
-                <h3 class="text-lg font-semibold mb-4 p-6 border-b">Produk dalam Pesanan Ini</h3>
-                
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Produk</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Satuan</th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach ($pesanan->detailPesanan as $detail)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $detail->produk ? $detail->produk->nama_produk : '[Produk Dihapus]' }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $detail->jumlah }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">Rp {{ number_format($detail->harga_satuan, 0, ',', '.') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    Rp {{ number_format($detail->harga_satuan * $detail->jumlah, 0, ',', '.') }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot class="bg-gray-50">
-                        <tr>
-                            <td colspan="3" class="px-6 py-3 text-right text-sm font-medium text-gray-700 uppercase">Total Harga Produk</td>
-                            <td class="px-6 py-3 text-right text-sm font-bold text-gray-900">
-                                Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+            
+            {{-- Tombol Chat Penjual --}}
+            <div class="mt-6 pt-4 border-t border-gray-100">
+                <a href="{{ route('chat.show', $pesanan->id) }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition shadow-md">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    Chat Penjual
+                </a>
             </div>
-
-            {{-- (BAGIAN LOG PESAN SUDAH DIHAPUS DARI SINI) --}}
-
         </div>
+
+        <div class="bg-white shadow-sm sm:rounded-lg border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                <h3 class="text-sm font-bold text-gray-700">Produk Dibeli</h3>
+            </div>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-white">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase">Produk</th>
+                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase">Jml</th>
+                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-400 uppercase">Harga</th>
+                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-400 uppercase">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100">
+                    @foreach ($pesanan->detailPesanan as $detail)
+                        <tr>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $detail->produk->nama_produk ?? '[Dihapus]' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ $detail->jumlah }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 text-right">Rp {{ number_format($detail->harga_satuan, 0, ',', '.') }}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-gray-900 text-right">Rp {{ number_format($detail->harga_satuan * $detail->jumlah, 0, ',', '.') }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
     </div>
-</x-app-layout>
+</x-konsumen-layout>

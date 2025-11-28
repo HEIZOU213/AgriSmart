@@ -1,4 +1,13 @@
-<nav id="main-navbar" class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm transition-all duration-300">
+@php
+    $user = Auth::user();
+    $is_logged_in = Auth::check();
+    
+    $is_admin = $is_logged_in && $user->role === 'admin';
+    $is_petani = $is_logged_in && $user->role === 'petani';
+    $is_konsumen = $is_logged_in && $user->role === 'konsumen';
+@endphp
+
+<nav x-data="{ open: false }" class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
@@ -17,14 +26,6 @@
 
                 {{-- Menu Desktop --}}
                 <div class="hidden space-x-6 sm:-my-px sm:ml-10 sm:flex items-center">
-                    @php
-                        $user = Auth::user();
-                        $is_logged_in = Auth::check();
-                        $is_admin = $is_logged_in && $user->role === 'admin';
-                        $is_petani = $is_logged_in && $user->role === 'petani';
-                        $is_konsumen = $is_logged_in && $user->role === 'konsumen';
-                    @endphp
-
                     @unless ($is_admin)
                         <a href="{{ route('produk.index') }}" class="text-sm font-semibold text-gray-500 hover:text-green-600 transition-colors {{ request()->routeIs('produk.index') ? 'text-green-600' : '' }}">Marketplace</a>
                         <a href="{{ route('edukasi.index') }}" class="text-sm font-semibold text-gray-500 hover:text-green-600 transition-colors {{ request()->routeIs('edukasi.index') ? 'text-green-600' : '' }}">Edukasi</a>
@@ -92,13 +93,46 @@
     </div>
 
     {{-- Mobile Menu --}}
-    <div id="mobileMenu" class="hidden sm:hidden bg-white border-t border-gray-200">
+    <div id="mobileMenu" class="hidden sm:hidden bg-white border-t border-gray-200 max-h-[80vh] overflow-y-auto">
         <div class="pt-2 pb-3 space-y-1 px-4">
-            @unless ($is_admin)
+            {{-- MENU ADMIN KHUSUS MOBILE --}}
+            @if($is_admin)
+                <div class="pb-2 mb-2 border-b border-gray-100">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Menu Admin</span>
+                </div>
+                <a href="{{ route('admin.dashboard') }}" class="block py-2 text-base font-medium text-indigo-600 bg-indigo-50 rounded-lg px-2">Dashboard</a>
+                <a href="{{ route('admin.users.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-indigo-600 px-2">Kelola Akun</a>
+                <a href="{{ route('admin.konten-edukasi.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-indigo-600 px-2">Konten Edukasi</a>
+                <a href="{{ route('admin.kontak.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-indigo-600 px-2">Inbox Pesan</a>
+            @endif
+
+            {{-- MENU PETANI KHUSUS MOBILE --}}
+            @if($is_petani)
+                <div class="pb-2 mb-2 border-b border-gray-100 mt-2">
+                    <span class="text-xs font-bold text-gray-400 uppercase">Menu Petani</span>
+                </div>
+                <a href="{{ route('petani.dashboard') }}" class="block py-2 text-base font-medium text-green-600 bg-green-50 rounded-lg px-2">Dashboard</a>
+                <a href="{{ route('petani.produk.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600 px-2">Kelola Produk</a>
+                <a href="{{ route('petani.pesanan.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600 px-2">Pesanan Masuk</a>
+                <a href="{{ route('chat.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600 px-2">Chat</a>
+                {{-- Menu tambahan di bawah --}}
+                <a href="{{ route('produk.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600 px-2">Lihat Marketplace</a>
+                <a href="{{ route('edukasi.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600 px-2">Lihat Edukasi</a>
+            @endif
+
+            {{-- MENU UMUM (NON-ADMIN) --}}
+            @unless($is_admin || $is_petani)
                 <a href="{{ route('produk.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600">Marketplace</a>
                 <a href="{{ route('edukasi.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600">Edukasi</a>
+                @if($is_konsumen)
+                    <a href="{{ route('konsumen.pesanan.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600">Riwayat Pesanan</a>
+                    <a href="{{ route('chat.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600">Chat</a>
+                    <a href="{{ route('cart.index') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600">Keranjang</a>
+                @endif
             @endunless
             
+            <div class="border-t border-gray-100 my-2"></div>
+
             @if($is_logged_in)
                 <a href="{{ route('profile.edit') }}" class="block py-2 text-base font-medium text-gray-600 hover:text-green-600">Profil Saya</a>
                 <form method="POST" action="{{ route('logout') }}">
@@ -112,7 +146,7 @@
     </div>
 </nav>
 
-{{-- SCRIPT JS MANUAL (PENTING) --}}
+{{-- SCRIPT JS MANUAL --}}
 <script>
     // Desktop Dropdown
     const userBtn = document.getElementById('navUserBtn');

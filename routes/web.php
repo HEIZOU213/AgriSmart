@@ -111,9 +111,14 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
         Route::resource('konten-edukasi', AdminKontenEdukasi::class);
-        Route::resource('users', AdminUserController::class);
 
-        // [FIX 3] Rute Inbox dipindah ke sini (karena Admin yang baca)
+        // [KODE BARU] Rute Khusus Daftar Petani & Konsumen
+        Route::get('/users/petani', [AdminUserController::class, 'listPetani'])->name('users.petani');
+        Route::get('/users/konsumen', [AdminUserController::class, 'listKonsumen'])->name('users.konsumen');
+
+        // Resource Users (CRUD standar)
+        Route::resource('users', AdminUserController::class);
+        
         Route::get('/inbox', [KontakController::class, 'index'])->name('kontak.index');
         Route::delete('/inbox/{id}', [KontakController::class, 'destroy'])->name('kontak.destroy');
     });

@@ -1,10 +1,4 @@
 <x-admin-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Admin Dashboard') }}
-        </h2>
-    </x-slot>
-
     <div class="text-gray-900 dark:text-gray-100 space-y-6">
         
         {{-- Welcome Card dengan Gradient Modern --}}
