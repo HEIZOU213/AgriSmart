@@ -6,18 +6,47 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+    /**
+     * Halaman Utama: Pilihan Kategori Akun (Box Menu)
+     */
     public function index()
     {
-        // Admin melihat SEMUA user kecuali dirinya sendiri
-        $users = User::where('id', '!=', auth()->id())
-                     ->orderBy('id', 'desc')
-                     ->paginate(15);
-        
-        return view('admin.users.index', compact('users'));
+        // Hitung jumlah untuk ditampilkan di badge
+        $countPetani = User::where('role', 'petani')->count();
+        $countKonsumen = User::where('role', 'konsumen')->count();
+
+        return view('admin.users.index', compact('countPetani', 'countKonsumen'));
     }
+
+    /**
+     * Halaman Khusus Daftar Petani
+     */
+    public function listPetani()
+    {
+        $users = User::where('role', 'petani')->orderBy('created_at', 'desc')->paginate(12);
+        $title = 'Daftar Mitra Petani';
+        $roleType = 'petani'; // Untuk styling warna hijau
+        
+        return view('admin.users.list', compact('users', 'title', 'roleType'));
+    }
+
+    /**
+     * Halaman Khusus Daftar Konsumen
+     */
+    public function listKonsumen()
+    {
+        $users = User::where('role', 'konsumen')->orderBy('created_at', 'desc')->paginate(12);
+        $title = 'Daftar Konsumen';
+        $roleType = 'konsumen'; // Untuk styling warna kuning
+        
+        return view('admin.users.list', compact('users', 'title', 'roleType'));
+    }
+
+    // --- CRUD Functions (Create, Store, Edit, Update, Destroy) Tetap Sama ---
 
     public function create()
     {
@@ -26,27 +55,30 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // [FIXED] Validasi diubah dari 'nama' -> 'name'
         $request->validate([
-            'name' => 'required|string|max:255', 
+            'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
             'role' => 'required|in:admin,petani,konsumen',
         ]);
 
         User::create([
-            'name' => $request->name, // [FIXED] Diubah dari $request->nama
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
 
+        // Redirect kembali ke halaman list yang sesuai
+        if($request->role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Akun Petani berhasil dibuat.');
+        if($request->role == 'konsumen') return redirect()->route('admin.users.konsumen')->with('success', 'Akun Konsumen berhasil dibuat.');
+        
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil dibuat.');
     }
 
     public function show(string $id)
     {
-        return $this->edit($id); // Redirect ke halaman edit
+        return $this->edit($id);
     }
 
     public function edit(string $id)
@@ -62,15 +94,14 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // [FIXED] Validasi diubah dari 'nama' -> 'name'
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,'.$id,
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:8',
             'role' => 'required|in:admin,petani,konsumen',
         ]);
 
-        $user->name = $request->name; // [FIXED] Diubah dari $request->nama
+        $user->name = $request->name;
         $user->email = $request->email;
         $user->role = $request->role;
         
@@ -78,6 +109,10 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
         }
         $user->save();
+
+        // Redirect cerdas kembali ke list yang sesuai
+        if($user->role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Data Petani diperbarui.');
+        if($user->role == 'konsumen') return redirect()->route('admin.users.konsumen')->with('success', 'Data Konsumen diperbarui.');
 
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil diperbarui.');
     }
@@ -90,7 +125,12 @@ class UserController extends Controller
             abort(403, 'Anda tidak dapat menghapus akun Anda sendiri!');
         }
 
+        $role = $user->role; // Simpan role sebelum dihapus untuk redirect
         $user->delete();
+
+        if($role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Akun Petani dihapus.');
+        if($role == 'konsumen') return redirect()->route('admin.users.konsumen')->with('success', 'Akun Konsumen dihapus.');
+
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil dihapus.');
     }
 }
