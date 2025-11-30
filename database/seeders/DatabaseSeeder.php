@@ -23,8 +23,8 @@ class DatabaseSeeder extends Seeder
         // Kita buat manual agar tahu password-nya
         
         $adminUser = User::create([
-            'name' => 'Admin yanda',
-            'email' => 'yanda@gmail.com',
+            'name' => 'Admin',
+            'email' => 'admin@gmail.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'), // password = "password"
             'role' => 'admin',
@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $konsumenUser = User::create([
-            'name' => 'Konsumen Ani',
+            'name' => 'Konsumen',
             'email' => 'konsumen@gmail.com',
             'email_verified_at' => now(),
             'password' => Hash::make('password'), // password = "password"

@@ -135,6 +135,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('pesanan', KonsumenPesanan::class);
     });
 
+    Route::put('/pesanan/{id}/cancel', [KonsumenPesanan::class, 'cancel'])->name('konsumen.pesanan.cancel');
+
     // Checkout
     Route::middleware(['role:konsumen'])->group(function () {
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
