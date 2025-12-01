@@ -19,6 +19,7 @@ use App\Http\Controllers\KontakController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\KontenEdukasiController as AdminKontenEdukasi;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 
 // Petani
 use App\Http\Controllers\Petani\DashboardController as PetaniDashboard;
@@ -121,6 +122,8 @@ Route::middleware(['auth'])->group(function () {
         
         Route::get('/inbox', [KontakController::class, 'index'])->name('kontak.index');
         Route::delete('/inbox/{id}', [KontakController::class, 'destroy'])->name('kontak.destroy');
+
+        Route::resource('products', AdminProductController::class)->except(['create', 'store', 'show']);
     });
 
     // --- Petani Routes ---
