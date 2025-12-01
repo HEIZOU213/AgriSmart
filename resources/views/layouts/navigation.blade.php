@@ -26,11 +26,21 @@
 
                 {{-- Menu Desktop (Tengah) --}}
                 <div class="hidden space-x-6 sm:-my-px sm:ml-10 sm:flex items-center">
-                    {{-- Semua user (kecuali Admin/Petani yang sedang kerja) bisa lihat menu belanja --}}
-                    @if(!$is_admin && !$is_petani)
-                        <a href="{{ route('produk.index') }}" class="text-sm font-semibold text-gray-500 hover:text-green-600 transition-colors {{ request()->routeIs('produk.index') ? 'text-green-600' : '' }}">Marketplace</a>
-                        <a href="{{ route('edukasi.index') }}" class="text-sm font-semibold text-gray-500 hover:text-green-600 transition-colors {{ request()->routeIs('edukasi.index') ? 'text-green-600' : '' }}">Edukasi</a>
+                    
+                    {{-- [MODIFIKASI] Marketplace & Edukasi DIHAPUS --}}
+                    {{-- [MODIFIKASI] Fitur Konsumen DIPINDAHKAN KE SINI (HEADER) --}}
+                    @if($is_konsumen)
+                        <a href="{{ route('konsumen.pesanan.index') }}" class="text-sm font-semibold text-gray-500 hover:text-green-600 transition-colors {{ request()->routeIs('konsumen.pesanan.index') ? 'text-green-600' : '' }}">
+                            Riwayat Pesanan
+                        </a>
+                        <a href="{{ route('chat.index') }}" class="text-sm font-semibold text-gray-500 hover:text-green-600 transition-colors {{ request()->routeIs('chat.index') ? 'text-green-600' : '' }}">
+                            Chat / Pesan
+                        </a>
                     @endif
+
+                    <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-500 hover:text-green-600 transition-colors rounded-full hover:bg-green-50 group" title="Keranjang Belanja">
+                        <svg class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                    </a>
 
                     {{-- Jika Admin/Petani login, tampilkan tombol ke Dashboard mereka --}}
                     @auth
@@ -45,14 +55,6 @@
 
             {{-- Bagian Kanan: Keranjang & Profil --}}
             <div class="hidden sm:flex sm:items-center sm:ml-6 gap-4">
-                
-                {{-- Keranjang (Hanya untuk Konsumen/Tamu) --}}
-                @if(!$is_admin && !$is_petani)
-                    <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-500 hover:text-green-600 transition-colors rounded-full hover:bg-green-50 group" title="Keranjang Belanja">
-                        <svg class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                        {{-- Opsional: Badge jumlah item bisa ditambah di sini --}}
-                    </a>
-                @endif
 
                 @auth
                     {{-- User Dropdown --}}
@@ -81,17 +83,7 @@
                                 <p class="text-sm font-bold text-gray-900 truncate" title="{{ $user->email }}">{{ $user->email }}</p>
                             </div>
 
-                            {{-- [FITUR UTAMA KONSUMEN DIPINDAH KE SINI] --}}
-                            @if($is_konsumen)
-                                <a href="{{ route('konsumen.pesanan.index') }}" class="flex items-center gap-3 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition group">
-                                    <svg class="w-5 h-5 text-gray-400 group-hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                                    Riwayat Pesanan
-                                </a>
-                                <a href="{{ route('chat.index') }}" class="flex items-center gap-3 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition group">
-                                    <svg class="w-5 h-5 text-gray-400 group-hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                                    Chat / Pesan
-                                </a>
-                            @endif
+                            {{-- [MODIFIKASI] Fitur Konsumen DIHAPUS dari Dropdown (karena sudah pindah ke Header) --}}
 
                             {{-- Menu Profil Umum --}}
                             <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition group">
@@ -131,9 +123,10 @@
     <div id="mobileMenu" class="hidden sm:hidden bg-white border-t border-gray-200 absolute w-full left-0 top-16 z-40 shadow-xl max-h-[80vh] overflow-y-auto">
         <div class="p-4 space-y-1">
             
-            @if(!$is_admin && !$is_petani)
-                <a href="{{ route('produk.index') }}" class="block px-4 py-3 text-base font-medium text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg">Marketplace</a>
-                <a href="{{ route('edukasi.index') }}" class="block px-4 py-3 text-base font-medium text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg">Edukasi</a>
+            {{-- [MODIFIKASI] Menu Mobile: Marketplace/Edukasi dihapus, Konsumen dipindah ke atas --}}
+            @if($is_konsumen)
+                <a href="{{ route('konsumen.pesanan.index') }}" class="block px-4 py-3 text-base font-medium text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg">📦 Riwayat Pesanan</a>
+                <a href="{{ route('chat.index') }}" class="block px-4 py-3 text-base font-medium text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg">💬 Chat / Pesan</a>
             @endif
 
             @auth
@@ -149,11 +142,6 @@
                             <div class="text-xs text-gray-500">{{ $user->email }}</div>
                         </div>
                     </div>
-
-                    @if($is_konsumen)
-                        <a href="{{ route('konsumen.pesanan.index') }}" class="block px-4 py-3 font-bold text-green-700 bg-green-50 rounded-lg mb-1">📦 Riwayat Pesanan</a>
-                        <a href="{{ route('chat.index') }}" class="block px-4 py-3 font-bold text-green-700 bg-green-50 rounded-lg mb-1">💬 Chat / Pesan</a>
-                    @endif
 
                     @if($is_admin)
                          <a href="{{ route('admin.dashboard') }}" class="block px-4 py-3 font-bold text-white bg-indigo-600 rounded-lg mb-1">Admin Panel</a>
