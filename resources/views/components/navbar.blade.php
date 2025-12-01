@@ -2,11 +2,11 @@
 <nav x-data="{ mobileOpen: false, scrolled: false, dropdownOpen: false }"
     @scroll.window="scrolled = window.scrollY > 20"
     :class="scrolled ? 'bg-white shadow-md border-b border-gray-100' : 'bg-white border-b border-transparent'"
-    class="fixed inset-x-0 top-0 z-50 transition-all duration-500">
+    class="fixed inset-x-0 top-0 z-50 w-full transition-all duration-500">
 
     {{-- Container Responsif --}}
-    {{-- MODIFIKASI: Padding diperbesar (lg:px-12 xl:px-32) agar konten lebih rapat ke tengah --}}
-    <div class="container mx-auto px-4 sm:px-8 lg:px-12 xl:px-32 transition-all duration-300">
+    {{-- MODIFIKASI: Menggunakan max-w-7xl untuk konsistensi posisi di semua halaman & padding yang seimbang --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300">
         <div class="flex items-center justify-between h-16 lg:h-20">
 
             {{-- 1. Logo Section (Kiri) --}}
