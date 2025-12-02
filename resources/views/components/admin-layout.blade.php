@@ -24,10 +24,10 @@
         
         {{-- BAGIAN KIRI: LOGO --}}
         <div class="flex items-center gap-2">
-            <div class="bg-green-600 p-1 rounded-md">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
-            </div>
-            <span class="font-bold text-lg text-gray-800">AgriSmart <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full ml-1">Admin</span></span>
+            <a href="/" class="flex items-center gap-2 group relative shrink-0">
+                <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
+                    class="h-36 lg:h-40 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+            </a>
         </div>
 
         {{-- BAGIAN KANAN: User Menu + Hamburger --}}
@@ -112,7 +112,7 @@
                     Kelola Akun
                 </a>
 
-                <a href="{{ route('admin.products.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                <a href="{{ route('admin.products.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.products.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                     Kelola produk
                 </a>
 

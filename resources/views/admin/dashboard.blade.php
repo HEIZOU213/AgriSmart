@@ -8,7 +8,7 @@
                     Dashboard Overview
                 </p>
                 <h2 class="text-3xl font-bold text-gray-800 dark:text-white">
-                    Halo, {{ Auth::user()->nama }} <span class="text-2xl">🌱</span>
+                    {{ Auth::user()->nama }} <span class="text-2xl">🌱</span>
                 </h2>
                 <p class="text-gray-500 dark:text-gray-400 mt-1">
                     Ringkasan statistik ekosistem AgriSmart hari ini.

@@ -24,10 +24,10 @@
         
         {{-- Logo / Brand --}}
         <div class="flex items-center gap-2">
-            <div class="bg-green-600 p-1 rounded-md">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-            </div>
-            <span class="font-bold text-lg text-gray-800">AgriSmart <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full ml-2">Petani</span></span>
+            <a href="/" class="flex items-center gap-2 group relative shrink-0">
+                <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
+                    class="h-36 lg:h-40 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+            </a>
         </div>
 
         {{-- User Menu (Dropdown) --}}
