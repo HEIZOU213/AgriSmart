@@ -1,7 +1,11 @@
 <x-public-layout>
     
-    {{-- HERO SECTION KHUSUS MARKETPLACE --}}
-    <div class="relative bg-gray-900 py-20">
+    {{-- 
+       HERO SECTION KHUSUS MARKETPLACE
+       Note: Saya menambahkan class '-mt-20 lg:-mt-24' untuk menarik section ini ke atas
+       agar menutupi celah putih, dan menambah padding-top agar teks tidak tertutup navbar.
+    --}}
+    <div class="relative bg-gray-900 pt-32 pb-20 lg:pt-40 lg:pb-28 -mt-20 lg:-mt-24">
         {{-- Gambar Latar Belakang --}}
         <div class="absolute inset-0 overflow-hidden">
             <img src="https://images.unsplash.com/photo-1488459716781-31db52582fe9?q=80&w=2070&auto=format&fit=crop" alt="Marketplace Background" class="w-full h-full object-cover opacity-40">
