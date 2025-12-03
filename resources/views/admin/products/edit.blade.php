@@ -60,12 +60,12 @@
                 @if($product->foto_produk)
                     <img src="{{ asset('storage/' . $product->foto_produk) }}" class="h-20 w-20 object-cover rounded-lg mb-3 border">
                 @endif
-                <input type="file" name="foto_produk" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                <input type="file" name="foto_produk" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-indigo-100">
             </div>
 
             <div class="flex justify-end gap-4 pt-4">
                 <a href="{{ route('admin.products.index') }}" class="px-5 py-2.5 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition">Batal</a>
-                <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition">Simpan Perubahan</button>
+                <button type="submit" class="px-5 py-2.5 bg-green-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition">Simpan Perubahan</button>
             </div>
         </form>
     </div>

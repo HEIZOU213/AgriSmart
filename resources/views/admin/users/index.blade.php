@@ -33,16 +33,16 @@
             </a>
 
             {{-- KARTU KONSUMEN (AMBER) --}}
-            <a href="{{ route('admin.users.konsumen') }}" class="group relative bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-amber-100 h-64 flex flex-col justify-center items-center text-center cursor-pointer">
-                <div class="absolute inset-0 bg-gradient-to-br from-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <a href="{{ route('admin.users.konsumen') }}" class="group relative bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-green-100 h-64 flex flex-col justify-center items-center text-center cursor-pointer">
+                <div class="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 
                 <div class="relative z-10 group-hover:text-white transition-colors duration-300">
-                    <div class="w-20 h-20 mx-auto bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mb-4 group-hover:bg-white group-hover:text-amber-600 shadow-sm transition-all">
+                    <div class="w-20 h-20 mx-auto bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4 group-hover:bg-white group-hover:text-green-600 shadow-sm transition-all">
                         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                     </div>
                     <h3 class="text-2xl font-bold text-gray-800 group-hover:text-white">Akun Konsumen</h3>
-                    <p class="text-gray-500 mt-2 group-hover:text-amber-100">Kelola {{ $countKonsumen }} pembeli terdaftar</p>
-                    <span class="mt-4 inline-block text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-3 py-1 rounded-full group-hover:bg-white/20 group-hover:text-white transition-colors">
+                    <p class="text-gray-500 mt-2 group-hover:text-green-100">Kelola {{ $countKonsumen }} pembeli terdaftar</p>
+                    <span class="mt-4 inline-block text-xs font-bold uppercase tracking-wider text-green-600 bg-green-50 px-3 py-1 rounded-full group-hover:bg-white/20 group-hover:text-white transition-colors">
                         Lihat Daftar Pembeli
                     </span>
                 </div>
