@@ -6,83 +6,96 @@ use App\Http\Controllers\Controller;
 use App\Models\Pesanan;
 use App\Models\Produk;
 use App\Models\DetailPesanan;
+use App\Models\PesanOrder; // <--- WAJIB DITAMBAHKAN AGAR TIDAK ERROR DI FUNGSI SHOW
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PesananController extends Controller
 {
     /**
-     * Menampilkan daftar pesanan yang berisi produk milik petani ini.
+     * Menampilkan daftar pesanan yang berisi produk milik petani ini
+     * DENGAN FITUR FILTER (Produk & Tanggal).
      */
-    public function index()
+    public function index(Request $request)
     {
         $petaniId = Auth::id();
 
-        // 1. Dapatkan ID Produk yang dimiliki oleh petani yang login
-        $produkIds = Produk::where('user_id', $petaniId)->pluck('id');
+        // Query Dasar: Ambil Pesanan yang punya detail produk milik petani ini
+        $query = Pesanan::whereHas('detailPesanan.produk', function($q) use ($petaniId) {
+            $q->where('user_id', $petaniId);
+        });
 
-        // 2. Dapatkan ID Pesanan (Pesanan Masuk) yang mengandung produk tersebut
-        $pesananIds = DetailPesanan::whereIn('produk_id', $produkIds)
-                                    ->pluck('pesanan_id')
-                                    ->unique();
+        // --- FILTER 1: Cari Nama Produk ---
+        if ($request->filled('filter_produk')) {
+            $keyword = $request->filter_produk;
+            $query->whereHas('detailPesanan.produk', function($q) use ($keyword) {
+                $q->where('nama_produk', 'like', '%' . $keyword . '%');
+            });
+        }
 
-        // 3. Ambil data Pesanan utama
-        $pesananMasuk = Pesanan::whereIn('id', $pesananIds)
-                                ->with('user') // Ambil data konsumen
-                                ->orderBy('created_at', 'desc')
-                                ->paginate(10);
+        // --- FILTER 2: Cari Tanggal ---
+        if ($request->filled('filter_tanggal')) {
+            $query->whereDate('created_at', $request->filter_tanggal);
+        }
+
+        // --- FILTER 3: Status ---
+        if ($request->filled('filter_status')) {
+            $query->where('status', $request->filter_status);
+        }
+
+        // Eksekusi Data
+        // 'with(\'user\')' ini sudah benar untuk mengambil data nama pelanggan
+        $pesananMasuk = $query->with('user') 
+                              ->orderBy('created_at', 'desc')
+                              ->paginate(10)
+                              ->withQueryString(); 
                             
         return view('petani.pesanan.index', ['pesananMasuk' => $pesananMasuk]);
     }
 
     /**
-     * Menampilkan detail satu pesanan.
+     * Menampilkan detail pesanan
      */
-    // Di dalam Petani/PesananController.php
-
-public function show(string $id)
-{
-    // ... (Kode keamanan Anda tetap di sini) ...
-
-    $pesanan = Pesanan::where('id', $id)
+    public function show(string $id)
+    {
+        // Ambil data pesanan beserta user dan produknya
+        $pesanan = Pesanan::where('id', $id)
                       ->with(['user', 'detailPesanan.produk']) 
                       ->firstOrFail();
 
-    // [KODE BARU]
-    $pesanLog = \App\Models\PesanOrder::where('pesanan_id', $id)
-                                ->with('user') // Ambil data pengirim
+        // Ambil log pesan/chat (Pastikan Model PesanOrder sudah di-use di atas)
+        $pesanLog = PesanOrder::where('pesanan_id', $id)
+                                ->with('user') 
                                 ->orderBy('created_at', 'asc')
                                 ->get();
 
-    return view('petani.pesanan.show', [
-        'pesanan' => $pesanan,
-        'pesanLog' => $pesanLog // <-- Kirim pesan ke view
-    ]);
-}
+        return view('petani.pesanan.show', [
+            'pesanan' => $pesanan,
+            'pesanLog' => $pesanLog 
+        ]);
+    }
 
     /**
-     * Memperbarui status pesanan.
+     * Update Status Pesanan
      */
     public function update(Request $request, string $id)
     {
         $petaniId = Auth::id();
 
-        // 1. Cek Keamanan (sama seperti show)
+        // Cek apakah pesanan ini benar mengandung produk milik petani yang login
         $produkIds = Produk::where('user_id', $petaniId)->pluck('id');
         $orderHasPetaniProduct = DetailPesanan::where('pesanan_id', $id)
                                               ->whereIn('produk_id', $produkIds)
                                               ->exists();
         
         if (!$orderHasPetaniProduct) {
-            abort(403, 'Akses Dilarang.');
+            abort(403, 'Akses Dilarang. Anda tidak memiliki produk di pesanan ini.');
         }
         
-        // 2. Validasi status baru
         $request->validate([
             'status' => 'required|in:paid,shipping,done,cancelled',
         ]);
         
-        // 3. Update status pesanan
         $pesanan = Pesanan::findOrFail($id);
         $pesanan->status = $request->status;
         $pesanan->save();
@@ -90,8 +103,7 @@ public function show(string $id)
         return redirect()->route('petani.pesanan.show', $pesanan->id)
                          ->with('success', 'Status pesanan berhasil diperbarui menjadi ' . $request->status . '.');
     }
-    
-    // Metode 'create', 'store', 'edit', 'destroy' tidak digunakan oleh Petani
+
     public function create() { abort(404); }
     public function store(Request $request) { abort(404); }
     public function edit(string $id) { abort(404); }

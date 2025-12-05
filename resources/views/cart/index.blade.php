@@ -1,4 +1,4 @@
-<x-public-layout>
+<x-konsumen-layout>
     <div class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-extrabold text-gray-900 mb-8">Keranjang Belanja Anda</h1>
@@ -98,4 +98,4 @@
             </div>
         </div>
     </div>
-</x-public-layout>
+</x-konsumen-layout>
