@@ -502,13 +502,13 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-8">
                         @foreach($produk as $index => $item)
                             <div data-aos="fade-up" data-aos-delay="{{ $index * 100 }}"
-                                class="group bg-white rounded-3xl overflow-hidden shadow-lg shadow-green-900/5 border border-slate-100 hover:border-green-300 hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 hover:-translate-y-3">
+                                class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-green-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
 
                                 {{-- Image Container --}}
                                 <div class="relative aspect-square overflow-hidden bg-slate-50">
                                     @if($item->foto_produk)
                                         <img src="{{ asset('storage/' . $item->foto_produk) }}" alt="{{ $item->nama_produk }}"
-                                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center">
                                             <div class="text-center">
@@ -523,65 +523,77 @@
                                         </div>
                                     @endif
 
-                                    {{-- Overlay Gradient on Hover --}}
-                                    <div
-                                        class="absolute inset-0 bg-gradient-to-t from-green-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                    </div>
-
                                     {{-- Category Badge --}}
                                     <div
-                                        class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full text-[10px] font-bold text-green-700 shadow-sm border border-green-100 uppercase tracking-wider">
+                                        class="absolute top-3 right-3 bg-green-600 px-3 py-1 rounded-lg text-[10px] font-bold text-white shadow-md uppercase tracking-wide">
                                         {{ $item->kategori_produk ?? 'Umum' }}
                                     </div>
                                 </div>
 
                                 {{-- Content Area --}}
-                                <div class="p-5 lg:p-6">
+                                <div class="p-5 bg-white">
                                     {{-- Product Name --}}
                                     <h3
-                                        class="text-lg font-bold text-slate-900 mb-2 group-hover:text-green-600 transition-colors line-clamp-1">
+                                        class="text-lg font-bold text-slate-900 mb-3 line-clamp-1 group-hover:text-green-600 transition-colors">
                                         {{ $item->nama_produk }}
                                     </h3>
 
-                                    {{-- Description --}}
-                                    <p class="text-slate-500 text-sm mb-4 lg:mb-5 line-clamp-2 leading-relaxed h-10">
-                                        {{ $item->deskripsi ?? 'Produk segar berkualitas tinggi dari petani lokal' }}
-                                    </p>
+                                    {{-- Seller Info --}}
+                                    <div class="space-y-2 mb-4 pb-4 border-b border-slate-100">
+                                        <div class="flex items-start gap-2">
+                                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                                </path>
+                                            </svg>
+                                            <p class="text-xs font-medium text-slate-700 truncate">
+                                                {{ $item->user->name ?? 'Penjual' }}
+                                            </p>
+                                        </div>
+                                        <div class="flex items-start gap-2">
+                                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                                </path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                            <p class="text-xs text-slate-500 truncate">
+                                                {{ $item->user->alamat ?? 'Alamat tidak tersedia' }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {{-- Stock Info --}}
+                                    <div class="flex items-center justify-between mb-4 bg-slate-50 rounded-lg px-3 py-2">
+                                        <span class="text-xs text-slate-600 font-medium">Stok Tersedia</span>
+                                        <span
+                                            class="text-sm font-bold {{ ($item->stok ?? 0) > 0 ? 'text-green-600' : 'text-red-500' }}">
+                                            {{ $item->stok ?? 0 }} {{ $item->satuan ?? '' }}
+                                        </span>
+                                    </div>
 
                                     {{-- Price & Action Section --}}
-                                    <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-                                        <div class="flex flex-col">
-                                            <span
-                                                class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">Harga</span>
-                                            <span
-                                                class="text-xl font-extrabold text-slate-900 group-hover:text-green-600 transition-colors">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-xs text-slate-500 font-medium mb-1">Harga</p>
+                                            <p class="text-2xl font-bold text-slate-900">
                                                 Rp {{ number_format($item->harga, 0, ',', '.') }}
-                                            </span>
-                                            <span class="text-[10px] text-slate-400 font-medium mt-0.5">per
-                                                {{ $item->satuan ?? 'kg' }}</span>
+                                            </p>
+                                            <p class="text-xs text-slate-500 mt-0.5">per {{ $item->satuan ?? 'kg' }}</p>
                                         </div>
 
                                         {{-- Action Button --}}
                                         <a href="{{ route('produk.show', $item->id) }}"
-                                            class="relative w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-green-500/30 group/btn hover:scale-110">
-                                            <svg class="w-5 h-5 group-hover/btn:rotate-90 transition-transform duration-300"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                    d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                            class="flex-shrink-0 w-12 h-12 rounded-xl bg-green-600 hover:bg-green-700 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
+                                                </path>
                                             </svg>
                                         </a>
-                                    </div>
-
-                                    {{-- Stock Indicator --}}
-                                    <div class="mt-4 flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
-                                        <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Stok
-                                            Tersedia</span>
-                                        <div class="flex items-center gap-1.5">
-                                            <span
-                                                class="text-sm font-bold {{ ($item->stok ?? 0) > 0 ? 'text-green-700' : 'text-red-500' }}">
-                                                {{ $item->stok ?? 0 }} {{ $item->satuan ?? '' }}
-                                            </span>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
