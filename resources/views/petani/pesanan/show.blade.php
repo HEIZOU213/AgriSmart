@@ -6,7 +6,7 @@
             </h2>
             {{-- [TOMBOL BARU] Hubungi Pembeli --}}
             <a href="{{ route('chat.show', $pesanan->id) }}" 
-               class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+               class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
                 Hubungi Pembeli
             </a>
@@ -50,7 +50,7 @@
                             <option value="cancelled" {{ $pesanan->status == 'cancelled' ? 'selected' : '' }}>05. Cancelled (Dibatalkan)</option>
                         </select>
 
-                        <button type="submit" class="mt-4 w-full px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700">
+                        <button type="submit" class="mt-4 w-full px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
                             Konfirmasi Perubahan Status
                         </button>
                     </form>
@@ -64,7 +64,7 @@
                     <h3 class="text-lg font-semibold mb-3 border-b pb-2">Detail Pelanggan & Pengiriman</h3>
                     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
                         <dt class="text-sm font-medium text-gray-500">Nama Pelanggan</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $pesanan->user->nama }}</dd>
+                        <dd class="mt-1 text-sm text-gray-900">{{ $pesanan->user->name }}</dd>
                         <dt class="text-sm font-medium text-gray-500">Total Tagihan</dt>
                         <dd class="mt-1 text-sm font-bold text-gray-900">Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}</dd>
                         <dt class="text-sm font-medium text-gray-500">Alamat Kirim</dt>
