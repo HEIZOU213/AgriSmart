@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
-    {{-- Scripts (Tetap menggunakan Vite sesuai settingan awal Anda) --}}
+    {{-- Scripts --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -31,23 +31,28 @@
         {{-- 2. BAGIAN TENGAH/KANAN: MENU DESKTOP & USER --}}
         <div class="flex items-center gap-4">
             
-            {{-- Menu Navigasi Desktop (Hidden di Mobile) --}}
+            {{-- Menu Navigasi Desktop --}}
             <div class="hidden md:flex items-center gap-1 mr-2">
                 <a href="{{ route('konsumen.pesanan.index') }}" 
                    class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('konsumen.pesanan.*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                    Pesanan Saya
                 </a>
                 
-                {{-- Link Chat --}}
+                {{-- Link Chat Desktop --}}
                 <a href="{{ url('/chat') }}" 
-                   class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->is('chat*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                   class="relative px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->is('chat*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                    Pesan
+                   {{-- [REALTIME] Badge Chat Desktop --}}
+                   <span id="badge-chat-desktop" class="ml-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
                 </a>
             </div>
 
             {{-- Ikon Keranjang (Selalu Muncul) --}}
-            <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-500 hover:text-green-600 transition-colors">
+            <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-500 hover:text-green-600 transition-colors group">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                
+                {{-- [REALTIME] Badge Keranjang Desktop --}}
+                <span id="badge-cart-desktop" class="absolute top-0 right-0 -mt-1 -mr-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ring-2 ring-white hidden">0</span>
             </a>
 
             {{-- User Menu (Desktop Only) --}}
@@ -85,8 +90,11 @@
                 </div>
             </div>
 
-            {{-- [EDITED] Tombol Hamburger (Mobile Only) - ICON TEBAL --}}
-            <button id="mobileMenuBtn" class="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none transition-colors">
+            {{-- Tombol Hamburger (Mobile Only) --}}
+            <button id="mobileMenuBtn" class="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none transition-colors relative">
+                {{-- [REALTIME] Indikator Merah Hamburger --}}
+                <span id="badge-hamburger" class="absolute top-2 right-2 block h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white animate-pulse hidden"></span>
+                
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
@@ -129,14 +137,24 @@
                     Pesanan Saya
                 </a>
                 
-                <a href="{{ url('/chat') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->is('chat*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                    Pesan (Chat)
+                {{-- Link Chat Mobile --}}
+                <a href="{{ url('/chat') }}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->is('chat*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                        Pesan (Chat)
+                    </div>
+                    {{-- [REALTIME] Badge Chat Mobile --}}
+                    <span id="badge-chat-mobile" class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
                 </a>
 
-                <a href="{{ route('cart.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('cart.*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    Keranjang
+                {{-- Link Keranjang Mobile --}}
+                <a href="{{ route('cart.index') }}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('cart.*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Keranjang
+                    </div>
+                    {{-- [REALTIME] Badge Keranjang Mobile --}}
+                    <span id="badge-cart-mobile" class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full hidden">0</span>
                 </a>
             </nav>
 
@@ -164,7 +182,7 @@
     </main>
 
 
-    {{-- ================= SCRIPT JS (Sama seperti Admin Layout) ================= --}}
+    {{-- ================= SCRIPT JS REALTIME ================= --}}
     <script>
         // 1. Mobile Sidebar Logic
         const mobileBtn = document.getElementById('mobileMenuBtn');
@@ -196,6 +214,54 @@
                 }
             });
         }
+
+        // ==========================================
+        // 3. LOGIKA REALTIME NOTIFIKASI (KONSUMEN)
+        // ==========================================
+        function checkNotifications() {
+            fetch('/api/cek-notifikasi')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    // --- Update Badge Keranjang ---
+                    updateBadge('badge-cart-desktop', data.keranjang);
+                    updateBadge('badge-cart-mobile', data.keranjang);
+                    
+                    // --- Update Badge Chat ---
+                    updateBadge('badge-chat-desktop', data.chat);
+                    updateBadge('badge-chat-mobile', data.chat);
+
+                    // --- Update Indikator Hamburger (Jika ada notif chat/keranjang) ---
+                    const hamburgerBadge = document.getElementById('badge-hamburger');
+                    if (hamburgerBadge) {
+                        if (data.keranjang > 0 || data.chat > 0) {
+                            hamburgerBadge.classList.remove('hidden');
+                        } else {
+                            hamburgerBadge.classList.add('hidden');
+                        }
+                    }
+                })
+                .catch(error => console.error('Error checking notifications:', error));
+        }
+
+        // Fungsi Helper
+        function updateBadge(elementId, count) {
+            const badge = document.getElementById(elementId);
+            if (badge) {
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        // Jalankan saat load & interval 3 detik
+        document.addEventListener('DOMContentLoaded', checkNotifications);
+        setInterval(checkNotifications, 3000);
     </script>
 
 </body>

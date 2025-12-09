@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\KontenEdukasiController as AdminKontenEdukasi;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\AdminAuthController; // Pastikan controller ini ada
+use App\Http\Controllers\Admin\AdminController;
 
 // Petani
 use App\Http\Controllers\Petani\DashboardController as PetaniDashboard;
@@ -88,12 +89,15 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile/password', [CustomAuthController::class, 'updatePassword'])->name('password.update');
 
     // Fitur Chat & Pesan
+    Route::get('/api/cek-notifikasi', [ChatController::class, 'checkNotifications'])->name('api.notifikasi')->middleware('auth');
+
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
     Route::get('/api/chat/{id}/messages', [ChatController::class, 'getMessages'])->name('api.chat.messages');
     Route::post('/api/chat/{id}/send', [ChatController::class, 'sendMessage'])->name('api.chat.send');
     Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.destroy');
     Route::post('/pesan-order/{id}', [PesanOrderController::class, 'store'])->name('pesan.store');
+    
 
     // --- LOGIC REDIRECT DASHBOARD ---
     // Route ini menangani kemana user pergi setelah login/klik dashboard
@@ -127,6 +131,8 @@ Route::middleware(['auth'])->group(function () {
     // Kalau mau tetap 'admin', ubah prefix('master-control') jadi prefix('admin')
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         
+        Route::get('/admin/api/notifikasi', [AdminController::class, 'cekNotifikasi'])->name('admin.api.notifikasi');
+
         // Ini adalah route 'admin.dashboard' yang ASLI (Pakai Controller)
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard'); 
         
