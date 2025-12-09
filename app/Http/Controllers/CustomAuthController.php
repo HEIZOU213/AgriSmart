@@ -44,28 +44,51 @@ class CustomAuthController extends Controller
     }
 
     public function processLogin(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+{
+    // 1. Validasi Input
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
+    // 2. Coba Login (Cek Email & Password di Database)
+    $credentials = $request->only('email', 'password');
+    $remember = $request->has('remember'); // Ambil status checkbox "Ingat Saya"
+
+    if (Auth::attempt($credentials, $remember)) {
+        
+        // --- 🛡️ SATPAM (LOGIKA KEAMANAN TAMBAHAN) ---
+        
+        // Cek Role User yang baru saja login
+        $user = Auth::user();
+
+        // Jika ternyata dia adalah ADMIN
+        if ($user->role === 'admin') {
             
-            $role = Auth::user()->role;
-            if ($role === 'admin') return redirect()->route('admin.dashboard');
-            if ($role === 'petani') return redirect()->route('petani.dashboard');
-            
-            // Konsumen diarahkan ke Homepage (Beranda) sesuai permintaan terakhir
-            // (Atau bisa ganti ke 'produk.index' jika ingin ke marketplace)
-            return redirect()->route('homepage'); 
+            // TENDANG KELUAR (Logout Paksa)
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // Kembalikan ke form login dengan pesan error
+            return back()->withErrors([
+                'email' => 'Akun Admin DILARANG masuk lewat sini! Gunakan jalur khusus.',
+            ])->withInput(); // Biar emailnya tidak hilang
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+        // --- 🛡️ AKHIR LOGIKA SATPAM ---
+
+
+        // 3. Jika bukan Admin (Berarti Petani/Konsumen), izinkan lanjut
+        $request->session()->regenerate();
+        return redirect()->intended('/dashboard');
     }
+
+    // 4. Jika Email/Password Salah
+    return back()->withErrors([
+        'email' => 'Email atau password salah.',
+    ])->withInput();
+}
 
     // --- LOGOUT ---
     public function logout(Request $request)

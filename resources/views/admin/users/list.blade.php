@@ -30,7 +30,7 @@
 
         {{-- Setting Warna Tema --}}
         @php
-            $themeClass = ($roleType == 'petani') ? 'green' : 'amber';
+            $themeClass = ($roleType == 'petani') ? 'green' : 'green';
         @endphp
 
         {{-- TABEL LIST --}}

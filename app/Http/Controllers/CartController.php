@@ -71,7 +71,7 @@ class CartController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Produk berhasil disimpan ke keranjang (Database)!');
+        return redirect()->back()->with('success', 'Produk berhasil disimpan ke keranjang');
     }
 
     public function update(Request $request, $id)

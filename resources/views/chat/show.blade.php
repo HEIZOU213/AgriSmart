@@ -1,6 +1,6 @@
 @php
     // LOGIKA LAYOUT DINAMIS
-    $layout = 'public-layout'; // Default untuk Konsumen
+    $layout = 'konsumen-layout'; // Default untuk Konsumen
     
     if(Auth::user()->role === 'petani') {
         $layout = 'petani-layout';

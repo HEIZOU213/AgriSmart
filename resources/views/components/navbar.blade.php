@@ -3,6 +3,15 @@
     :class="scrolled ? 'bg-white shadow-md border-b border-green-100' : 'bg-white border-b border-transparent'"
     class="fixed inset-x-0 top-0 z-50 w-full transition-all duration-500">
 
+    {{-- [PERBAIKAN LOGIKA] Menghitung dari DATABASE Keranjang --}}
+    @php
+        $cartCount = 0;
+        if(Auth::check()) {
+            // Menghitung jumlah baris di tabel keranjang milik user yang login
+            $cartCount = \App\Models\Keranjang::where('user_id', Auth::id())->count();
+        }
+    @endphp
+
     {{-- Container Responsif --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300">
         <div class="flex items-center justify-between h-16 lg:h-20">
@@ -52,14 +61,25 @@
             <div class="flex-1 flex justify-end items-center gap-2 sm:gap-4">
 
                 {{-- Ikon Keranjang (Desktop) --}}
-                <a href="{{ Auth::check() ? route('cart.index') : route('login') }}"
-                    class="group relative p-2 text-slate-600 hover:text-green-700 transition-colors hidden sm:block mr-1">
-                    <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                </a>
+                @if(!Auth::check() || (Auth::check() && Auth::user()->role === 'konsumen'))
+                    <a href="{{ Auth::check() ? route('cart.index') : route('login') }}"
+                        class="group relative p-2 text-slate-600 hover:text-green-700 transition-colors hidden sm:block mr-1">
+                        
+                        {{-- Ikon SVG --}}
+                        <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+
+                        {{-- [BADGE NOTIFIKASI - LOGIKA DATABASE] --}}
+                        @if($cartCount > 0)
+                            <span class="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-md ring-2 ring-white transform transition-transform group-hover:scale-110">
+                                {{ $cartCount }}
+                            </span>
+                        @endif
+                    </a>
+                @endif
 
                 @auth
                     {{-- User Dropdown (Desktop Only) --}}
@@ -218,15 +238,26 @@
             @endforeach
 
             {{-- Link Keranjang (Mobile View) --}}
-            <a href="{{ Auth::check() ? route('cart.index') : route('login') }}" @click="mobileOpen = false"
-                class="flex items-center gap-4 py-3 px-4 text-base font-semibold text-slate-700 hover:text-green-700 hover:bg-green-50 rounded-xl transition-all duration-300 group">
-                <svg class="w-5 h-5 text-slate-500 group-hover:text-green-700 transition-colors" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <span class="group-hover:translate-x-1 transition-transform">Keranjang</span>
-            </a>
+            @if(!Auth::check() || (Auth::check() && Auth::user()->role === 'konsumen'))
+                <a href="{{ Auth::check() ? route('cart.index') : route('login') }}" @click="mobileOpen = false"
+                    class="flex items-center justify-between gap-4 py-3 px-4 text-base font-semibold text-slate-700 hover:text-green-700 hover:bg-green-50 rounded-xl transition-all duration-300 group">
+                    <div class="flex items-center gap-4">
+                        <svg class="w-5 h-5 text-slate-500 group-hover:text-green-700 transition-colors" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <span class="group-hover:translate-x-1 transition-transform">Keranjang</span>
+                    </div>
+                    
+                    {{-- Badge Mobile --}}
+                    @if($cartCount > 0)
+                        <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
+                            {{ $cartCount }}
+                        </span>
+                    @endif
+                </a>
+            @endif
 
             <div class="pt-6 border-t border-green-100 space-y-3 mt-4">
                 @auth

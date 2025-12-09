@@ -55,7 +55,7 @@
 
                 {{-- Tombol Aksi --}}
                 <div class="flex items-end gap-2">
-                    <button type="submit" class="px-6 py-2.5 bg-green-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition shadow-md">
+                    <button type="submit" class="px-6 py-2.5 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition shadow-md">
                         Terapkan
                     </button>
                     

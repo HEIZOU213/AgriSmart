@@ -66,8 +66,12 @@
             </div>
 
             {{-- [FIX] Tombol Hamburger (Mobile) - Dipindah ke Kanan --}}
-            <button id="mobileMenuBtn" class="md:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+            {{-- [EDITED] Tombol Hamburger (Mobile) - Di Kanan - ICON TEBAL --}}
+            <button id="mobileMenuBtn" class="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none transition-colors">
+                {{-- SVG Ikon Menu Tebal & Bulat --}}
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </button>
         </div>
     </nav>

@@ -42,7 +42,18 @@ class ChatController extends Controller
     // 2. Halaman Ruang Chat
     public function show($id)
     {
+        $userId = Auth::id();
+
+        // [LOGIKA BARU] "Tandai Sudah Dibaca" (Mark as Read)
+        // Update semua pesan di pesanan ini, yang BUKAN dikirim oleh saya (user yang login)
+        // Ubah is_read menjadi true (1)
+        PesanOrder::where('pesanan_id', $id)
+            ->where('user_id', '!=', $userId) // Hanya pesan lawan bicara
+            ->where('is_read', false)      // Yang belum dibaca saja
+            ->update(['is_read' => true]);
+
         $pesanan = Pesanan::findOrFail($id);
+        
         return view('chat.show', compact('pesanan'));
     }
 

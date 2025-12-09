@@ -20,6 +20,7 @@ class PesanOrder extends Model
         'pesanan_id',
         'user_id',
         'body',
+        'is_read',
     ];
 
     /**

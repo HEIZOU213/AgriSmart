@@ -2,7 +2,7 @@
   Checkout HANYA bisa diakses oleh user login, 
   jadi kita pakai layout 'app' (Breeze)
 --}}
-<x-app-layout>
+<x-konsumen-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Konfirmasi Checkout') }}
@@ -95,4 +95,4 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-konsumen-layout>
