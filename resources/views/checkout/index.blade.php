@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {{-- 
   Checkout HANYA bisa diakses oleh user login, 
   jadi kita pakai layout 'app' (Breeze)
@@ -8,6 +9,10 @@
             {{ __('Konfirmasi Checkout') }}
         </h2>
     </x-slot>
+=======
+
+<x-app-layout>
+>>>>>>> 3ecd8915b3fc8a4c1d96d1b58d227ae37aed1379
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
