@@ -526,7 +526,7 @@
                                     {{-- Category Badge --}}
                                     <div
                                         class="absolute top-3 right-3 bg-green-600 px-3 py-1 rounded-lg text-[10px] font-bold text-white shadow-md uppercase tracking-wide">
-                                        {{ $item->kategori_produk ?? 'Umum' }}
+                                        {{ $item->kategoriProduk->nama_kategori ?? 'Umum' }}
                                     </div>
                                 </div>
 
@@ -603,16 +603,13 @@
                     {{-- CTA Button --}}
                     <div class="mt-12 lg:mt-16 text-center" data-aos="fade-up">
                         <a href="{{ route('produk.index') }}"
-                            class="group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-green-600 text-white font-bold hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-green-600/30 hover:-translate-y-1 text-sm lg:text-base">
+                            class="group inline-flex items-center gap-2 px-8 lg:px-10 py-3 lg:py-4 rounded-full bg-green-600 text-white font-bold hover:bg-green-700 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1 text-sm lg:text-base">
                             <span>Lihat Semua Produk</span>
-                            <div
-                                class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </div>
+                            <svg class="w-4 h-4 lg:w-5 lg:h-5 group-hover:translate-x-1 transition-transform" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
                         </a>
                     </div>
 
@@ -746,7 +743,7 @@
                                                 <div class="flex items-center gap-3">
                                                     <span
                                                         class="px-2 py-1 lg:px-3 lg:py-1 bg-white/90 backdrop-blur-sm text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-full shadow-sm">
-                                                        Tips & Trik
+                                                        {{ $item->kategoriEdukasi->nama_kategori ?? 'Tips' }}
                                                     </span>
                                                     <span class="text-green-50 text-xs font-semibold tracking-wide">
                                                         {{ $item->created_at->format('d M Y') }}
@@ -786,9 +783,28 @@
                         @endforeach
                     </div>
                 @else
-                    <div
-                        class="text-center py-12 lg:py-20 bg-green-50 rounded-2xl lg:rounded-[2rem] border-2 border-dashed border-green-200 mx-4 sm:mx-0">
-                        <p class="text-green-600 font-bold text-base lg:text-lg">Belum ada artikel edukasi.</p>
+                    <div class="max-w-2xl mx-auto" data-aos="fade-up">
+                        <div class="text-center py-20 px-6 bg-white rounded-3xl border border-green-200">
+
+                            {{-- Icon --}}
+                            <div class="relative inline-flex mb-6">
+                                <div class="w-24 h-24 bg-green-50 rounded-2xl flex items-center justify-center">
+                                    <svg class="w-12 h-12 text-green-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                        </path>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            {{-- Text --}}
+                            <h3 class="text-2xl font-bold text-slate-900 mb-3">Konten Segera Hadir!</h3>
+                            <p class="text-slate-600 leading-relaxed max-w-md mx-auto mb-6">
+                                Kami sedang menyiapkan artikel edukatif berkualitas tinggi untuk meningkatkan pengetahuan
+                                pertanian Anda. Nantikan konten menarik dari kami segera!
+                            </p>
+                        </div>
                     </div>
                 @endif
 
@@ -907,21 +923,6 @@
         {{-- 7. CONTACT FORM SECTION --}}
         <section id="kontak" class="py-16 lg:py-24 relative bg-[#F0FDF4] overflow-hidden">
 
-            {{-- Background Pattern & Spiral Decoration (Cleaned Opacity) --}}
-            <div class="absolute inset-0 pointer-events-none">
-                <div
-                    class="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:20px_20px]">
-                </div>
-                <svg class="absolute -left-20 top-1/4 w-96 h-96 opacity-[0.02] animate-spin-slow" viewBox="0 0 100 100">
-                    <path d="M50,50 m-40,0 a40,40 0 1,0 80,0 a40,40 0 1,0 -80,0" fill="none" stroke="currentColor"
-                        stroke-width="2" />
-                    <path d="M50,50 m-30,0 a30,30 0 1,0 60,0 a30,30 0 1,0 -60,0" fill="none" stroke="currentColor"
-                        stroke-width="1.5" />
-                </svg>
-                <div class="absolute top-0 right-0 w-64 h-64 bg-green-200/20 rounded-full blur-3xl"></div>
-                <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-200/20 rounded-full blur-3xl"></div>
-            </div>
-
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 {{-- 1. HEADER SECTION --}}
@@ -949,25 +950,22 @@
                 </div>
 
                 {{-- CONTENT GRID --}}
-                {{-- Parent Grid: Hapus 'items-start' agar kolom kanan dan kiri tingginya sama (stretch) --}}
                 <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
 
                     {{-- LEFT SECTION: INFO & MAP --}}
-                    {{-- Tidak perlu ubahan di sini, biarkan konten ini menentukan tinggi minimal layout --}}
                     <div class="space-y-6" data-aos="fade-right">
 
-                        {{-- 1. Map / Image Section --}}
-                        <div
-                            class="relative w-full h-[350px] lg:h-[450px] rounded-3xl overflow-hidden shadow-lg border border-slate-100 group">
+                        {{-- 1. Image Section --}}
+                        <div class="relative w-full h-[350px] lg:h-[450px] overflow-hidden group">
                             <img src="images/hero3.png" alt="Lokasi Kami"
                                 class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-in-out">
                         </div>
 
                         {{-- Response Time Badge --}}
                         <div
-                            class="flex items-center gap-4 bg-white p-5 rounded-3xl border border-green-100 shadow-sm hover:shadow-md transition-all duration-300">
+                            class="flex items-center gap-4 bg-white p-5 rounded-3xl border border-green-100 transition-all duration-300">
                             <div
-                                class="w-11 h-11 bg-gradient-to-br from-green-50 to-green-100 rounded-full flex items-center justify-center text-green-600 flex-shrink-0">
+                                class="w-11 h-11 bg-green-50 rounded-full flex items-center justify-center text-green-600 flex-shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -982,10 +980,10 @@
                         <div class="grid sm:grid-cols-2 gap-4">
                             {{-- Email Card --}}
                             <a href="mailto:support@agrismart.id"
-                                class="group bg-white rounded-3xl p-5 border border-green-100 shadow-sm hover:shadow-xl hover:shadow-green-100/50 hover:border-green-300 hover:-translate-y-1 transition-all duration-300">
+                                class="group bg-white rounded-3xl p-5 border border-green-100 hover:border-green-300 hover:-translate-y-1 transition-all duration-300">
                                 <div class="flex items-center gap-4">
                                     <div
-                                        class="w-12 h-12 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl flex items-center justify-center text-green-600 group-hover:from-green-600 group-hover:to-green-700 group-hover:text-white transition-all duration-300">
+                                        class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -1004,10 +1002,10 @@
 
                             {{-- WhatsApp Card --}}
                             <a href="https://wa.me/6281234567890" target="_blank"
-                                class="group bg-white rounded-3xl p-5 border border-emerald-100 shadow-sm hover:shadow-xl hover:shadow-emerald-100/50 hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300">
+                                class="group bg-white rounded-3xl p-5 border border-green-100 hover:border-green-300 hover:-translate-y-1 transition-all duration-300">
                                 <div class="flex items-center gap-4">
                                     <div
-                                        class="w-12 h-12 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:from-emerald-600 group-hover:to-emerald-700 group-hover:text-white transition-all duration-300">
+                                        class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -1017,7 +1015,7 @@
                                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                                             WhatsApp</p>
                                         <p
-                                            class="font-bold text-slate-900 group-hover:text-emerald-600 transition-colors truncate">
+                                            class="font-bold text-slate-900 group-hover:text-green-600 transition-colors truncate">
                                             +62 812 3456 7890
                                         </p>
                                     </div>
@@ -1131,7 +1129,7 @@
 
                                 {{-- Submit Button --}}
                                 <button type="submit"
-                                    class="group w-full py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold rounded-2xl shadow-lg shadow-green-600/30 hover:shadow-xl hover:shadow-green-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2">
+                                    class="group w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2">
                                     <span>Kirim Pesan Sekarang</span>
                                     <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1152,9 +1150,6 @@
 
     <footer id="footer" class="bg-white border-t border-slate-100 pt-16 pb-8 font-sans relative overflow-hidden">
 
-        {{-- ==========================================
-        DEKORASI BACKGROUND (Dipertahankan)
-        ========================================== --}}
         <div
             class="absolute top-0 left-0 -translate-x-1/3 -translate-y-1/3 w-[500px] h-[500px] opacity-40 pointer-events-none">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">

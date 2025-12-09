@@ -30,6 +30,6 @@ class KontenEdukasi extends Model
      */
     public function kategoriEdukasi(): BelongsTo
     {
-        return $this->belongsTo(KategoriEdukasi::class);
+        return $this->belongsTo(KategoriEdukasi::class, 'kategori_edukasi_id');
     }
 }
