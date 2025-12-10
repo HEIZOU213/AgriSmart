@@ -6,12 +6,9 @@
     {{-- [LOGIKA] Menghitung dari DATABASE Keranjang --}}
     @php
         $cartCount = 0;
-<<<<<<< HEAD
         if (Auth::check()) {
             // Menghitung jumlah baris di tabel keranjang milik user yang login
-=======
-        if(Auth::check()) {
->>>>>>> 5019657d0b9e039a05ceb1c16236f76d57d93c75
+            // Pastikan Model Keranjang ada di App\Models\Keranjang
             $cartCount = \App\Models\Keranjang::where('user_id', Auth::id())->count();
         }
     @endphp

@@ -22,12 +22,8 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\KontenEdukasiController as AdminKontenEdukasi;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
-<<<<<<< HEAD
 use App\Http\Controllers\Admin\AdminAuthController;
-=======
-use App\Http\Controllers\Admin\AdminAuthController; // Pastikan controller ini ada
 use App\Http\Controllers\Admin\AdminController;
->>>>>>> 5019657d0b9e039a05ceb1c16236f76d57d93c75
 
 // Petani
 use App\Http\Controllers\Petani\DashboardController as PetaniDashboard;
@@ -52,7 +48,7 @@ Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
 Route::get('/produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
 
 // Form Kontak
-Route::get('/kontak', [KontakController::class, 'show'])->name('kontak.show'); // <--- DITAMBAHKAN (Untuk menampilkan halaman)
+Route::get('/kontak', [KontakController::class, 'show'])->name('kontak.show');
 Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
 
 // --- AUTHENTICATION (GUEST ONLY) ---
@@ -96,7 +92,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile/password', [CustomAuthController::class, 'updatePassword'])->name('password.update');
 
     // Fitur Chat & Pesan
-    Route::get('/api/cek-notifikasi', [ChatController::class, 'checkNotifications'])->name('api.notifikasi')->middleware('auth');
+    Route::get('/api/cek-notifikasi', [ChatController::class, 'checkNotifications'])->name('api.notifikasi');
 
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
@@ -135,11 +131,10 @@ Route::middleware(['auth'])->group(function () {
 
     // 1. ADMIN ROUTES
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-<<<<<<< HEAD
-=======
         
-        Route::get('/admin/api/notifikasi', [AdminController::class, 'cekNotifikasi'])->name('admin.api.notifikasi');
->>>>>>> 5019657d0b9e039a05ceb1c16236f76d57d93c75
+        // Perbaikan: Menghapus '/admin' di depan karena group sudah pakai prefix('admin')
+        // URL Hasil: /admin/api/notifikasi
+        Route::get('/api/notifikasi', [AdminController::class, 'cekNotifikasi'])->name('api.notifikasi');
 
         // Ini adalah route 'admin.dashboard' yang ASLI (Pakai Controller)
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
