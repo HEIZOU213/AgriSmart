@@ -1,18 +1,9 @@
-<<<<<<< HEAD
-{{-- 
-  Checkout HANYA bisa diakses oleh user login, 
-  jadi kita pakai layout 'app' (Breeze)
---}}
 <x-konsumen-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Konfirmasi Checkout') }}
         </h2>
     </x-slot>
-=======
-
-<x-app-layout>
->>>>>>> 3ecd8915b3fc8a4c1d96d1b58d227ae37aed1379
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -46,14 +37,12 @@
                                 
                                 <div>
                                     <label for="nama" class="block text-sm font-medium text-gray-700">Nama Penerima</label>
-                                    {{-- [PERUBAHAN]: Hapus readonly dan bg-gray-100 --}}
                                     <input type="text" id="nama" name="nama" value="{{ old('nama', $user->nama) }}" 
                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500">
                                 </div>
                                 
                                 <div>
                                     <label for="no_telepon" class="block text-sm font-medium text-gray-700">No. Telepon</label>
-                                    {{-- [PERUBAHAN]: Hapus readonly dan bg-gray-100 --}}
                                     <input type="text" id="no_telepon" name="no_telepon" value="{{ old('no_telepon', $user->no_telepon) }}" 
                                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500">
                                 </div>

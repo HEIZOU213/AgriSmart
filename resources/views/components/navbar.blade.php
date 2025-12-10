@@ -3,11 +3,15 @@
     :class="scrolled ? 'bg-white shadow-md border-b border-green-100' : 'bg-white border-b border-transparent'"
     class="fixed inset-x-0 top-0 z-50 w-full transition-all duration-500">
 
-    {{-- [PERBAIKAN LOGIKA] Menghitung dari DATABASE Keranjang --}}
+    {{-- [LOGIKA] Menghitung dari DATABASE Keranjang --}}
     @php
         $cartCount = 0;
+<<<<<<< HEAD
         if (Auth::check()) {
             // Menghitung jumlah baris di tabel keranjang milik user yang login
+=======
+        if(Auth::check()) {
+>>>>>>> 5019657d0b9e039a05ceb1c16236f76d57d93c75
             $cartCount = \App\Models\Keranjang::where('user_id', Auth::id())->count();
         }
     @endphp
@@ -72,7 +76,7 @@
                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
 
-                        {{-- [BADGE NOTIFIKASI - LOGIKA DATABASE] --}}
+                        {{-- [BADGE NOTIFIKASI] --}}
                         @if($cartCount > 0)
                             <span
                                 class="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-md ring-2 ring-white transform transition-transform group-hover:scale-110">
@@ -86,9 +90,19 @@
                     {{-- User Dropdown (Desktop Only) --}}
                     <div class="hidden lg:block relative" x-data="{ dropdownOpen: false }">
 
+                        {{-- [FIXED] Tombol Profil Utama --}}
                         <button @click="dropdownOpen = !dropdownOpen"
-                            class="relative flex items-center justify-center w-10 h-10 rounded-full bg-green-700 text-white font-bold text-lg hover:bg-green-800 hover:shadow-lg hover:shadow-green-100 border-2 border-transparent hover:border-green-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                            <span>{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                            class="relative flex items-center justify-center w-10 h-10 rounded-full {{ Auth::user()->foto_profil ? 'bg-transparent' : 'bg-green-700' }} text-white font-bold text-lg hover:shadow-lg hover:shadow-green-100 border-2 border-transparent hover:border-green-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 overflow-hidden">
+                            
+                            {{-- MENGGUNAKAN 'foto_profil' DAN PATH 'storage/profil/' --}}
+                            @if(Auth::user()->foto_profil)
+                                <img src="{{ asset('storage/profil/' . basename(Auth::user()->foto_profil)) }}" 
+                                     alt="Foto Profil" 
+                                     class="w-full h-full object-cover">
+                            @else
+                                <span>{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                            @endif
+
                         </button>
 
                         <div x-show="dropdownOpen" x-transition:enter="transition ease-out duration-200"
@@ -102,9 +116,15 @@
 
                             <div class="px-6 py-5 border-b border-green-50 bg-green-50/50">
                                 <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-green-700 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                    {{-- [FIXED] Foto di dalam Dropdown --}}
+                                    <div class="w-10 h-10 rounded-full {{ Auth::user()->foto_profil ? 'bg-transparent' : 'bg-green-700' }} text-white flex items-center justify-center font-bold text-lg shadow-sm overflow-hidden">
+                                        @if(Auth::user()->foto_profil)
+                                            <img src="{{ asset('storage/profil/' . basename(Auth::user()->foto_profil)) }}" 
+                                                 alt="Foto Profil" 
+                                                 class="w-full h-full object-cover">
+                                        @else
+                                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                                        @endif
                                     </div>
                                     <div class="overflow-hidden">
                                         <h4 class="font-bold text-slate-800 text-sm truncate">{{ Auth::user()->name }}</h4>

@@ -58,12 +58,18 @@ class PesananController extends Controller
      */
     public function show(string $id)
     {
-        // Ambil data pesanan beserta user dan produknya
+        // 1. Ambil data pesanan
         $pesanan = Pesanan::where('id', $id)
                       ->with(['user', 'detailPesanan.produk']) 
                       ->firstOrFail();
 
-        // Ambil log pesan/chat (Pastikan Model PesanOrder sudah di-use di atas)
+        // [LOGIKA BARU] TANDAI SEBAGAI SUDAH DILIHAT (Mark as Seen)
+        // Jika status masih pending DAN belum dilihat, ubah jadi dilihat.
+        if ($pesanan->status == 'pending' && $pesanan->is_seen == 0) {
+            $pesanan->update(['is_seen' => true]);
+        }
+
+        // 2. Ambil log pesan/chat
         $pesanLog = PesanOrder::where('pesanan_id', $id)
                                 ->with('user') 
                                 ->orderBy('created_at', 'asc')

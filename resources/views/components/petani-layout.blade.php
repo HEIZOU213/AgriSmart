@@ -18,50 +18,6 @@
     </style>
 </head>
 <body class="font-sans antialiased bg-gray-100">
-
-    {{-- [LOGIKA PHP NOTIFIKASI - DISESUAIKAN DENGAN CONTROLLER ANDA] --}}
-    @php
-        $notifPesanan = 0;
-        $notifChat = 0;
-
-        if(\Illuminate\Support\Facades\Auth::check()){
-            $petaniId = \Illuminate\Support\Facades\Auth::id();
-
-            // 1. HITUNG PESANAN MASUK (PENDING)
-            // Menggunakan logika DetailPesanan -> Produk milik Petani
-            try {
-                $notifPesanan = \App\Models\Pesanan::whereHas('detailPesanan.produk', function($q) use ($petaniId) {
-                    $q->where('user_id', $petaniId);
-                })
-                ->where('status', 'pending')
-                ->count();
-            } catch (\Exception $e) {
-                $notifPesanan = 0;
-            }
-
-            // 2. HITUNG CHAT MASUK
-            try {
-                // A. Ambil ID Produk milik Petani
-                $produkIds = \App\Models\Produk::where('user_id', $petaniId)->pluck('id');
-
-                // B. Ambil ID Pesanan yang terkait produk tersebut
-                $pesananIds = \App\Models\DetailPesanan::whereIn('produk_id', $produkIds)->pluck('pesanan_id');
-
-                // C. Hitung Pesan di tabel PesanOrder
-                // Syarat: 
-                // 1. Pesanan terkait produk petani
-                // 2. Pengirim BUKAN saya sendiri
-                // 3. Status BELUM DIBACA (is_read = 0/false) <--- INI KUNCINYA
-                $notifChat = \App\Models\PesanOrder::whereIn('pesanan_id', $pesananIds)
-                                ->where('user_id', '!=', $petaniId)
-                                ->where('is_read', false) // Hanya hitung yang belum dibaca
-                                ->count();
-
-            } catch (\Exception $e) {
-                $notifChat = 0;
-            }
-        }
-    @endphp
     
     {{-- NAVIGASI ATAS (FIXED) --}}
     <nav class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 md:px-6 shadow-sm">
@@ -112,10 +68,10 @@
             {{-- Tombol Hamburger (Mobile) - Di Kanan --}}
             <div class="relative">
                 <button id="mobileMenuBtn" class="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none transition-colors relative">
-                    {{-- Indikator Merah di Hamburger jika ada notif --}}
-                    @if($notifPesanan > 0 || $notifChat > 0)
-                        <span class="absolute top-2 right-2 block h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white animate-pulse"></span>
-                    @endif
+                    
+                    {{-- [REALTIME] Indikator Merah di Hamburger --}}
+                    {{-- Default hidden, akan dimunculkan oleh JS jika ada notif --}}
+                    <span id="badge-hamburger" class="absolute top-2 right-2 block h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white animate-pulse hidden"></span>
                     
                     {{-- SVG Ikon Menu --}}
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -173,9 +129,8 @@
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                         Pesanan Masuk
                     </div>
-                    @if($notifPesanan > 0)
-                        <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">{{ $notifPesanan }}</span>
-                    @endif
+                    {{-- [REALTIME] Badge Pesanan Mobile --}}
+                    <span id="badge-pesanan-mobile" class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm hidden">0</span>
                 </a>
 
                 {{-- Pesan / Chat (Mobile) --}}
@@ -184,9 +139,8 @@
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
                         Pesan
                     </div>
-                    @if($notifChat > 0)
-                        <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">{{ $notifChat }}</span>
-                    @endif
+                    {{-- [REALTIME] Badge Chat Mobile --}}
+                    <span id="badge-chat-mobile" class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm hidden">0</span>
                 </a>
                 
                 <div class="mt-4 mb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Akses Cepat</div>
@@ -244,10 +198,8 @@
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             Pesanan Masuk
                         </div>
-                        {{-- Badge Merah --}}
-                        @if($notifPesanan > 0)
-                            <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto shadow-sm">{{ $notifPesanan }}</span>
-                        @endif
+                        {{-- [REALTIME] Badge Pesanan Desktop --}}
+                        <span id="badge-pesanan-desktop" class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto shadow-sm hidden">0</span>
                     </a>
 
                     {{-- Pesan / Chat (Desktop) --}}
@@ -257,10 +209,8 @@
                             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
                             Pesan
                         </div>
-                        {{-- Badge Merah --}}
-                        @if($notifChat > 0)
-                            <span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto shadow-sm">{{ $notifChat }}</span>
-                        @endif
+                        {{-- [REALTIME] Badge Chat Desktop --}}
+                        <span id="badge-chat-desktop" class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto shadow-sm hidden">0</span>
                     </a>
 
                     <div class="my-4 border-t border-gray-100"></div>
@@ -298,9 +248,9 @@
     
     </div>
 
-    {{-- SCRIPT JS MANUAL --}}
+    {{-- SCRIPT JAVASCRIPT & AJAX POLLING --}}
     <script>
-        // 1. Mobile Sidebar Logic
+        // 1. Sidebar Logic (Mobile)
         const mobileBtn = document.getElementById('mobileMenuBtn');
         const closeMobileBtn = document.getElementById('closeMobileBtn');
         const mobileSidebar = document.getElementById('mobileSidebar');
@@ -330,6 +280,58 @@
                 }
             });
         }
+
+        // ==========================================
+        // 3. LOGIKA REALTIME NOTIFIKASI (AJAX POLLING)
+        // ==========================================
+        
+        // Fungsi untuk mengambil data dari server
+        function checkNotifications() {
+            fetch('/api/cek-notifikasi')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    // Update Badge Pesanan (Desktop & Mobile)
+                    updateBadge('badge-pesanan-desktop', data.pesanan);
+                    updateBadge('badge-pesanan-mobile', data.pesanan);
+                    
+                    // Update Badge Chat (Desktop & Mobile)
+                    updateBadge('badge-chat-desktop', data.chat);
+                    updateBadge('badge-chat-mobile', data.chat);
+
+                    // Update Indikator Hamburger (Mobile)
+                    const hamburgerBadge = document.getElementById('badge-hamburger');
+                    if (hamburgerBadge) {
+                        if (data.pesanan > 0 || data.chat > 0) {
+                            hamburgerBadge.classList.remove('hidden');
+                        } else {
+                            hamburgerBadge.classList.add('hidden');
+                        }
+                    }
+                })
+                .catch(error => console.error('Error checking notifications:', error));
+        }
+
+        // Fungsi Helper untuk Update UI Badge
+        function updateBadge(elementId, count) {
+            const badge = document.getElementById(elementId);
+            if (badge) {
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        // Jalankan saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', checkNotifications);
+
+        // Jalankan berulang setiap 3 detik (3000 ms)
+        setInterval(checkNotifications, 3000);
     </script>
 
 </body>

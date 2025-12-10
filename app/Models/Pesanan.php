@@ -13,10 +13,21 @@ class Pesanan extends Model
 
     /**
      * Menentukan nama tabel yang terkait dengan model.
-     *
-     * @var string
      */
-    protected $table = 'pesanan';
+    protected $table = 'pesanan'; // Pastikan nama tabel di database benar 'pesanan' atau 'pesanans'?
+
+    /**
+     * [PENTING] Daftar kolom yang boleh diisi/diupdate.
+     * Tanpa ini, fitur update 'is_seen' akan ERROR.
+     */
+    protected $fillable = [
+        'kode_pesanan',
+        'user_id',
+        'total_harga',
+        'status',
+        'bukti_pembayaran',
+        'is_seen', // <--- WAJIB ADA UNTUK NOTIFIKASI
+    ];
 
     /**
      * Relasi Many-to-One: Satu Pesanan dimiliki oleh satu User (Konsumen)
@@ -34,7 +45,9 @@ class Pesanan extends Model
         return $this->hasMany(DetailPesanan::class);
     }
 
-    // Tambahkan ini di dalam class Pesanan
+    /**
+     * Relasi ke Chat (PesanOrder)
+     */
     public function pesanOrders()
     {
         return $this->hasMany(PesanOrder::class);

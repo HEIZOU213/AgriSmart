@@ -93,4 +93,62 @@ class ChatController extends Controller
 
         return redirect()->route('chat.index')->with('success', 'Percakapan berhasil dihapus.');
     }
+
+    // 6. API untuk cek notifikasi realtime (Support Petani & Konsumen)
+    public function checkNotifications()
+    {
+        $user = Auth::user();
+        $data = [
+            'chat' => 0,
+            'pesanan' => 0,   // Khusus Petani
+            'keranjang' => 0  // Khusus Konsumen
+        ];
+
+        if ($user) {
+            // === LOGIKA UNTUK PETANI ===
+            if ($user->role === 'petani') {
+                $petaniId = $user->id;
+                
+                // 1. Pesanan Masuk
+                try {
+                    $data['pesanan'] = \App\Models\Pesanan::whereHas('detailPesanan.produk', function($q) use ($petaniId) {
+                        $q->where('user_id', $petaniId);
+                    })->where('status', 'pending')->where('is_seen', false)->count();
+                } catch (\Exception $e) {}
+
+                // 2. Chat Masuk (Produk Petani)
+                try {
+                    $produkIds = \App\Models\Produk::where('user_id', $petaniId)->pluck('id');
+                    $pesananIds = \App\Models\DetailPesanan::whereIn('produk_id', $produkIds)->pluck('pesanan_id');
+                    $data['chat'] = \App\Models\PesanOrder::whereIn('pesanan_id', $pesananIds)
+                                    ->where('user_id', '!=', $petaniId)
+                                    ->where('is_read', false)->count();
+                } catch (\Exception $e) {}
+            } 
+            
+            // === LOGIKA UNTUK KONSUMEN ===
+            elseif ($user->role === 'konsumen') {
+                $konsumenId = $user->id;
+
+                // 1. Hitung Isi Keranjang
+                try {
+                    // Pastikan Model Keranjang sudah diimport atau gunakan full path
+                    $data['keranjang'] = \App\Models\Keranjang::where('user_id', $konsumenId)->count();
+                } catch (\Exception $e) {}
+
+                // 2. Hitung Chat Masuk (Balasan dari Petani)
+                try {
+                    // Cari pesanan milik konsumen ini
+                    $pesananIds = \App\Models\Pesanan::where('user_id', $konsumenId)->pluck('id');
+                    
+                    // Hitung pesan di order tersebut yang BUKAN dari konsumen ini (artinya dari petani)
+                    $data['chat'] = \App\Models\PesanOrder::whereIn('pesanan_id', $pesananIds)
+                                    ->where('user_id', '!=', $konsumenId)
+                                    ->where('is_read', false)->count();
+                } catch (\Exception $e) {}
+            }
+        }
+
+        return response()->json($data);
+    }
 }

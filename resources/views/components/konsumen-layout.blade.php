@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,191 +12,231 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
 
-    {{-- Scripts (Tetap menggunakan Vite sesuai settingan awal Anda) --}}
+    {{-- Scripts --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    {{-- Pastikan Alpine.js dimuat (biasanya sudah include di app.js via Vite, jika belum tambahkan CDN ini) --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="font-sans antialiased bg-gray-50 text-slate-800">
 
-   {{-- NAVIGASI ATAS (FIXED) --}}
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 md:px-6 shadow-sm">
-        
-        {{-- BAGIAN KIRI: LOGO --}}
-        <div class="flex items-center gap-2">
-            <a href="/" class="flex items-center gap-2 group relative shrink-0">
-                <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
-                    class="h-36 lg:h-40 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
-            </a>
-        </div>
+    {{-- NAVIGASI ATAS (STYLE KODE 1 + LOGIKA KODE 2) --}}
+    <nav x-data="{ mobileOpen: false, scrolled: false, dropdownOpen: false }"
+        @scroll.window="scrolled = window.scrollY > 20"
+        :class="scrolled ? 'bg-white shadow-md border-b border-green-100' : 'bg-white border-b border-transparent'"
+        class="fixed inset-x-0 top-0 z-50 w-full transition-all duration-500">
 
-        {{-- 2. BAGIAN TENGAH/KANAN: MENU DESKTOP & USER --}}
-        <div class="flex items-center gap-4">
-            
-            {{-- Menu Navigasi Desktop (Hidden di Mobile) --}}
-            <div class="hidden md:flex items-center gap-1 mr-2">
-                <a href="{{ route('konsumen.pesanan.index') }}" 
-                   class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('konsumen.pesanan.*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                   Pesanan Saya
-                </a>
-                
-                {{-- Link Chat --}}
-                <a href="{{ url('/chat') }}" 
-                   class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->is('chat*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                   Pesan
+        {{-- Container Responsif --}}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300">
+            <div class="flex items-center justify-between h-16 lg:h-20">
+
+                {{-- 1. Logo Section --}}
+                <div class="flex-1 flex justify-start items-center">
+                <a href="/" class="flex items-center gap-2 group relative shrink-0">
+                    <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
+                        class="h-36 lg:h-36 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
                 </a>
             </div>
 
-            {{-- Ikon Keranjang (Selalu Muncul) --}}
-            <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-500 hover:text-green-600 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            </a>
+                {{-- 2. Desktop Menu (Gabungan Menu Umum & Konsumen) --}}
+                <div class="hidden lg:flex flex-none items-center justify-center gap-6">
+                    @php
+                        $navItems = [
+                            // Menu Khusus Konsumen dari Kode 2
+                            ['name' => 'Pesanan Saya', 'href' => route('konsumen.pesanan.index'), 'active' => request()->routeIs('konsumen.pesanan.*')],
+                        ];
+                    @endphp
 
-            {{-- User Menu (Desktop Only) --}}
-            <div class="relative hidden md:block">
-                <button id="userMenuBtn" class="flex items-center gap-2 focus:outline-none group">
-                    <div class="text-right">
-                        <p class="text-sm font-bold text-gray-800">{{ Auth::user()->name }}</p>
-                        <p class="text-xs text-gray-500 capitalize">Konsumen</p>
-                    </div>
-                    @if(Auth::user()->foto_profil)
-                        <img class="h-9 w-9 rounded-full object-cover ring-2 ring-gray-200 group-hover:ring-green-500 transition" src="{{ asset('storage/' . Auth::user()->foto_profil) }}">
-                    @else
-                        <div class="h-9 w-9 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold ring-2 ring-gray-200 group-hover:ring-green-500 transition">
-                            {{ substr(Auth::user()->name, 0, 1) }}
+                    @foreach($navItems as $item)
+                        <a href="{{ $item['href'] }}"
+                            class="relative px-3 py-2 rounded-lg font-semibold transition-all duration-300 group overflow-hidden {{ $item['active'] ? 'text-green-700' : 'text-slate-600 hover:text-green-700' }}">
+                            {{ $item['name'] }}
+                            <span class="absolute bottom-0 left-1/2 -translate-x-1/2 h-[2px] bg-green-600 transition-all duration-300 rounded-full {{ $item['active'] ? 'w-3/4' : 'w-0 group-hover:w-3/4' }}"></span>
+                        </a>
+                    @endforeach
+
+                    {{-- Link Chat Khusus --}}
+                    <a href="{{ url('/chat') }}"
+                        class="relative px-3 py-2 rounded-lg font-semibold transition-all duration-300 group {{ request()->is('chat*') ? 'text-green-700' : 'text-slate-600 hover:text-green-700' }}">
+                        Pesan
+                        {{-- ID Badge Chat Desktop (Untuk JS Realtime) --}}
+                        <span id="badge-chat-desktop" class="hidden absolute top-0 right-0 -mt-1 -mr-1 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">0</span>
+                    </a>
+                </div>
+
+                {{-- 3. Right Side (Cart & Profile) --}}
+                <div class="flex-1 flex justify-end items-center gap-2 sm:gap-4">
+
+                    {{-- Ikon Keranjang (Desktop) --}}
+                    <a href="{{ route('cart.index') }}"
+                        class="group relative p-2 text-slate-600 hover:text-green-700 transition-colors hidden sm:block mr-1">
+                        <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+
+                        {{-- ID Badge Keranjang Desktop (Untuk JS Realtime) --}}
+                        <span id="badge-cart-desktop" class="hidden absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-md ring-2 ring-white transform transition-transform group-hover:scale-110">
+                            0
+                        </span>
+                    </a>
+
+                    {{-- User Dropdown (Alpine.js) --}}
+                    <div class="hidden lg:block relative" x-data="{ dropdownOpen: false }">
+                        <button @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false"
+                            class="relative flex items-center justify-center w-10 h-10 rounded-full {{ Auth::user()->foto_profil ? 'bg-transparent' : 'bg-green-700' }} text-white font-bold text-lg hover:shadow-lg hover:shadow-green-100 border-2 border-transparent hover:border-green-200 transition-all duration-300 focus:outline-none overflow-hidden">
+                            
+                            @if(Auth::user()->foto_profil)
+                                <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}" alt="Profil" class="w-full h-full object-cover">
+                            @else
+                                <span>{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                            @endif
+                        </button>
+
+                        {{-- Dropdown Menu --}}
+                        <div x-show="dropdownOpen" 
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 translate-y-2"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 translate-y-2"
+                            class="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-green-100 overflow-hidden z-50"
+                            style="display: none;">
+
+                            <div class="px-6 py-4 border-b border-green-50 bg-green-50/50">
+                                <h4 class="font-bold text-slate-800 text-sm truncate">{{ Auth::user()->name }}</h4>
+                                <p class="text-xs text-slate-500 truncate">{{ Auth::user()->email }}</p>
+                            </div>
+
+                            <div class="p-2 space-y-1">
+                                <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-slate-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all">
+                                    Profil Saya
+                                </a>
+                                <a href="{{ route('konsumen.pesanan.index') }}" class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-slate-700 hover:text-green-700 hover:bg-green-50 rounded-lg transition-all">
+                                    Riwayat Pesanan
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="flex items-center gap-3 w-full px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                                        Keluar
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                    @endif
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
+                    </div>
 
-                {{-- Dropdown Content --}}
-                <div id="userMenuDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
-                    <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600">
-                        Profil Saya
+                    {{-- Mobile Toggle Button --}}
+                    <button @click="mobileOpen = !mobileOpen" class="lg:hidden p-2 text-slate-700 hover:text-green-700 transition-colors relative">
+                        {{-- ID Badge Hamburger (Indikator titik merah jika ada notif) --}}
+                        <span id="badge-hamburger" class="hidden absolute top-2 right-2 block h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white animate-pulse"></span>
+                        
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path x-show="!mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16" />
+                            <path x-show="mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- Mobile Menu (Dropdown Style Alpine) --}}
+        <div x-show="mobileOpen" 
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 -translate-y-4" 
+            x-transition:enter-end="opacity-100 translate-y-0"
+            @click.away="mobileOpen = false"
+            class="lg:hidden fixed inset-x-0 top-[64px] bg-white border-t border-green-100 shadow-xl z-40 max-h-[80vh] overflow-y-auto"
+            style="display: none;">
+
+            <div class="px-6 py-6 space-y-2">
+                @foreach($navItems as $item)
+                    <a href="{{ $item['href'] }}" @click="mobileOpen = false"
+                        class="block py-3 px-4 text-base font-semibold text-slate-700 hover:text-green-700 hover:bg-green-50 rounded-xl transition-all">
+                        {{ $item['name'] }}
                     </a>
-                    <a href="{{ route('konsumen.pesanan.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600">
-                        Riwayat Pesanan
-                    </a>
-                    <div class="border-t border-gray-100 my-1"></div>
+                @endforeach
+
+                {{-- Mobile Chat Link --}}
+                <a href="{{ url('/chat') }}" @click="mobileOpen = false"
+                    class="flex items-center justify-between py-3 px-4 text-base font-semibold text-slate-700 hover:text-green-700 hover:bg-green-50 rounded-xl transition-all">
+                    <span>Pesan / Chat</span>
+                    <span id="badge-chat-mobile" class="hidden bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
+                </a>
+
+                {{-- Mobile Cart Link --}}
+                <a href="{{ route('cart.index') }}" @click="mobileOpen = false"
+                    class="flex items-center justify-between py-3 px-4 text-base font-semibold text-slate-700 hover:text-green-700 hover:bg-green-50 rounded-xl transition-all">
+                    <span>Keranjang</span>
+                    <span id="badge-cart-mobile" class="hidden bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">0</span>
+                </a>
+
+                <div class="border-t border-gray-100 my-2 pt-2">
+                    <a href="{{ route('profile.edit') }}" class="block py-3 px-4 text-sm font-medium text-slate-600">Profil Saya</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                            Keluar
-                        </button>
+                        <button type="submit" class="block w-full text-left py-3 px-4 text-sm font-medium text-red-600">Keluar</button>
                     </form>
                 </div>
             </div>
-
-            {{-- [EDITED] Tombol Hamburger (Mobile Only) - ICON TEBAL --}}
-            <button id="mobileMenuBtn" class="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none transition-colors">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </button>
         </div>
     </nav>
 
-
-    {{-- ================= MENU MOBILE (DRAWER KANAN) ================= --}}
-    <div id="mobileMenuOverlay" class="hidden fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"></div>
-    
-    <div id="mobileSidebar" class="fixed top-0 right-0 w-72 h-full bg-white border-l border-gray-200 transform translate-x-full transition-transform duration-300 ease-in-out z-50 md:hidden overflow-y-auto">
-        
-        {{-- Header Sidebar Mobile --}}
-        <div class="p-6 bg-green-50 border-b border-green-100 flex items-center justify-between">
-             <div class="flex items-center gap-3">
-                @if(Auth::user()->foto_profil)
-                    <img class="h-10 w-10 rounded-full object-cover ring-2 ring-white" src="{{ asset('storage/' . Auth::user()->foto_profil) }}">
-                @else
-                    <div class="h-10 w-10 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-bold ring-2 ring-white">
-                        {{ substr(Auth::user()->name, 0, 1) }}
-                    </div>
-                @endif
-                <div>
-                    <div class="font-bold text-gray-900">{{ Auth::user()->name }}</div>
-                    <div class="text-xs text-green-600 font-medium">{{ Auth::user()->email }}</div>
-                </div>
-            </div>
-            <button id="closeMobileBtn" class="text-gray-500 hover:text-red-500">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-        </div>
-
-        {{-- Isi Menu Mobile --}}
-        <div class="p-6">
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Menu Konsumen</h3>
-            <nav class="space-y-1">
-                <a href="{{ route('konsumen.pesanan.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('konsumen.pesanan.*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                    Pesanan Saya
-                </a>
-                
-                <a href="{{ url('/chat') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->is('chat*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                    Pesan (Chat)
-                </a>
-
-                <a href="{{ route('cart.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('cart.*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    Keranjang
-                </a>
-            </nav>
-
-            <div class="my-6 border-t border-gray-100"></div>
-
-            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Akun</h3>
-            <nav class="space-y-1">
-                <a href="{{ route('profile.edit') }}" class="flex items-center px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors">
-                    Profil Saya
-                </a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                        Keluar
-                    </button>
-                </form>
-            </nav>
-        </div>
-    </div>
-
-
     {{-- ================= KONTEN UTAMA ================= --}}
-    <main class="pt-20 min-h-screen">
+    <main class="pt-20 lg:pt-24 min-h-screen">
         {{ $slot }}
     </main>
 
 
-    {{-- ================= SCRIPT JS (Sama seperti Admin Layout) ================= --}}
+    {{-- ================= SCRIPT JS REALTIME ================= --}}
+    {{-- Kita hanya perlu mengambil logika Fetch API-nya saja, --}}
+    {{-- karena Toggle Menu sudah ditangani oleh Alpine.js --}}
     <script>
-        // 1. Mobile Sidebar Logic
-        const mobileBtn = document.getElementById('mobileMenuBtn');
-        const closeMobileBtn = document.getElementById('closeMobileBtn');
-        const mobileSidebar = document.getElementById('mobileSidebar');
-        const mobileOverlay = document.getElementById('mobileMenuOverlay');
+        function checkNotifications() {
+            fetch('/api/cek-notifikasi')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    // --- Update Badge Keranjang ---
+                    updateBadge('badge-cart-desktop', data.keranjang);
+                    updateBadge('badge-cart-mobile', data.keranjang);
+                    
+                    // --- Update Badge Chat ---
+                    updateBadge('badge-chat-desktop', data.chat);
+                    updateBadge('badge-chat-mobile', data.chat);
 
-        function toggleMobileSidebar() {
-            mobileSidebar.classList.toggle('translate-x-full');
-            mobileOverlay.classList.toggle('hidden');
+                    // --- Update Indikator Hamburger (Jika ada notif chat/keranjang) ---
+                    const hamburgerBadge = document.getElementById('badge-hamburger');
+                    if (hamburgerBadge) {
+                        // Jika ada keranjang ATAU chat, nyalakan titik merah di menu mobile
+                        if (data.keranjang > 0 || data.chat > 0) {
+                            hamburgerBadge.classList.remove('hidden');
+                        } else {
+                            hamburgerBadge.classList.add('hidden');
+                        }
+                    }
+                })
+                .catch(error => console.error('Error checking notifications:', error)); // Silent error log
         }
 
-        if(mobileBtn) mobileBtn.addEventListener('click', toggleMobileSidebar);
-        if(closeMobileBtn) closeMobileBtn.addEventListener('click', toggleMobileSidebar);
-        if(mobileOverlay) mobileOverlay.addEventListener('click', toggleMobileSidebar);
-
-        // 2. Desktop Dropdown Logic
-        const userBtn = document.getElementById('userMenuBtn');
-        const userDropdown = document.getElementById('userMenuDropdown');
-
-        if(userBtn && userDropdown) {
-            userBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                userDropdown.classList.toggle('hidden');
-            });
-            document.addEventListener('click', (e) => {
-                if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
-                    userDropdown.classList.add('hidden');
+        // Fungsi Helper untuk toggle class hidden
+        function updateBadge(elementId, count) {
+            const badge = document.getElementById(elementId);
+            if (badge) {
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
                 }
-            });
+            }
         }
+
+        // Jalankan saat load & interval 3 detik
+        document.addEventListener('DOMContentLoaded', checkNotifications);
+        setInterval(checkNotifications, 3000);
     </script>
 
 </body>
