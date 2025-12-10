@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 // --- Impor Controller ---
 use App\Http\Controllers\CustomAuthController;
 use App\Http\Controllers\HomepageController;
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\EdukasiController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\CartController;
@@ -21,7 +22,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\KontenEdukasiController as AdminKontenEdukasi;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
-use App\Http\Controllers\Admin\AdminAuthController; // Pastikan controller ini ada
+use App\Http\Controllers\Admin\AdminAuthController;
 
 // Petani
 use App\Http\Controllers\Petani\DashboardController as PetaniDashboard;
@@ -39,12 +40,14 @@ use App\Http\Controllers\Konsumen\PesananController as KonsumenPesanan;
 
 // Halaman Publik (Bisa diakses siapa saja)
 Route::get('/', [HomepageController::class, 'index'])->name('homepage');
+Route::get('/tentang', [AboutController::class, 'index'])->name('tentang.index');
 Route::get('/edukasi', [EdukasiController::class, 'index'])->name('edukasi.index');
 Route::get('/edukasi/{slug}', [EdukasiController::class, 'show'])->name('edukasi.show');
 Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
 Route::get('/produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
 
 // Form Kontak
+Route::get('/kontak', [KontakController::class, 'show'])->name('kontak.show'); // <--- DITAMBAHKAN (Untuk menampilkan halaman)
 Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
 
 // --- AUTHENTICATION (GUEST ONLY) ---
@@ -123,19 +126,20 @@ Route::middleware(['auth'])->group(function () {
     // ====================================================
 
     // 1. ADMIN ROUTES
-    // Prefix saya ganti jadi 'master-control' biar konsisten dengan loginnya (OPSIONAL)
-    // Kalau mau tetap 'admin', ubah prefix('master-control') jadi prefix('admin')
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        
+
         // Ini adalah route 'admin.dashboard' yang ASLI (Pakai Controller)
-        Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard'); 
-        
+        Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+
         Route::resource('konten-edukasi', AdminKontenEdukasi::class);
         Route::get('/users/petani', [AdminUserController::class, 'listPetani'])->name('users.petani');
         Route::get('/users/konsumen', [AdminUserController::class, 'listKonsumen'])->name('users.konsumen');
         Route::resource('users', AdminUserController::class);
+
+        // Inbox Kontak (Admin)
         Route::get('/inbox', [KontakController::class, 'index'])->name('kontak.index');
         Route::delete('/inbox/{id}', [KontakController::class, 'destroy'])->name('kontak.destroy');
+
         Route::resource('products', AdminProductController::class)->except(['create', 'store', 'show']);
     });
 
@@ -151,7 +155,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('pesanan', KonsumenPesanan::class);
         // Checkout & Pembatalan
         Route::put('/pesanan/{id}/cancel', [KonsumenPesanan::class, 'cancel'])->name('pesanan.cancel');
-        Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index'); // Nama diperbaiki (konsumen.checkout.index)
+        Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     });
 

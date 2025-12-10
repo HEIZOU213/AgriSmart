@@ -147,13 +147,8 @@
                 <div class="text-center" data-aos="fade-up">
                     <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6">
                         Edukasi
-                        <span class="text-green-600 relative inline-block">
+                        <span class="text-green-600">
                             Pertanian Modern
-                            <svg class="absolute -bottom-2 left-0 w-full h-2" viewBox="0 0 100 10"
-                                preserveAspectRatio="none">
-                                <path d="M0 8 Q 50 0, 100 8" stroke="#10b981" stroke-width="2" fill="none"
-                                    opacity="0.3" />
-                            </svg>
                         </span>
                     </h2>
                     <p class="text-lg text-slate-600 max-w-2xl mx-auto">
@@ -195,8 +190,8 @@
                         @foreach($daftarEdukasi as $index => $item)
                             <article class="group" data-aos="fade-up" data-aos-delay="{{ $index * 50 }}">
                                 <a href="{{ route('edukasi.show', $item->slug) }}" class="block h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg 
-                                                                          transition-all duration-500 border border-green-100 hover:border-green-300 
-                                                                          hover:-translate-y-1">
+                                                                                  transition-all duration-500 border border-green-100 hover:border-green-300 
+                                                                                  hover:-translate-y-1">
 
                                     <div class="flex flex-col sm:flex-row h-full min-h-[280px]">
 
@@ -245,7 +240,7 @@
                                             <div class="mb-3">
                                                 <span
                                                     class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 
-                                                                                             text-green-600 text-xs font-medium uppercase tracking-wider rounded-lg border border-green-200">
+                                                                                                     text-green-600 text-xs font-medium uppercase tracking-wider rounded-lg border border-green-200">
                                                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                         <path
                                                             d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
@@ -257,7 +252,7 @@
                                             {{-- Title --}}
                                             <h3
                                                 class="text-xl font-bold text-slate-900 mb-3 line-clamp-2 
-                                                                                       group-hover:text-green-600 transition-colors duration-300 leading-tight">
+                                                                                               group-hover:text-green-600 transition-colors duration-300 leading-tight">
                                                 {{ $item->judul }}
                                             </h3>
 

@@ -6,7 +6,7 @@
     {{-- [PERBAIKAN LOGIKA] Menghitung dari DATABASE Keranjang --}}
     @php
         $cartCount = 0;
-        if(Auth::check()) {
+        if (Auth::check()) {
             // Menghitung jumlah baris di tabel keranjang milik user yang login
             $cartCount = \App\Models\Keranjang::where('user_id', Auth::id())->count();
         }
@@ -32,8 +32,8 @@
                         ['name' => 'Layanan', 'href' => '#layanan', 'icon' => 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
                         ['name' => 'Produk', 'href' => route('produk.index'), 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
                         ['name' => 'Edukasi', 'href' => route('edukasi.index'), 'icon' => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
-                        ['name' => 'Tentang', 'href' => '#tentang-kami', 'icon' => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
-                        ['name' => 'Kontak', 'href' => '#kontak', 'icon' => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
+                        ['name' => 'Tentang', 'href' => route('tentang.index'), 'active' => request()->routeIs('tentang.index'), 'icon' => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
+                        ['name' => 'Kontak', 'href' => route('kontak.show'), 'icon' => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
                     ];
                 @endphp
 
@@ -64,7 +64,7 @@
                 @if(!Auth::check() || (Auth::check() && Auth::user()->role === 'konsumen'))
                     <a href="{{ Auth::check() ? route('cart.index') : route('login') }}"
                         class="group relative p-2 text-slate-600 hover:text-green-700 transition-colors hidden sm:block mr-1">
-                        
+
                         {{-- Ikon SVG --}}
                         <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
@@ -74,7 +74,8 @@
 
                         {{-- [BADGE NOTIFIKASI - LOGIKA DATABASE] --}}
                         @if($cartCount > 0)
-                            <span class="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-md ring-2 ring-white transform transition-transform group-hover:scale-110">
+                            <span
+                                class="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-md ring-2 ring-white transform transition-transform group-hover:scale-110">
                                 {{ $cartCount }}
                             </span>
                         @endif
@@ -249,10 +250,11 @@
                         </svg>
                         <span class="group-hover:translate-x-1 transition-transform">Keranjang</span>
                     </div>
-                    
+
                     {{-- Badge Mobile --}}
                     @if($cartCount > 0)
-                        <span class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
+                        <span
+                            class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
                             {{ $cartCount }}
                         </span>
                     @endif

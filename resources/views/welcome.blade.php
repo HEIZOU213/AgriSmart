@@ -228,44 +228,6 @@
                     </div>
                 </div>
 
-                {{-- B. STATS BAR (INTEGRATED) --}}
-                <div class="border-t border-green-100/60 pt-8 lg:pt-12" data-aos="fade-up" data-aos-delay="200">
-                    <div
-                        class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-green-100">
-
-                        {{-- Item 1 --}}
-                        <div class="text-center px-4 py-4 md:py-2 group">
-                            <div
-                                class="text-4xl md:text-5xl font-black text-green-700 mb-1 tracking-tight group-hover:scale-110 transition-transform duration-300">
-                                99%
-                            </div>
-                            <div class="text-slate-800 font-bold text-lg leading-tight">Akurasi Data</div>
-                            <p class="text-slate-500 text-sm font-medium mt-1">Validasi sensor presisi tinggi</p>
-                        </div>
-
-                        {{-- Item 2 --}}
-                        <div class="text-center px-4 py-4 md:py-2 group">
-                            <div
-                                class="text-4xl md:text-5xl font-black text-green-700 mb-1 tracking-tight group-hover:scale-110 transition-transform duration-300">
-                                500+
-                            </div>
-                            <div class="text-slate-800 font-bold text-lg leading-tight">Petani Terbantu</div>
-                            <p class="text-slate-500 text-sm font-medium mt-1">Mitra aktif di seluruh Indonesia</p>
-                        </div>
-
-                        {{-- Item 3 --}}
-                        <div class="text-center px-4 py-4 md:py-2 group">
-                            <div
-                                class="text-4xl md:text-5xl font-black text-green-700 mb-1 tracking-tight group-hover:scale-110 transition-transform duration-300">
-                                24/7
-                            </div>
-                            <div class="text-slate-800 font-bold text-lg leading-tight">Realtime Monitor</div>
-                            <p class="text-slate-500 text-sm font-medium mt-1">Akses data kapan saja</p>
-                        </div>
-
-                    </div>
-                </div>
-
             </div>
         </section>
 
