@@ -1,5 +1,3 @@
-[file name]: kontak.blade.php
-[file content begin]
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 
