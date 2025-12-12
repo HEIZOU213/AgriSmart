@@ -16,6 +16,7 @@ use App\Http\Controllers\PesanOrderController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\KontakController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\OrderController;
 
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
@@ -155,7 +156,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:petani'])->prefix('petani')->name('petani.')->group(function () {
         Route::get('/dashboard', [PetaniDashboard::class, 'index'])->name('dashboard');
         Route::resource('produk', PetaniProduk::class);
-        Route::resource('pesanan', PetaniPesananController::class)->only(['index', 'show', 'update']);
+        Route::resource('pesanan', PetaniPesananController::class)->only(['index', 'show', 'update', 'destroy']);
     });
 
     // 3. KONSUMEN ROUTES
@@ -165,6 +166,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/pesanan/{id}/cancel', [KonsumenPesanan::class, 'cancel'])->name('pesanan.cancel');
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+        
     });
 
 });
