@@ -16,7 +16,30 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            
+            // --- MODIFIKASI KRITIS UNTUK OTENTIKASI & SOCIALITE ---
+            
+            // 1. Password dijadikan nullable
+            $table->string('password')->nullable(); 
+            
+            // 2. Kolom Socialite
+            $table->string('provider')->nullable(); 
+            $table->string('provider_id')->nullable()->index(); // ID unik dari penyedia
+            
+            // 3. Kolom Role
+            $table->string('role')->default('konsumen')->comment('admin, petani, konsumen');
+            
+            // --- KOLOM PROFIL TAMBAHAN ---
+            
+            // Mengganti 'avatar' menjadi 'foto_profil' agar konsisten
+            $table->string('foto_profil')->nullable(); 
+
+            // Tambahan detail profil
+            $table->string('no_telepon')->nullable();
+            $table->text('alamat')->nullable(); // Menggunakan text jika alamat panjang
+
+            // --- AKHIR MODIFIKASI ---
+
             $table->rememberToken();
             $table->timestamps();
         });

@@ -1,7 +1,5 @@
-[file name]: kontak.blade.php
-[file content begin]
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth overflow-x-hidden">
 
 <head>
     <meta charset="utf-8">
@@ -125,19 +123,19 @@
 </head>
 
 <body
-    class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
+    class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white overflow-x-hidden">
 
     {{-- NAVBAR --}}
     <x-navbar />
 
     {{-- MAIN CONTENT --}}
-    <main class="flex-1">
+    <main class="flex-1 w-full">
 
-        {{-- HERO SECTION (Mengikuti gaya halaman index) --}}
-        <section class="relative overflow-hidden pt-20 pb-12 lg:pt-28 lg:pb-16 bg-slate-50">
+        {{-- HERO SECTION --}}
+        <section class="relative overflow-hidden pt-24 pb-12 sm:pt-28 lg:pt-32 lg:pb-20 bg-slate-50">
             {{-- Background Spin Tengah --}}
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div class="w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-5">
+                <div class="w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] lg:w-[800px] lg:h-[800px] opacity-5">
                     <div class="w-full h-full animate-[spin_30s_linear_infinite]">
                         <img src="images/nav-logo.png" alt="Background Decorative" class="w-full h-full object-contain">
                     </div>
@@ -147,13 +145,14 @@
             {{-- Konten Utama --}}
             <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
                 <div class="text-center" data-aos="fade-up">
-                    <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6">
+                    <h2
+                        class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4 sm:mb-6 leading-tight">
                         Hubungi
                         <span class="text-green-600">
                             Kami
                         </span>
                     </h2>
-                    <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    <p class="text-base sm:text-lg text-slate-600 max-w-xl sm:max-w-2xl mx-auto px-2">
                         Kami siap membantu Anda dalam perjalanan pertanian cerdas. Hubungi tim AgriSmart untuk solusi
                         terbaik.
                     </p>
@@ -162,21 +161,25 @@
         </section>
 
         {{-- CONTACT CONTENT SECTION --}}
-        <section class="py-16 lg:py-24 relative bg-white overflow-hidden">
+        <section class="py-12 sm:py-16 lg:py-24 relative bg-white overflow-hidden">
 
             {{-- Modern Background Decorations --}}
             <div class="absolute inset-0 pointer-events-none overflow-hidden">
                 {{-- Clean Gradient Meshes --}}
                 <div
-                    class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-br from-green-50/20 via-green-50/10 to-transparent rounded-full blur-3xl">
+                    class="absolute top-0 left-1/2 -translate-x-1/2 w-[300px] sm:w-[800px] h-[400px] bg-gradient-to-br from-green-50/20 via-green-50/10 to-transparent rounded-full blur-3xl">
                 </div>
                 <div
-                    class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-green-50/15 to-transparent rounded-full blur-3xl translate-x-1/3 translate-y-1/3">
+                    class="absolute bottom-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-gradient-to-tl from-green-50/15 to-transparent rounded-full blur-3xl translate-x-1/3 translate-y-1/3">
                 </div>
 
                 {{-- Floating Elements --}}
-                <div class="absolute top-20 right-[10%] w-32 h-32 border border-green-100/20 rounded-full"></div>
-                <div class="absolute bottom-32 left-[8%] w-24 h-24 border border-green-100/20 rounded-full"></div>
+                <div
+                    class="absolute top-20 right-[5%] lg:right-[10%] w-20 sm:w-32 h-20 sm:h-32 border border-green-100/20 rounded-full hidden sm:block">
+                </div>
+                <div
+                    class="absolute bottom-32 left-[5%] lg:left-[8%] w-16 sm:w-24 h-16 sm:h-24 border border-green-100/20 rounded-full hidden sm:block">
+                </div>
 
                 {{-- Subtle Pattern --}}
                 <div class="absolute inset-0 opacity-[0.015]"
@@ -188,22 +191,22 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 {{-- CONTENT GRID --}}
-                <div class="grid lg:grid-cols-2 gap-12 lg:gap-16">
+                <div class="grid lg:grid-cols-2 gap-10 lg:gap-16">
 
                     {{-- LEFT SECTION: INFO & DETAILS --}}
-                    <div class="space-y-8" data-aos="fade-right">
+                    <div class="space-y-8 order-2 lg:order-1" data-aos="fade-right">
 
                         {{-- Header Section --}}
-                        <div>
+                        <div class="text-center lg:text-left">
                             <span
                                 class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 text-green-700 text-xs font-bold uppercase tracking-widest mb-4 border border-green-100">
                                 Informasi Kontak
                             </span>
                             <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4 leading-tight">
                                 Mari Berbicara Tentang
-                                <span class="text-green-600">Pertanian Masa Depan</span>
+                                <span class="text-green-600 block sm:inline">Pertanian Masa Depan</span>
                             </h2>
-                            <p class="text-slate-600 leading-relaxed">
+                            <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
                                 Tim AgriSmart siap mendukung Anda dalam setiap langkah menuju pertanian modern yang
                                 lebih efisien dan berkelanjutan.
                             </p>
@@ -211,132 +214,128 @@
 
                         {{-- Contact Info Cards --}}
                         <div class="space-y-6">
-                            {{-- Address Card --}}
-                            <div
-                                class="group bg-white rounded-2xl p-6 border border-green-100 hover:border-green-300 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md">
-                                <div class="flex items-start gap-4">
-                                    <div
-                                        class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-slate-900 text-lg mb-2">Kantor Pusat</h4>
-                                        <p class="text-slate-600 leading-relaxed">
-                                            Jl. Pertanian Modern No. 88,<br>
-                                            Jakarta Selatan, Indonesia 12560
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
                             {{-- Contact Channels --}}
                             <div class="grid sm:grid-cols-2 gap-4">
                                 {{-- Email Card --}}
                                 <a href="mailto:support@agrismart.id"
-                                    class="group bg-white rounded-2xl p-5 border border-green-100 hover:border-green-300 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md">
-                                    <div class="flex items-center gap-3">
+                                    class="group bg-white rounded-2xl p-4 sm:p-5 border border-green-100 hover:border-green-300 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md flex sm:block items-center sm:items-start gap-4 sm:gap-0">
+                                    <div class="flex items-center gap-3 mb-0 sm:mb-3">
                                         <div
-                                            class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
+                                            class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300 flex-shrink-0">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                             </svg>
                                         </div>
-                                        <div class="min-w-0 flex-1">
-                                            <p class="text-xs font-medium text-slate-500 mb-1">Email</p>
-                                            <p
-                                                class="font-semibold text-slate-900 group-hover:text-green-600 transition-colors truncate">
-                                                support@agrismart.id
-                                            </p>
+                                        <div class="block sm:hidden">
+                                            <p class="text-xs font-medium text-slate-500">Email</p>
                                         </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1 sm:mt-2">
+                                        <p class="hidden sm:block text-xs font-medium text-slate-500 mb-1">Email</p>
+                                        <p
+                                            class="font-semibold text-sm sm:text-base text-slate-900 group-hover:text-green-600 transition-colors truncate">
+                                            support@agrismart.id
+                                        </p>
                                     </div>
                                 </a>
 
                                 {{-- WhatsApp Card --}}
                                 <a href="https://wa.me/6281234567890" target="_blank"
-                                    class="group bg-white rounded-2xl p-5 border border-green-100 hover:border-green-300 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md">
-                                    <div class="flex items-center gap-3">
+                                    class="group bg-white rounded-2xl p-4 sm:p-5 border border-green-100 hover:border-green-300 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md flex sm:block items-center sm:items-start gap-4 sm:gap-0">
+                                    <div class="flex items-center gap-3 mb-0 sm:mb-3">
                                         <div
-                                            class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
+                                            class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300 flex-shrink-0">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
                                         </div>
-                                        <div class="min-w-0 flex-1">
-                                            <p class="text-xs font-medium text-slate-500 mb-1">WhatsApp</p>
-                                            <p
-                                                class="font-semibold text-slate-900 group-hover:text-green-600 transition-colors truncate">
-                                                +62 812 3456 7890
-                                            </p>
+                                        <div class="block sm:hidden">
+                                            <p class="text-xs font-medium text-slate-500">WhatsApp</p>
                                         </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1 sm:mt-2">
+                                        <p class="hidden sm:block text-xs font-medium text-slate-500 mb-1">WhatsApp</p>
+                                        <p
+                                            class="font-semibold text-sm sm:text-base text-slate-900 group-hover:text-green-600 transition-colors truncate">
+                                            +62 812 3456 7890
+                                        </p>
                                     </div>
                                 </a>
                             </div>
+                        </div>
 
-                            {{-- Office Hours --}}
-                            <div class="bg-green-50 rounded-2xl p-5 border border-green-100">
-                                <div class="flex items-start gap-3">
-                                    <svg class="w-6 h-6 text-green-600 mt-1 flex-shrink-0" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <div>
-                                        <h4 class="font-bold text-slate-900 text-lg mb-2">Jam Operasional</h4>
-                                        <div class="space-y-1 text-slate-600">
-                                            <p class="flex justify-between">
-                                                <span>Senin - Jumat:</span>
-                                                <span class="font-medium">08:00 - 17:00 WIB</span>
-                                            </p>
-                                            <p class="flex justify-between">
-                                                <span>Sabtu:</span>
-                                                <span class="font-medium">09:00 - 15:00 WIB</span>
-                                            </p>
-                                            <p class="flex justify-between">
-                                                <span>Minggu:</span>
-                                                <span class="font-medium text-red-500">Libur</span>
-                                            </p>
+                        {{-- Maps Section --}}
+                        <div class="mt-8">
+                            <h4 class="font-bold text-slate-900 mb-4 text-center lg:text-left">Lokasi Kami</h4>
+                            <div
+                                class="rounded-2xl overflow-hidden border border-green-100 hover:border-green-300 transition-all duration-300 shadow-sm hover:shadow-md">
+                                <div class="h-56 sm:h-64 relative">
+                                    {{-- Google Maps iframe --}}
+                                    <iframe
+                                        src="https://maps.google.com/maps?q=Politeknik%20Negeri%20Bengkalis&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+                                        referrerpolicy="no-referrer-when-downgrade" class="absolute inset-0">
+                                    </iframe>
+
+                                    {{-- Overlay dengan informasi --}}
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                                        <div class="flex items-center gap-2 text-white">
+                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            <span class="text-xs sm:text-sm font-medium leading-tight">Sungai Alam,
+                                                Bengkalis, Riau 28714</span>
+                                        </div>
+                                    </div>
+
+                                    {{-- Marker Pin --}}
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                                        <div
+                                            class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center animate-pulse">
+                                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- Response Time --}}
-                        <div class="flex items-center gap-3 bg-white p-4 rounded-xl border border-green-100">
-                            <svg class="w-10 h-10 text-green-500 flex-shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div>
-                                <p class="text-sm font-medium text-slate-700">
-                                    Respon cepat dalam <span class="text-green-600 font-bold">1x24 Jam</span>
-                                </p>
-                                <p class="text-xs text-slate-500">Untuk email dan WhatsApp</p>
-                            </div>
+                            {{-- Maps Note --}}
+                            <p
+                                class="text-xs text-slate-500 mt-3 flex items-center justify-center lg:justify-start gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Klik pada peta untuk melihat rute
+                            </p>
                         </div>
                     </div>
 
-                    {{-- RIGHT SECTION: CONTACT FORM (Form dari yang diberikan) --}}
-                    <div data-aos="fade-left" class="h-full">
-                        <div class="bg-white rounded-3xl p-8 lg:p-10 border border-green-50 shadow-xl h-full">
+                    {{-- RIGHT SECTION: CONTACT FORM --}}
+                    <div data-aos="fade-left" class="h-full order-1 lg:order-2">
+                        <div class="bg-white rounded-3xl p-6 sm:p-8 lg:p-10 border border-green-50 shadow-xl h-full">
 
                             {{-- Form Header --}}
-                            <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
+                            <div
+                                class="flex items-center justify-between mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-slate-100">
                                 <div>
-                                    <h4 class="text-2xl font-bold text-slate-900 mb-1">Kirim Pesan</h4>
+                                    <h4 class="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Kirim Pesan</h4>
                                     <p class="text-sm text-slate-500">Isi formulir untuk menghubungi kami</p>
                                 </div>
                                 <div
-                                    class="w-12 h-12 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl flex items-center justify-center text-green-600">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl flex items-center justify-center text-green-600">
+                                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
@@ -357,7 +356,7 @@
                             @endif
 
                             {{-- Form --}}
-                            <form action="{{ route('kontak.store') }}" method="POST" class="space-y-5">
+                            <form action="{{ route('kontak.store') }}" method="POST" class="space-y-4 sm:space-y-5">
                                 @csrf
 
                                 {{-- Full Name --}}
@@ -365,7 +364,7 @@
                                     <label class="block text-sm font-semibold text-slate-700 mb-2">Nama Lengkap</label>
                                     <div class="relative">
                                         <input type="text" name="nama" required
-                                            class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400"
+                                            class="w-full pl-11 pr-4 py-3 sm:py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400 text-sm sm:text-base"
                                             placeholder="Masukkan nama Anda">
                                         <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within:text-green-600 transition-colors"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -375,14 +374,14 @@
                                     </div>
                                 </div>
 
-                                <div class="grid md:grid-cols-2 gap-5">
+                                <div class="grid md:grid-cols-2 gap-4 sm:gap-5">
                                     {{-- WhatsApp Number --}}
                                     <div class="group">
                                         <label class="block text-sm font-semibold text-slate-700 mb-2">No.
                                             WhatsApp</label>
                                         <div class="relative">
                                             <input type="tel" name="no_hp" required
-                                                class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400"
+                                                class="w-full pl-11 pr-4 py-3 sm:py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400 text-sm sm:text-base"
                                                 placeholder="0812...">
                                             <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within:text-green-600 transition-colors"
                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -397,7 +396,7 @@
                                         <label class="block text-sm font-semibold text-slate-700 mb-2">Email</label>
                                         <div class="relative">
                                             <input type="email" name="email" required
-                                                class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400"
+                                                class="w-full pl-11 pr-4 py-3 sm:py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400 text-sm sm:text-base"
                                                 placeholder="nama@email.com">
                                             <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within:text-green-600 transition-colors"
                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -413,7 +412,7 @@
                                     <label class="block text-sm font-semibold text-slate-700 mb-2">Pesan Anda</label>
                                     <div class="relative">
                                         <textarea name="pesan" rows="4" required
-                                            class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium resize-none placeholder:text-slate-400"
+                                            class="w-full pl-11 pr-4 py-3 sm:py-3.5 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium resize-none placeholder:text-slate-400 text-sm sm:text-base"
                                             placeholder="Tuliskan pertanyaan atau kebutuhan Anda..."></textarea>
                                         <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-4 group-focus-within:text-green-600 transition-colors"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -425,7 +424,7 @@
 
                                 {{-- Submit Button --}}
                                 <button type="submit"
-                                    class="group w-full py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2">
+                                    class="group w-full py-3.5 sm:py-4 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base">
                                     <span>Kirim Pesan Sekarang</span>
                                     <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -442,8 +441,8 @@
                 </div>
 
                 {{-- FAQ Section --}}
-                <div class="mt-20 pt-16 border-t border-green-100" data-aos="fade-up">
-                    <div class="text-center max-w-3xl mx-auto mb-12">
+                <div class="mt-16 sm:mt-20 pt-12 sm:pt-16 border-t border-green-100" data-aos="fade-up">
+                    <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-12 px-4">
                         <span
                             class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 text-green-700 text-xs font-bold uppercase tracking-widest mb-4 border border-green-100">
                             Pertanyaan Umum
@@ -451,15 +450,16 @@
                         <h3 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-4">
                             Yang Sering Ditanyakan
                         </h3>
-                        <p class="text-slate-600">
+                        <p class="text-slate-600 text-sm sm:text-base">
                             Temukan jawaban untuk pertanyaan yang paling sering diajukan.
                         </p>
                     </div>
 
-                    <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                        {{-- FAQ Item 1 --}}
+                    <div class="grid md:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
+                        {{-- FAQ Items --}}
+                        {{-- Item 1 --}}
                         <div
-                            class="bg-white rounded-2xl p-6 border border-green-100 hover:border-green-300 transition-all duration-300">
+                            class="bg-white rounded-2xl p-5 sm:p-6 border border-green-100 hover:border-green-300 transition-all duration-300">
                             <div class="flex items-start gap-4">
                                 <div
                                     class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600 flex-shrink-0">
@@ -469,16 +469,18 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-slate-900 mb-2">Berapa lama waktu respon?</h4>
-                                    <p class="text-slate-600 text-sm">Kami berusaha merespon dalam 1x24 jam untuk email
+                                    <h4 class="font-bold text-slate-900 mb-2 text-sm sm:text-base">Berapa lama waktu
+                                        respon?</h4>
+                                    <p class="text-slate-600 text-xs sm:text-sm">Kami berusaha merespon dalam 1x24 jam
+                                        untuk email
                                         dan WhatsApp. Untuk konsultasi mendesak, silakan hubungi nomor WhatsApp.</p>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- FAQ Item 2 --}}
+                        {{-- Item 2 --}}
                         <div
-                            class="bg-white rounded-2xl p-6 border border-green-100 hover:border-green-300 transition-all duration-300">
+                            class="bg-white rounded-2xl p-5 sm:p-6 border border-green-100 hover:border-green-300 transition-all duration-300">
                             <div class="flex items-start gap-4">
                                 <div
                                     class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600 flex-shrink-0">
@@ -488,17 +490,19 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-slate-900 mb-2">Apakah tersedia konsultasi langsung?</h4>
-                                    <p class="text-slate-600 text-sm">Ya, kami menyediakan konsultasi langsung melalui
+                                    <h4 class="font-bold text-slate-900 mb-2 text-sm sm:text-base">Apakah tersedia
+                                        konsultasi langsung?</h4>
+                                    <p class="text-slate-600 text-xs sm:text-sm">Ya, kami menyediakan konsultasi
+                                        langsung melalui
                                         WhatsApp dan email. Untuk pertemuan offline, silakan hubungi kami untuk janji
                                         temu.</p>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- FAQ Item 3 --}}
+                        {{-- Item 3 --}}
                         <div
-                            class="bg-white rounded-2xl p-6 border border-green-100 hover:border-green-300 transition-all duration-300">
+                            class="bg-white rounded-2xl p-5 sm:p-6 border border-green-100 hover:border-green-300 transition-all duration-300">
                             <div class="flex items-start gap-4">
                                 <div
                                     class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600 flex-shrink-0">
@@ -508,17 +512,18 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-slate-900 mb-2">Bagaimana cara menjadi mitra AgriSmart?
-                                    </h4>
-                                    <p class="text-slate-600 text-sm">Silakan kirim email ke partnership@agrismart.id
+                                    <h4 class="font-bold text-slate-900 mb-2 text-sm sm:text-base">Bagaimana cara
+                                        menjadi mitra?</h4>
+                                    <p class="text-slate-600 text-xs sm:text-sm">Silakan kirim email ke
+                                        partnership@agrismart.id
                                         dengan proposal kerjasama atau hubungi kami melalui formulir di atas.</p>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- FAQ Item 4 --}}
+                        {{-- Item 4 --}}
                         <div
-                            class="bg-white rounded-2xl p-6 border border-green-100 hover:border-green-300 transition-all duration-300">
+                            class="bg-white rounded-2xl p-5 sm:p-6 border border-green-100 hover:border-green-300 transition-all duration-300">
                             <div class="flex items-start gap-4">
                                 <div
                                     class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center text-green-600 flex-shrink-0">
@@ -528,8 +533,10 @@
                                     </svg>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-slate-900 mb-2">Apakah ada biaya konsultasi?</h4>
-                                    <p class="text-slate-600 text-sm">Konsultasi awal gratis untuk semua klien. Untuk
+                                    <h4 class="font-bold text-slate-900 mb-2 text-sm sm:text-base">Apakah ada biaya
+                                        konsultasi?</h4>
+                                    <p class="text-slate-600 text-xs sm:text-sm">Konsultasi awal gratis untuk semua
+                                        klien. Untuk
                                         konsultasi mendalam dan teknis, mungkin ada biaya tergantung kompleksitas.</p>
                                 </div>
                             </div>
@@ -541,12 +548,13 @@
         </section>
     </main>
 
-    {{-- FOOTER (Mengikuti halaman index) --}}
-    <footer id="footer" class="bg-white border-t border-slate-100 pt-16 pb-8 font-sans relative overflow-hidden">
+    {{-- FOOTER --}}
+    <footer id="footer"
+        class="bg-white border-t border-slate-100 pt-12 sm:pt-16 pb-8 font-sans relative overflow-hidden">
 
         {{-- DEKORASI BACKGROUND --}}
         <div
-            class="absolute top-0 left-0 -translate-x-1/3 -translate-y-1/3 w-[500px] h-[500px] opacity-40 pointer-events-none">
+            class="absolute top-0 left-0 -translate-x-1/3 -translate-y-1/3 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] opacity-40 pointer-events-none">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                 <path fill="#DCFCE7"
                     d="M47.5,-57.2C59.6,-46.3,66.4,-28.9,65.6,-12.9C64.8,3.1,56.3,17.7,46.2,29.9C36.1,42.1,24.3,51.9,10.6,56.7C-3.1,61.5,-18.8,61.3,-31.2,54.1C-43.7,46.9,-53,32.7,-57.3,17.6C-61.6,2.5,-60.9,-13.5,-53.4,-26.8C-45.9,-40.1,-31.6,-50.7,-17.1,-54.2C-2.6,-57.7,12,-54.1,25.4,-50.4L47.5,-57.2Z"
@@ -554,7 +562,7 @@
             </svg>
         </div>
         <div
-            class="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 w-[600px] h-[600px] opacity-30 pointer-events-none">
+            class="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] opacity-30 pointer-events-none">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                 <path fill="#F0FDF4"
                     d="M41.4,-70.3C52.6,-62.7,60.2,-49.6,67.3,-36.1C74.3,-22.6,80.8,-8.7,78.9,4.2C77,17.1,66.7,29,56.5,38.9C46.3,48.8,36.2,56.7,24.8,62.2C13.4,67.7,0.7,70.8,-11.2,69.5C-23.1,68.2,-34.2,62.5,-44.7,54.6C-55.2,46.7,-65.1,36.6,-70.6,24.2C-76.1,11.8,-77.2,-2.9,-71.9,-15.2C-66.6,-27.5,-54.9,-37.4,-43,-44.8C-31.1,-52.2,-19,-57.1,-6.3,-58.5C6.4,-59.9,20,-77.9,41.4,-70.3Z"
@@ -563,15 +571,15 @@
         </div>
 
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 mb-16 items-start">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 mb-12 sm:mb-16 items-start">
 
                 {{-- 1. Brand Column (Lebar: 5 Kolom) --}}
                 <div class="lg:col-span-5">
                     <a href="/" class="inline-block mb-6">
                         <img src="{{ asset('images/logo2.png') }}" alt="AgriSmart Logo"
-                            class="h-16 lg:h-20 w-auto object-contain">
+                            class="h-14 sm:h-16 lg:h-20 w-auto object-contain">
                     </a>
-                    <p class="text-slate-500 leading-relaxed mb-8 pr-0 lg:pr-12">
+                    <p class="text-slate-500 leading-relaxed mb-8 pr-0 lg:pr-12 text-sm sm:text-base">
                         Platform digital terintegrasi untuk pertanian cerdas. Solusi IoT inovatif untuk masa depan
                         pangan Indonesia yang berkelanjutan.
                     </p>
@@ -580,7 +588,6 @@
                             <a href="#"
                                 class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-500 border border-slate-100 transition-all duration-300 hover:bg-green-600 hover:text-white hover:scale-110 hover:shadow-lg group">
                                 <span class="sr-only">{{ ucfirst($social) }}</span>
-                                {{-- Menggunakan SVG spesifik dari kode lama Anda --}}
                                 @if($social == 'facebook')
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                         <path
@@ -604,8 +611,8 @@
 
                 {{-- 2. Menu Utama Column (Lebar: 2 Kolom) --}}
                 <div class="lg:col-span-2">
-                    <h5 class="font-bold text-slate-900 mb-6">Menu Utama</h5>
-                    <ul class="space-y-4">
+                    <h5 class="font-bold text-slate-900 mb-4 sm:mb-6">Menu Utama</h5>
+                    <ul class="space-y-3 sm:space-y-4">
                         @foreach(['Beranda' => '/', 'Tentang Kami' => '#tentang-kami', 'Layanan' => '#layanan', 'Produk' => route('produk.index'), 'Kontak' => '#kontak'] as $label => $link)
                             <li>
                                 <a href="{{ $link }}"
@@ -619,8 +626,8 @@
 
                 {{-- 3. Layanan Column (Lebar: 2 Kolom) --}}
                 <div class="lg:col-span-2">
-                    <h5 class="font-bold text-slate-900 mb-6">Layanan</h5>
-                    <ul class="space-y-4">
+                    <h5 class="font-bold text-slate-900 mb-4 sm:mb-6">Layanan</h5>
+                    <ul class="space-y-3 sm:space-y-4">
                         @foreach(['Konsultasi Tani' => '#', 'Marketplace Panen' => '#', 'Monitoring IoT' => '#', 'Edukasi & Pelatihan' => route('edukasi.index')] as $label => $link)
                             <li>
                                 <a href="{{ $link }}"
@@ -634,8 +641,8 @@
 
                 {{-- 4. Hubungi Kami Column (Lebar: 3 Kolom) --}}
                 <div class="lg:col-span-3">
-                    <h5 class="font-bold text-slate-900 mb-6">Hubungi Kami</h5>
-                    <div class="space-y-5">
+                    <h5 class="font-bold text-slate-900 mb-4 sm:mb-6">Hubungi Kami</h5>
+                    <div class="space-y-4 sm:space-y-5">
                         {{-- Address --}}
                         <div class="flex items-start gap-3">
                             <svg class="w-5 h-5 text-green-600 mt-0.5 shrink-0" fill="none" stroke="currentColor"
@@ -682,8 +689,8 @@
 
             {{-- Copyright & Legal --}}
             <div class="border-t border-slate-100 pt-8 flex flex-col justify-center items-center gap-4">
-                <p class="text-sm text-slate-500 text-center">
-                    &copy; {{ date('Y') }} <span class="text-green-600 font-bold">AgriSmart</span>. All Rights Reserved.
+                <p class="text-xs sm:text-sm text-slate-500 text-center">
+                    © {{ date('Y') }} <span class="text-green-600 font-bold">AgriSmart</span>. All Rights Reserved.
                 </p>
             </div>
         </div>

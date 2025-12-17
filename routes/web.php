@@ -4,6 +4,11 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
+// --- Impor Tambahan untuk Socialite ---
+use Laravel\Socialite\Facades\Socialite; 
+use App\Models\User; 
+// -------------------------------------
+
 // --- Impor Controller ---
 use App\Http\Controllers\CustomAuthController;
 use App\Http\Controllers\HomepageController;
@@ -16,6 +21,7 @@ use App\Http\Controllers\PesanOrderController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\KontakController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\OrderController;
 
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
@@ -60,6 +66,53 @@ Route::middleware('guest')->group(function () {
     // Login User Biasa (Petani/Konsumen)
     Route::get('/login', [CustomAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [CustomAuthController::class, 'processLogin']);
+
+    // =======================================================
+    // --- PENAMBAHAN RUTE LARAVEL SOCIALITE (GOOGLE) ---
+    // =======================================================
+    
+    // Rute untuk mengarahkan pengguna ke Google
+    Route::get('/auth/google/redirect', function () {
+        return Socialite::driver('google')->redirect();
+    })->name('socialite.google.redirect');
+
+    // Rute untuk menangani callback/balasan dari Google (Logika Utama)
+    Route::get('/auth/callback', function () {
+        try {
+            $socialiteUser = Socialite::driver('google')->user();
+        } catch (\Exception $e) {
+            return redirect('/login')->withErrors(['socialite' => 'Otentikasi Google gagal. Silakan coba lagi.']);
+        }
+
+        $email = $socialiteUser->getEmail();
+        $googleId = $socialiteUser->getId();
+        $provider = 'google';
+        
+        $user = User::where('email', $email)->first();
+
+        if ($user) {
+            // Pengguna sudah ada: Tautkan akun Google ke akun yang sudah ada (menjaga password tradisional)
+            $user->provider = $provider;
+            $user->provider_id = $googleId;
+            $user->foto_profil = $socialiteUser->getAvatar();
+            $user->save();
+        } else {
+            // Pengguna baru: Buat akun baru
+            $user = User::create([
+                'name' => $socialiteUser->getName() ?? explode('@', $email)[0],
+                'email' => $email,
+                'provider' => $provider,
+                'provider_id' => $googleId,
+                'foto_profil' => $socialiteUser->getAvatar(),
+                'email_verified_at' => now(), 
+                'role' => 'konsumen',
+                'password' => null, // Password NULL untuk login Socialite
+            ]);
+        }
+
+        Auth::login($user, true);
+        return redirect('/dashboard');
+    })->name('socialite.google.callback');
 
     // --- RAHASIA: LOGIN KHUSUS ADMIN ---
     // URL ini tidak boleh ketahuan publik
@@ -134,7 +187,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Perbaikan: Menghapus '/admin' di depan karena group sudah pakai prefix('admin')
         // URL Hasil: /admin/api/notifikasi
-        Route::get('/api/notifikasi', [AdminController::class, 'cekNotifikasi'])->name('api.notifikasi');
+        Route::get('/api/notifikasi', action: [AdminController::class, 'cekNotifikasi'])->name('api.notifikasi');
 
         // Ini adalah route 'admin.dashboard' yang ASLI (Pakai Controller)
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
@@ -155,7 +208,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:petani'])->prefix('petani')->name('petani.')->group(function () {
         Route::get('/dashboard', [PetaniDashboard::class, 'index'])->name('dashboard');
         Route::resource('produk', PetaniProduk::class);
-        Route::resource('pesanan', PetaniPesananController::class)->only(['index', 'show', 'update']);
+        Route::resource('pesanan', PetaniPesananController::class)->only(['index', 'show', 'update', 'destroy']);
     });
 
     // 3. KONSUMEN ROUTES
@@ -165,6 +218,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/pesanan/{id}/cancel', [KonsumenPesanan::class, 'cancel'])->name('pesanan.cancel');
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+        
     });
 
 });

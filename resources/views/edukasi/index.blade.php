@@ -123,7 +123,7 @@
 </head>
 
 <body
-    class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
+    class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-50 selection:text-white">
 
     {{-- NAVBAR --}}
     <x-navbar />
@@ -137,7 +137,9 @@
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div class="w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-5">
                     <div class="w-full h-full animate-[spin_30s_linear_infinite]">
-                        <img src="images/nav-logo.png" alt="Background Decorative" class="w-full h-full object-contain">
+                        {{-- Pastikan path image benar --}}
+                        <img src="{{ asset('images/nav-logo.png') }}" alt="Background Decorative"
+                            class="w-full h-full object-contain">
                     </div>
                 </div>
             </div>
@@ -145,13 +147,18 @@
             {{-- Konten Utama --}}
             <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
                 <div class="text-center" data-aos="fade-up">
-                    <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6">
+                    {{-- Typography Responsive Adjustment: text-2xl base untuk layar kecil --}}
+                    <span
+                        class="inline-block py-1 px-3 rounded-full bg-green-100/50 text-green-700 text-xs font-bold tracking-wider uppercase mb-4 border border-green-200/50 shadow-sm">
+                        Edukasi Pertanian Modern
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4 sm:mb-6">
                         Edukasi
-                        <span class="text-green-600">
+                        <span class="text-green-600 block sm:inline">
                             Pertanian Modern
                         </span>
                     </h2>
-                    <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto px-2">
                         Mengoptimalkan potensi pertanian dengan teknologi dan metode terkini
                     </p>
                 </div>
@@ -159,9 +166,9 @@
         </section>
 
         {{-- EDUCATION CONTENT SECTION --}}
-        <section class="py-16 lg:py-24 relative bg-white overflow-hidden">
+        <section class="py-12 sm:py-16 lg:py-24 relative bg-white overflow-hidden">
 
-            {{-- Modern Background Decorations (Optional: bisa dihapus atau diubah ke warna netral) --}}
+            {{-- Modern Background Decorations --}}
             <div class="absolute inset-0 pointer-events-none overflow-hidden">
                 {{-- Clean Gradient Meshes --}}
                 <div
@@ -171,9 +178,13 @@
                     class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-gray-50/15 to-transparent rounded-full blur-3xl translate-x-1/3 translate-y-1/3">
                 </div>
 
-                {{-- Floating Elements --}}
-                <div class="absolute top-20 right-[10%] w-32 h-32 border border-gray-100/20 rounded-full"></div>
-                <div class="absolute bottom-32 left-[8%] w-24 h-24 border border-gray-100/20 rounded-full"></div>
+                {{-- Floating Elements (Hidden on mobile to prevent overflow issues) --}}
+                <div
+                    class="hidden sm:block absolute top-20 right-[10%] w-32 h-32 border border-gray-100/20 rounded-full">
+                </div>
+                <div
+                    class="hidden sm:block absolute bottom-32 left-[8%] w-24 h-24 border border-gray-100/20 rounded-full">
+                </div>
 
                 {{-- Subtle Pattern --}}
                 <div class="absolute inset-0 opacity-[0.015]"
@@ -185,104 +196,121 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 @if(isset($daftarEdukasi) && !$daftarEdukasi->isEmpty())
-                    {{-- Articles Grid --}}
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                    {{--
+                    ARTICLES GRID RESPONSIVE FIX:
+                    - 'grid-cols-1': Default untuk HP kecil (agar card terbaca jelas).
+                    - 'sm:grid-cols-2': Untuk HP landscape atau HP layar lebar (640px+).
+                    - 'md:grid-cols-1': Untuk Tablet (mode list view horizontal).
+                    - 'lg:grid-cols-2': Untuk Desktop (mode grid besar).
+                    --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                         @foreach($daftarEdukasi as $index => $item)
                             <article class="group" data-aos="fade-up" data-aos-delay="{{ $index * 50 }}">
-                                <a href="{{ route('edukasi.show', $item->slug) }}" class="block h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg 
-                                                                                  transition-all duration-500 border border-green-100 hover:border-green-300 
-                                                                                  hover:-translate-y-1">
+                                {{--
+                                CARD STRUCTURE
+                                - 'flex-col': Layout vertikal di mobile/grid view.
+                                - 'md:flex-row': Layout horizontal hanya di tablet (ketika kolom=1).
+                                - 'lg:flex-col': Kembali vertikal di desktop jika kolom=2 (optional, sesuaikan design).
+                                --}}
+                                <a href="{{ route('edukasi.show', $item->slug) }}" class="block h-full bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-lg 
+                                                           transition-all duration-500 border border-green-100 hover:border-green-300 
+                                                           hover:-translate-y-1 flex flex-col md:flex-row">
 
-                                    <div class="flex flex-col sm:flex-row h-full min-h-[280px]">
-
-                                        {{-- Image Section --}}
-                                        <div class="relative sm:w-2/5 h-48 sm:h-auto overflow-hidden bg-green-50">
-                                            @if($item->foto_sampul)
-                                                <img src="{{ asset('storage/' . $item->foto_sampul) }}" alt="{{ $item->judul }}"
-                                                    class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105">
-                                            @else
-                                                <div
-                                                    class="w-full h-full bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center min-h-[250px]">
-                                                    <svg class="w-16 h-16 text-green-200" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                        </path>
-                                                    </svg>
-                                                </div>
-                                            @endif
-
-                                            {{-- Overlay Gradient --}}
+                                    {{-- Image Section --}}
+                                    {{--
+                                    Mobile (grid-cols-1): w-full, h-48 (lebih tinggi agar jelas).
+                                    Tablet (md): w-2/5, h-auto.
+                                    --}}
+                                    <div
+                                        class="relative w-full md:w-2/5 h-48 sm:h-40 md:h-auto overflow-hidden bg-green-50 flex-shrink-0">
+                                        @if($item->foto_sampul)
+                                            <img src="{{ asset('storage/' . $item->foto_sampul) }}" alt="{{ $item->judul }}"
+                                                class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105">
+                                        @else
                                             <div
-                                                class="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                                class="w-full h-full bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center min-h-[192px] sm:min-h-[160px] md:min-h-[250px]">
+                                                <svg class="w-12 h-12 md:w-16 md:h-16 text-green-200" fill="none"
+                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                    </path>
+                                                </svg>
                                             </div>
+                                        @endif
 
-                                            {{-- Date Badge --}}
-                                            <div class="absolute top-4 left-4">
-                                                <div
-                                                    class="flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full shadow-sm">
-                                                    <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                    <span class="text-xs font-medium text-green-600">
-                                                        {{ $item->created_at->format('d M Y') }}
-                                                    </span>
-                                                </div>
-                                            </div>
+                                        {{-- Overlay Gradient --}}
+                                        <div
+                                            class="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                                         </div>
 
-                                        {{-- Content Section --}}
-                                        <div class="flex-1 p-6 flex flex-col">
-
-                                            {{-- Category Badge --}}
-                                            <div class="mb-3">
-                                                <span
-                                                    class="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 
-                                                                                                     text-green-600 text-xs font-medium uppercase tracking-wider rounded-lg border border-green-200">
-                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path
-                                                            d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-                                                    </svg>
-                                                    {{ $item->kategoriEdukasi->nama_kategori ?? 'Tips' }}
+                                        {{-- Date Badge --}}
+                                        <div class="absolute top-3 left-3 md:top-4 md:left-4">
+                                            <div
+                                                class="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm">
+                                                <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                                <span class="text-[10px] sm:text-xs font-medium text-green-600">
+                                                    {{ $item->updated_at->format('d M Y') }}
                                                 </span>
                                             </div>
+                                        </div>
+                                    </div>
 
-                                            {{-- Title --}}
-                                            <h3
-                                                class="text-xl font-bold text-slate-900 mb-3 line-clamp-2 
-                                                                                               group-hover:text-green-600 transition-colors duration-300 leading-tight">
-                                                {{ $item->judul }}
-                                            </h3>
+                                    {{-- Content Section --}}
+                                    <div class="flex-1 p-4 sm:p-5 md:p-6 flex flex-col">
 
-                                            {{-- Excerpt --}}
-                                            <p class="text-slate-600 text-sm leading-relaxed mb-5 line-clamp-3 flex-grow">
-                                                {{ Str::limit(strip_tags($item->isi_konten), 140) }}
-                                            </p>
+                                        {{-- Category Badge --}}
+                                        <div class="mb-2 sm:mb-3">
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 
+                                                                       text-green-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider rounded-md sm:rounded-lg border border-green-200">
+                                                {{ $item->kategoriEdukasi->nama_kategori ?? 'Tips' }}
+                                            </span>
+                                        </div>
 
-                                            {{-- Footer --}}
+                                        {{-- Title --}}
+                                        <h3
+                                            class="text-base sm:text-lg md:text-xl font-bold text-slate-900 mb-2 sm:mb-3 line-clamp-2 
+                                                                   group-hover:text-green-600 transition-colors duration-300 leading-snug">
+                                            {{ $item->judul }}
+                                        </h3>
+
+                                        {{-- Excerpt (Isi Singkat) --}}
+                                        {{--
+                                        Show on Tablet (md) and Desktop.
+                                        Hide on Mobile (to save vertical space).
+                                        --}}
+                                        <p
+                                            class="hidden md:block text-slate-600 text-sm leading-relaxed mb-4 flex-grow line-clamp-2 lg:line-clamp-3">
+                                            {{ Str::limit(strip_tags($item->isi_konten), 140) }}
+                                        </p>
+
+                                        {{-- Footer --}}
+                                        <div
+                                            class="flex items-center justify-between pt-3 sm:pt-4 border-t border-green-50 sm:border-green-100 mt-auto">
+
+                                            {{-- Author --}}
+                                            <div class="flex items-center gap-2">
+                                                <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd"
+                                                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                                                        clip-rule="evenodd" />
+                                                </svg>
+                                                <span class="text-xs text-green-600 font-medium">Admin</span>
+                                            </div>
+
+                                            {{-- Read More --}}
                                             <div
-                                                class="flex items-center justify-between pt-4 border-t border-green-100 mt-auto">
-                                                {{-- Author --}}
-                                                <div class="flex items-center gap-2">
-                                                    <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd"
-                                                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                    <span class="text-xs text-green-600 font-medium">Admin</span>
-                                                </div>
-
-                                                {{-- Read More --}}
-                                                <div class="flex items-center gap-1 text-green-600 font-medium text-sm">
-                                                    <span>Video/Baca Artikel</span>
-                                                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-1"
-                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                                    </svg>
-                                                </div>
+                                                class="flex items-center gap-1 text-green-600 font-medium text-xs sm:text-sm ml-auto">
+                                                <span>Selengkapnya</span>
+                                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1"
+                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                                </svg>
                                             </div>
                                         </div>
                                     </div>
@@ -292,21 +320,22 @@
                     </div>
 
                     {{-- Pagination --}}
-                    <div class="mt-16" data-aos="fade-up" data-aos-delay="200">
+                    <div class="mt-12 sm:mt-16" data-aos="fade-up" data-aos-delay="200">
                         <div class="flex justify-center">
+                            {{-- Standard Laravel Pagination is usually responsive, but wrapper ensures centering --}}
                             {{ $daftarEdukasi->links() }}
                         </div>
                     </div>
 
                 @else
                     {{-- Empty State --}}
-                    <div class="max-w-2xl mx-auto" data-aos="fade-up">
-                        <div class="text-center py-20 px-6 bg-white rounded-3xl border border-green-200">
-
+                    <div class="max-w-2xl mx-auto px-4" data-aos="fade-up">
+                        <div class="text-center py-12 sm:py-16 px-6 bg-white rounded-3xl border border-green-200">
                             {{-- Icon --}}
                             <div class="relative inline-flex mb-6">
-                                <div class="w-24 h-24 bg-green-50 rounded-2xl flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-green-400" fill="none" stroke="currentColor"
+                                <div
+                                    class="w-20 h-20 sm:w-24 sm:h-24 bg-green-50 rounded-2xl flex items-center justify-center">
+                                    <svg class="w-10 h-10 sm:w-12 sm:h-12 text-green-400" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
@@ -314,10 +343,8 @@
                                     </svg>
                                 </div>
                             </div>
-
-                            {{-- Text --}}
-                            <h3 class="text-2xl font-bold text-slate-900 mb-3">Konten Segera Hadir!</h3>
-                            <p class="text-slate-600 leading-relaxed max-w-md mx-auto mb-6">
+                            <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Konten Segera Hadir!</h3>
+                            <p class="text-slate-600 leading-relaxed max-w-md mx-auto mb-6 text-sm sm:text-base">
                                 Kami sedang menyiapkan artikel edukatif berkualitas tinggi untuk meningkatkan pengetahuan
                                 pertanian Anda. Nantikan konten menarik dari kami segera!
                             </p>
@@ -328,12 +355,13 @@
         </section>
     </main>
 
-    {{-- FOOTER (diambil dari welcome.blade.php) --}}
-    <footer id="footer" class="bg-white border-t border-slate-100 pt-16 pb-8 font-sans relative overflow-hidden">
+    {{-- FOOTER --}}
+    <footer id="footer"
+        class="bg-white border-t border-slate-100 pt-12 sm:pt-16 pb-8 font-sans relative overflow-hidden">
 
         {{-- DEKORASI BACKGROUND --}}
         <div
-            class="absolute top-0 left-0 -translate-x-1/3 -translate-y-1/3 w-[500px] h-[500px] opacity-40 pointer-events-none">
+            class="absolute top-0 left-0 -translate-x-1/3 -translate-y-1/3 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] opacity-40 pointer-events-none">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                 <path fill="#DCFCE7"
                     d="M47.5,-57.2C59.6,-46.3,66.4,-28.9,65.6,-12.9C64.8,3.1,56.3,17.7,46.2,29.9C36.1,42.1,24.3,51.9,10.6,56.7C-3.1,61.5,-18.8,61.3,-31.2,54.1C-43.7,46.9,-53,32.7,-57.3,17.6C-61.6,2.5,-60.9,-13.5,-53.4,-26.8C-45.9,-40.1,-31.6,-50.7,-17.1,-54.2C-2.6,-57.7,12,-54.1,25.4,-50.4L47.5,-57.2Z"
@@ -341,7 +369,7 @@
             </svg>
         </div>
         <div
-            class="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 w-[600px] h-[600px] opacity-30 pointer-events-none">
+            class="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] opacity-30 pointer-events-none">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                 <path fill="#F0FDF4"
                     d="M41.4,-70.3C52.6,-62.7,60.2,-49.6,67.3,-36.1C74.3,-22.6,80.8,-8.7,78.9,4.2C77,17.1,66.7,29,56.5,38.9C46.3,48.8,36.2,56.7,24.8,62.2C13.4,67.7,0.7,70.8,-11.2,69.5C-23.1,68.2,-34.2,62.5,-44.7,54.6C-55.2,46.7,-65.1,36.6,-70.6,24.2C-76.1,11.8,-77.2,-2.9,-71.9,-15.2C-66.6,-27.5,-54.9,-37.4,-43,-44.8C-31.1,-52.2,-19,-57.1,-6.3,-58.5C6.4,-59.9,20,-77.9,41.4,-70.3Z"
@@ -350,15 +378,15 @@
         </div>
 
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 mb-16 items-start">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-12 mb-12 sm:mb-16 items-start">
 
                 {{-- 1. Brand Column (Lebar: 5 Kolom) --}}
                 <div class="lg:col-span-5">
                     <a href="/" class="inline-block mb-6">
                         <img src="{{ asset('images/logo2.png') }}" alt="AgriSmart Logo"
-                            class="h-16 lg:h-20 w-auto object-contain">
+                            class="h-14 sm:h-16 lg:h-20 w-auto object-contain">
                     </a>
-                    <p class="text-slate-500 leading-relaxed mb-8 pr-0 lg:pr-12">
+                    <p class="text-slate-500 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8 pr-0 lg:pr-12">
                         Platform digital terintegrasi untuk pertanian cerdas. Solusi IoT inovatif untuk masa depan
                         pangan Indonesia yang berkelanjutan.
                     </p>
@@ -367,7 +395,6 @@
                             <a href="#"
                                 class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-500 border border-slate-100 transition-all duration-300 hover:bg-green-600 hover:text-white hover:scale-110 hover:shadow-lg group">
                                 <span class="sr-only">{{ ucfirst($social) }}</span>
-                                {{-- Menggunakan SVG spesifik dari kode lama Anda --}}
                                 @if($social == 'facebook')
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                         <path
@@ -391,8 +418,8 @@
 
                 {{-- 2. Menu Utama Column (Lebar: 2 Kolom) --}}
                 <div class="lg:col-span-2">
-                    <h5 class="font-bold text-slate-900 mb-6">Menu Utama</h5>
-                    <ul class="space-y-4">
+                    <h5 class="font-bold text-slate-900 mb-4 sm:mb-6">Menu Utama</h5>
+                    <ul class="space-y-3 sm:space-y-4">
                         @foreach(['Beranda' => '/', 'Tentang Kami' => '#tentang-kami', 'Layanan' => '#layanan', 'Produk' => route('produk.index'), 'Kontak' => '#kontak'] as $label => $link)
                             <li>
                                 <a href="{{ $link }}"
@@ -406,8 +433,8 @@
 
                 {{-- 3. Layanan Column (Lebar: 2 Kolom) --}}
                 <div class="lg:col-span-2">
-                    <h5 class="font-bold text-slate-900 mb-6">Layanan</h5>
-                    <ul class="space-y-4">
+                    <h5 class="font-bold text-slate-900 mb-4 sm:mb-6">Layanan</h5>
+                    <ul class="space-y-3 sm:space-y-4">
                         @foreach(['Konsultasi Tani' => '#', 'Marketplace Panen' => '#', 'Monitoring IoT' => '#', 'Edukasi & Pelatihan' => route('edukasi.index')] as $label => $link)
                             <li>
                                 <a href="{{ $link }}"
@@ -421,8 +448,8 @@
 
                 {{-- 4. Hubungi Kami Column (Lebar: 3 Kolom) --}}
                 <div class="lg:col-span-3">
-                    <h5 class="font-bold text-slate-900 mb-6">Hubungi Kami</h5>
-                    <div class="space-y-5">
+                    <h5 class="font-bold text-slate-900 mb-4 sm:mb-6">Hubungi Kami</h5>
+                    <div class="space-y-4 sm:space-y-5">
                         {{-- Address --}}
                         <div class="flex items-start gap-3">
                             <svg class="w-5 h-5 text-green-600 mt-0.5 shrink-0" fill="none" stroke="currentColor"

@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- SEO META TAGS --}}
     <meta name="description"
         content="Marketplace Pertanian AgriSmart. Temukan hasil panen segar langsung dari petani dengan harga terbaik.">
     <meta name="keywords" content="Marketplace Tani, Jual Sayur, AgriSmart, Petani Digital, Panen Segar">
@@ -17,14 +16,10 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <title>Marketplace - {{ config('app.name', 'AgriSmart') }}</title>
 
-    {{-- FONT MODERN: Plus Jakarta Sans --}}
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-
-    {{-- LIBRARY ANIMASI AOS --}}
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-    {{-- TAILWIND & SCRIPTS --}}
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -37,7 +32,6 @@
             display: none !important;
         }
 
-        /* Scrollbar Green Theme */
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -56,7 +50,6 @@
             background: #15803d;
         }
 
-        /* Custom Animation Utilities */
         .animate-float {
             animation: float 6s ease-in-out infinite;
         }
@@ -96,7 +89,6 @@
             overflow: hidden;
         }
 
-        /* Blob Animation */
         @keyframes blob {
             0% {
                 transform: translate(0px, 0px) scale(1);
@@ -132,159 +124,156 @@
 <body
     class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
 
-    {{-- NAVBAR --}}
     <x-navbar />
 
-    {{-- MAIN CONTENT --}}
     <main class="flex-1">
 
-        {{-- HERO SECTION --}}
-        <section class="relative overflow-hidden pt-20 pb-12 lg:pt-28 lg:pb-16 bg-slate-50">
-
-            {{-- Minimalist Spiral Background --}}
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
-                <img src="images/nav-logo.png" alt="Decorative Background"
-                    class="w-[700px] h-[700px] object-contain opacity-10 animate-[spin_30s_linear_infinite]">
+        <section class="relative overflow-hidden pt-20 pb-14 lg:pt-28 lg:pb-20 bg-slate-50">
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div class="w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-5">
+                    <div class="w-full h-full animate-[spin_30s_linear_infinite]">
+                        <img src="images/nav-logo.png" alt="Background Decorative" class="w-full h-full object-contain">
+                    </div>
+                </div>
             </div>
 
-            <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
-
-                {{-- Header Compact --}}
-                <div class="text-center max-w-2xl mx-auto mb-8 lg:mb-10" data-aos="fade-up">
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
-                        Temukan <span
-                            class="text-transparent bg-clip-text bg-gradient-to-br from-green-600 to-emerald-600">Panen
-                            Terbaik</span>
-                    </h1>
+            <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+                <div class="text-center mb-8" data-aos="fade-up">
+                    <span
+                        class="inline-block py-1 px-3 rounded-full bg-green-100/50 text-green-700 text-xs font-bold tracking-wider uppercase mb-4 border border-green-200/50 shadow-sm">
+                        Marketplace Terpercaya
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-5">
+                        Marketplace
+                        <span class="text-green-600">
+                            Pertanian Terbaik
+                        </span>
+                    </h2>
+                    <p class="text-lg text-slate-600 max-w-2xl mx-auto mb-8">
+                        Temukan hasil panen segar langsung dari petani dengan harga terbaik
+                    </p>
                 </div>
 
-                {{-- SEARCH & FILTER MINIMALIST --}}
-                <div class="max-w-4xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-                    <form action="{{ route('produk.index') }}" method="GET" class="space-y-6">
+                <div class="max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+                    <form action="{{ route('produk.index') }}" method="GET" class="space-y-4">
 
-                        <div class="relative w-full max-w-2xl mx-auto group">
-                            {{-- Input Field --}}
-                            <input type="search" name="q" value="{{ request('q') }}"
-                                placeholder="Cari produk pertanian..."
-                                class="w-full pl-5 pr-12 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-sm focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all duration-300 text-sm font-medium placeholder:text-slate-400 hover:shadow-md">
+                        <div class="w-full">
+                            <div
+                                class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm transition-all duration-200 overflow-hidden p-1">
+                                <input type="search" name="q" value="{{ request('q') }}"
+                                    placeholder="Cari produk pertanian..."
+                                    class="flex-1 pl-4 pr-4 py-3 bg-transparent text-slate-700 outline-none text-sm font-medium placeholder:text-slate-400">
 
-                            {{-- Submit Button (Smaller & Boxy) --}}
-                            <button type="submit"
-                                class="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 bg-green-600 text-white rounded-lg hover:bg-green-700 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center shadow-sm">
-                                {{-- Logo Search (Ukuran disesuaikan) --}}
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        {{-- 2. Filters (Grid System) --}}
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            @php
-                                // Styling variabel untuk Dropdown yang konsisten dan rapi
-                                $selectWrapper = "relative";
-                                $selectClass = "w-full appearance-none bg-white border border-slate-200 text-slate-600 text-sm font-medium py-3 pl-5 pr-10 rounded-xl focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/10 hover:border-green-400 transition-colors shadow-sm cursor-pointer";
-                                $iconWrapper = "absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400";
-                            @endphp
-
-                            {{-- Filter: Kategori --}}
-                            <div class="{{ $selectWrapper }}">
-                                <select name="kategori" class="{{ $selectClass }}" onchange="this.form.submit()">
-                                    <option value="">Semua Kategori</option>
-                                    @if(isset($kategoris))
-                                        @foreach($kategoris as $kategori)
-                                            <option value="{{ $kategori->id }}" {{ request('kategori') == $kategori->id ? 'selected' : '' }}>
-                                                {{ $kategori->nama_kategori }}
-                                            </option>
-                                        @endforeach
-                                    @endif
-                                </select>
-                                <div class="{{ $iconWrapper }}">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
+                                <button type="submit"
+                                    class="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center shadow-sm">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
+                                        </path>
                                     </svg>
-                                </div>
-                            </div>
-
-                            {{-- Filter: Harga --}}
-                            <div class="{{ $selectWrapper }}">
-                                <select name="harga" class="{{ $selectClass }}" onchange="this.form.submit()">
-                                    <option value="">Urutkan Harga</option>
-                                    <option value="asc" {{ request('harga') == 'asc' ? 'selected' : '' }}>Termurah
-                                    </option>
-                                    <option value="desc" {{ request('harga') == 'desc' ? 'selected' : '' }}>Termahal
-                                    </option>
-                                </select>
-                                <div class="{{ $iconWrapper }}">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
-                            </div>
-
-                            {{-- Filter: Stok --}}
-                            <div class="{{ $selectWrapper }}">
-                                <select name="stok" class="{{ $selectClass }}" onchange="this.form.submit()">
-                                    <option value="">Status Stok</option>
-                                    <option value="tersedia" {{ request('stok') == 'tersedia' ? 'selected' : '' }}>
-                                        Tersedia</option>
-                                    <option value="habis" {{ request('stok') == 'habis' ? 'selected' : '' }}>Habis
-                                    </option>
-                                </select>
-                                <div class="{{ $iconWrapper }}">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </div>
+                                </button>
                             </div>
                         </div>
 
-                        {{-- 3. Active Filters (Pill Style) --}}
-                        @if(request()->hasAny(['q', 'kategori', 'harga', 'stok']))
-                            <div class="flex flex-wrap items-center justify-center gap-2 pt-2 animate-fade-in-up">
-                                <span
-                                    class="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1">Filter:</span>
-
+                        <div class="w-full">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 @php
-                                    $tagClass = "group inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-200 text-xs font-medium text-green-700 transition-all hover:bg-green-100 hover:border-green-300";
-                                    $closeIcon = '<svg class="w-3.5 h-3.5 text-green-400 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                                    $selectWrapper = "relative";
+                                    $selectClass = "w-full appearance-none bg-white border border-gray-200 text-slate-600 text-sm font-medium py-3 pl-4 pr-10 rounded-xl focus:outline-none focus:border-gray-200 cursor-pointer shadow-sm";
+                                    $iconWrapper = "absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400";
                                 @endphp
 
-                                @if(request('q'))
-                                    <div class="{{ $tagClass }}">
-                                        <span>"{{ request('q') }}"</span>
-                                        <button type="button" onclick="removeFilter('q')">{!! $closeIcon !!}</button>
+                                <div class="{{ $selectWrapper }}">
+                                    <select name="kategori" class="{{ $selectClass }}">
+                                        <option value="">Semua Kategori</option>
+                                        @if(isset($kategoris))
+                                            @foreach($kategoris as $kategori)
+                                                <option value="{{ $kategori->id }}" {{ request('kategori') == $kategori->id ? 'selected' : '' }}>
+                                                    {{ $kategori->nama_kategori }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    <div class="{{ $iconWrapper }}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7"></path>
+                                        </svg>
                                     </div>
-                                @endif
+                                </div>
+
+                                <div class="{{ $selectWrapper }}">
+                                    <select name="harga" class="{{ $selectClass }}">
+                                        <option value="">Urutkan Harga</option>
+                                        <option value="asc" {{ request('harga') == 'asc' ? 'selected' : '' }}>Termurah
+                                        </option>
+                                        <option value="desc" {{ request('harga') == 'desc' ? 'selected' : '' }}>Termahal
+                                        </option>
+                                    </select>
+                                    <div class="{{ $iconWrapper }}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <div class="{{ $selectWrapper }}">
+                                    <select name="stok" class="{{ $selectClass }}">
+                                        <option value="">Status Stok</option>
+                                        <option value="tersedia" {{ request('stok') == 'tersedia' ? 'selected' : '' }}>
+                                            Tersedia</option>
+                                        <option value="habis" {{ request('stok') == 'habis' ? 'selected' : '' }}>Habis
+                                        </option>
+                                    </select>
+                                    <div class="{{ $iconWrapper }}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if(request('kategori') || request('harga') || request('stok'))
+                            <div class="flex flex-wrap items-center justify-center gap-2 pt-2 animate-fade-in-up">
+                                <span class="text-xs font-medium text-slate-400 mr-1">Filter aktif:</span>
+
+                                @php
+                                    $tagClass = "inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-gray-200 text-xs font-medium text-slate-600 shadow-sm";
+                                    $closeBtnClass = "text-slate-400 hover:text-red-500 transition-colors ml-1 p-0.5 rounded-full hover:bg-red-50";
+                                    $closeIcon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                                @endphp
 
                                 @if(request('kategori'))
                                     @php $selKat = isset($kategoris) ? $kategoris->where('id', request('kategori'))->first() : null; @endphp
                                     <div class="{{ $tagClass }}">
                                         <span>{{ $selKat ? $selKat->nama_kategori : 'Kategori' }}</span>
-                                        <button type="button" onclick="removeFilter('kategori')">{!! $closeIcon !!}</button>
+                                        <button type="button" onclick="removeFilter('kategori')"
+                                            class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
                                     </div>
                                 @endif
 
                                 @if(request('harga'))
                                     <div class="{{ $tagClass }}">
                                         <span>{{ request('harga') == 'asc' ? 'Termurah' : 'Termahal' }}</span>
-                                        <button type="button" onclick="removeFilter('harga')">{!! $closeIcon !!}</button>
+                                        <button type="button" onclick="removeFilter('harga')"
+                                            class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
                                     </div>
                                 @endif
 
                                 @if(request('stok'))
                                     <div class="{{ $tagClass }}">
                                         <span>{{ request('stok') == 'tersedia' ? 'Stok Ada' : 'Habis' }}</span>
-                                        <button type="button" onclick="removeFilter('stok')">{!! $closeIcon !!}</button>
+                                        <button type="button" onclick="removeFilter('stok')"
+                                            class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
                                     </div>
                                 @endif
 
                                 <a href="{{ route('produk.index') }}"
-                                    class="ml-2 text-xs font-medium text-slate-400 hover:text-green-600 transition-colors">
+                                    class="ml-2 text-xs font-medium text-slate-400 hover:text-red-600 transition-colors">
                                     Hapus Semua
                                 </a>
                             </div>
@@ -295,22 +284,15 @@
             </div>
         </section>
 
-        {{-- PRODUCT GRID SECTION --}}
         <section class="py-16 lg:py-24 relative bg-white border-t border-green-50 overflow-hidden">
-
-            {{-- Background Decorations --}}
             <div class="absolute inset-0 pointer-events-none overflow-hidden">
-                {{-- Soft Gradient Orb (Atas) --}}
                 <div
                     class="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-[1000px] h-[300px] md:h-[500px] bg-green-50/40 rounded-full blur-[80px] md:blur-[120px] -mt-20 md:-mt-32">
                 </div>
-
-                {{-- Soft Gradient Orb (Bawah Kanan) --}}
                 <div
                     class="absolute bottom-0 right-0 w-[300px] md:w-[600px] h-[200px] md:h-[400px] bg-green-50/30 rounded-full blur-[60px] md:blur-[100px] translate-y-1/3 translate-x-1/3">
                 </div>
 
-                {{-- Spiral 1: Kanan Atas --}}
                 <svg class="absolute top-0 right-0 w-[350px] md:w-[700px] h-[350px] md:h-[700px] opacity-25 translate-x-1/4 md:translate-x-1/3 -translate-y-1/4"
                     viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path d="M0 100 Q 50 -20 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
@@ -318,7 +300,6 @@
                     <path d="M0 100 Q 50 20 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
                 </svg>
 
-                {{-- Spiral 2: Kiri Bawah --}}
                 <svg class="absolute bottom-0 left-0 w-[300px] md:w-[600px] h-[300px] md:h-[600px] opacity-20 -translate-x-1/3 translate-y-1/4 rotate-180"
                     viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path d="M0 100 Q 50 0 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
@@ -327,10 +308,7 @@
                 </svg>
             </div>
 
-            {{-- PRODUCT CONTENT --}}
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
-                {{-- Flash Message --}}
                 @if(session('success'))
                     <div x-data="{ show: true }" x-show="show" x-transition
                         class="mb-8 p-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl flex items-center justify-between shadow-sm"
@@ -354,14 +332,11 @@
                     </div>
                 @endif
 
-                {{-- PRODUCT GRID (BOX PRODUK TIDAK DIUBAH) --}}
                 @if(isset($daftarProduk) && !$daftarProduk->isEmpty())
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+                    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
                         @foreach($daftarProduk as $index => $item)
                             <div data-aos="fade-up" data-aos-delay="{{ $index * 100 }}"
                                 class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-green-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
-
-                                {{-- Image Container --}}
                                 <div class="relative aspect-square overflow-hidden bg-slate-50">
                                     @if($item->foto_produk)
                                         <img src="{{ asset('storage/' . $item->foto_produk) }}" alt="{{ $item->nama_produk }}"
@@ -380,36 +355,32 @@
                                         </div>
                                     @endif
 
-                                    {{-- Category Badge --}}
                                     <div
-                                        class="absolute top-3 right-3 bg-green-600 px-3 py-1 rounded-lg text-[10px] font-bold text-white shadow-md uppercase tracking-wide">
+                                        class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-green-600 px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg text-[8px] sm:text-[10px] font-bold text-white shadow-md uppercase tracking-wide">
                                         {{ $item->kategoriProduk->nama_kategori ?? 'Umum' }}
                                     </div>
                                 </div>
 
-                                {{-- Content Area --}}
-                                <div class="p-5 bg-white">
-                                    {{-- Product Name --}}
+                                <div class="p-3 sm:p-5 bg-white">
                                     <h3
-                                        class="text-lg font-bold text-slate-900 mb-3 line-clamp-1 group-hover:text-green-600 transition-colors">
+                                        class="text-sm sm:text-lg font-bold text-slate-900 mb-2 sm:mb-3 line-clamp-1 group-hover:text-green-600 transition-colors">
                                         {{ $item->nama_produk }}
                                     </h3>
 
-                                    {{-- Seller Info --}}
-                                    <div class="space-y-2 mb-4 pb-4 border-b border-slate-100">
-                                        <div class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none"
+                                    <div class="space-y-1 sm:space-y-2 mb-2 sm:mb-4 pb-2 sm:pb-4 border-b border-slate-100">
+                                        <div class="flex items-start gap-1 sm:gap-2">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none"
                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
                                                 </path>
                                             </svg>
-                                            <p class="text-xs font-medium text-slate-700 truncate">
+                                            <p class="text-[10px] sm:text-xs font-medium text-slate-700 truncate">
                                                 {{ $item->user->name ?? 'Penjual' }}
                                             </p>
                                         </div>
-                                        <div class="flex items-start gap-2">
-                                            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none"
+                                        <div class="flex items-start gap-1 sm:gap-2">
+                                            <svg class="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none"
                                                 stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
@@ -417,35 +388,37 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             </svg>
-                                            <p class="text-xs text-slate-500 truncate">
+                                            <p class="text-[10px] sm:text-xs text-slate-500 truncate">
                                                 {{ $item->user->alamat ?? 'Alamat tidak tersedia' }}
                                             </p>
                                         </div>
                                     </div>
 
-                                    {{-- Stock Info --}}
-                                    <div class="flex items-center justify-between mb-4 bg-slate-50 rounded-lg px-3 py-2">
-                                        <span class="text-xs text-slate-600 font-medium">Stok Tersedia</span>
+                                    <div
+                                        class="flex items-center justify-between mb-2 sm:mb-4 bg-slate-50 rounded-lg px-2 sm:px-3 py-1 sm:py-2">
+                                        <span class="text-[10px] sm:text-xs text-slate-600 font-medium">Stok</span>
                                         <span
-                                            class="text-sm font-bold {{ ($item->stok ?? 0) > 0 ? 'text-green-600' : 'text-red-500' }}">
+                                            class="text-[10px] sm:text-sm font-bold {{ ($item->stok ?? 0) > 0 ? 'text-green-600' : 'text-red-500' }}">
                                             {{ $item->stok ?? 0 }} {{ $item->satuan ?? '' }}
                                         </span>
                                     </div>
 
-                                    {{-- Price & Action Section --}}
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <p class="text-xs text-slate-500 font-medium mb-1">Harga</p>
-                                            <p class="text-2xl font-bold text-slate-900">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <div class="min-w-0">
+                                            <p class="text-[10px] sm:text-xs text-slate-500 font-medium mb-0.5 sm:mb-1">Harga
+                                            </p>
+                                            <p class="text-base sm:text-2xl font-bold text-slate-900 truncate">
                                                 Rp {{ number_format($item->harga, 0, ',', '.') }}
                                             </p>
-                                            <p class="text-xs text-slate-500 mt-0.5">per {{ $item->satuan ?? 'kg' }}</p>
+                                            <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 truncate">/
+                                                {{ $item->satuan ?? 'kg' }}
+                                            </p>
                                         </div>
 
-                                        {{-- Action Button --}}
                                         <a href="{{ route('produk.show', $item->id) }}"
-                                            class="flex-shrink-0 w-12 h-12 rounded-xl bg-green-600 hover:bg-green-700 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            class="flex-shrink-0 w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-green-600 hover:bg-green-700 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110">
+                                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
                                                 </path>
@@ -457,13 +430,11 @@
                         @endforeach
                     </div>
 
-                    {{-- Pagination --}}
                     <div class="mt-12" data-aos="fade-up">
                         {{ $daftarProduk->appends(request()->query())->links() }}
                     </div>
 
                 @else
-                    {{-- EMPTY STATE --}}
                     <div class="text-center py-20 bg-white/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-green-200 mx-4 sm:mx-0"
                         data-aos="fade-up">
                         <div
@@ -488,10 +459,7 @@
         </section>
     </main>
 
-    {{-- FOOTER (diambil dari welcome.blade.php) --}}
     <footer id="footer" class="bg-white border-t border-slate-100 pt-16 pb-8 font-sans relative overflow-hidden">
-
-        {{-- DEKORASI BACKGROUND --}}
         <div
             class="absolute top-0 left-0 -translate-x-1/3 -translate-y-1/3 w-[500px] h-[500px] opacity-40 pointer-events-none">
             <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
@@ -511,8 +479,6 @@
 
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 mb-16 items-start">
-
-                {{-- 1. Brand Column (Lebar: 5 Kolom) --}}
                 <div class="lg:col-span-5">
                     <a href="/" class="inline-block mb-6">
                         <img src="{{ asset('images/logo2.png') }}" alt="AgriSmart Logo"
@@ -527,7 +493,6 @@
                             <a href="#"
                                 class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-500 border border-slate-100 transition-all duration-300 hover:bg-green-600 hover:text-white hover:scale-110 hover:shadow-lg group">
                                 <span class="sr-only">{{ ucfirst($social) }}</span>
-                                {{-- Menggunakan SVG spesifik dari kode lama Anda --}}
                                 @if($social == 'facebook')
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                         <path
@@ -549,7 +514,6 @@
                     </div>
                 </div>
 
-                {{-- 2. Menu Utama Column (Lebar: 2 Kolom) --}}
                 <div class="lg:col-span-2">
                     <h5 class="font-bold text-slate-900 mb-6">Menu Utama</h5>
                     <ul class="space-y-4">
@@ -564,7 +528,6 @@
                     </ul>
                 </div>
 
-                {{-- 3. Layanan Column (Lebar: 2 Kolom) --}}
                 <div class="lg:col-span-2">
                     <h5 class="font-bold text-slate-900 mb-6">Layanan</h5>
                     <ul class="space-y-4">
@@ -579,11 +542,9 @@
                     </ul>
                 </div>
 
-                {{-- 4. Hubungi Kami Column (Lebar: 3 Kolom) --}}
                 <div class="lg:col-span-3">
                     <h5 class="font-bold text-slate-900 mb-6">Hubungi Kami</h5>
                     <div class="space-y-5">
-                        {{-- Address --}}
                         <div class="flex items-start gap-3">
                             <svg class="w-5 h-5 text-green-600 mt-0.5 shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -597,7 +558,6 @@
                             </p>
                         </div>
 
-                        {{-- Email --}}
                         <div class="flex items-center gap-3">
                             <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -610,7 +570,6 @@
                             </a>
                         </div>
 
-                        {{-- Phone --}}
                         <div class="flex items-center gap-3">
                             <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -624,10 +583,8 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
-            {{-- Copyright & Legal --}}
             <div class="border-t border-slate-100 pt-8 flex flex-col justify-center items-center gap-4">
                 <p class="text-sm text-slate-500 text-center">
                     &copy; {{ date('Y') }} <span class="text-green-600 font-bold">AgriSmart</span>. All Rights Reserved.
@@ -636,7 +593,6 @@
         </div>
     </footer>
 
-    {{-- BACK TO TOP BUTTON --}}
     <button id="backToTop"
         class="fixed bottom-6 right-4 sm:bottom-8 sm:right-8 bg-green-600 hover:bg-green-700 text-white p-2.5 sm:p-3 rounded-xl shadow-lg shadow-green-600/30 translate-y-20 opacity-0 transition-all duration-500 z-50">
         <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -645,19 +601,15 @@
         </svg>
     </button>
 
-    {{-- SCRIPT INITIALIZATION --}}
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Init AOS
         AOS.init({
             once: true,
             offset: 50,
             duration: 800,
         });
 
-        // Back to Top Logic
         const backToTopBtn = document.getElementById('backToTop');
-
         window.addEventListener('scroll', () => {
             if (window.scrollY > 300) {
                 backToTopBtn.classList.remove('translate-y-20', 'opacity-0');
@@ -673,7 +625,6 @@
             });
         });
 
-        // Function to remove individual filters
         function removeFilter(filterName) {
             const url = new URL(window.location.href);
             url.searchParams.delete(filterName);

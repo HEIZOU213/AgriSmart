@@ -25,28 +25,28 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
+    // ...
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
-        
-        // Isi data text biasa
+
+        // Validasi file sudah otomatis dijalankan di sini, termasuk validasi text
         $user->fill($request->validated());
 
-        // Jika email berubah, reset verifikasi
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
 
-        // [KODE BARU] Logika Upload Foto Profil
+        // Logika Upload Foto Profil
         if ($request->hasFile('foto_profil')) {
-            // 1. Validasi manual sederhana (atau bisa di Request)
-            $request->validate([
-                'foto_profil' => 'image|mimes:jpeg,png,jpg|max:2048',
-            ]);
 
             // 2. Hapus foto lama jika ada
             if ($user->foto_profil) {
-                Storage::disk('public')->delete($user->foto_profil);
+                // Cek apakah itu path lokal atau URL eksternal (mengandung 'http' atau 'https')
+                // Hapus hanya jika itu terlihat seperti path penyimpanan lokal (tidak mengandung skema URL)
+                if (!preg_match('#^https?://#i', $user->foto_profil)) {
+                    Storage::disk('public')->delete($user->foto_profil);
+                }
             }
 
             // 3. Simpan foto baru

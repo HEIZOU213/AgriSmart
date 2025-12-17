@@ -18,13 +18,18 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', // Ganti 'name' menjadi 'nama' jika Anda mengubah migrasi default
+        'name',
         'email',
         'password',
-        'role', // Tambahkan ini
-        'no_telepon', // Tambahkan ini
-        'alamat', // Tambahkan ini
+        'role',
+        'no_telepon',
+        'alamat',
         'foto_profil',
+
+        // --- PENAMBAHAN UNTUK LARAVEL SOCIALITE ---
+        'provider',
+        'provider_id',
+        // ------------------------------------------
     ];
 
     /**
