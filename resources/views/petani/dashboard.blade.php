@@ -23,11 +23,11 @@
             <h3 class="text-3xl font-extrabold text-slate-900">
                 Ringkasan <span class="text-green-600">Penjualan</span>
             </h3>
-            <p class="text-slate-500 mt-2 text-lg">Pantau performa produk dan pendapatan panen secara realtime.</p>
+            <p class="text-slate-500 mt-2 text-lg">Pantau performa produk dan pesanan panen secara realtime.</p>
         </div>
 
-        {{-- GRID STATISTIK --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        {{-- GRID STATISTIK (Diubah jadi 3 Kolom) --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
 
             {{-- Card 1: Total Produk (Hijau) --}}
             <div class="group bg-white rounded-3xl p-6 shadow-lg shadow-green-900/5 border border-white hover:border-green-200 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden" data-aos="fade-up" data-aos-delay="0">
@@ -48,7 +48,7 @@
                 </div>
             </div>
 
-            {{-- Card 2: Terjual (Biru/Teal - Variasi Tema) --}}
+            {{-- Card 2: Terjual (Biru/Teal) --}}
             <div class="group bg-white rounded-3xl p-6 shadow-lg shadow-green-900/5 border border-white hover:border-teal-200 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden" data-aos="fade-up" data-aos-delay="100">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-full mix-blend-multiply filter blur-2xl opacity-50 -mr-10 -mt-10 transition-all group-hover:bg-teal-100"></div>
                 
@@ -67,7 +67,7 @@
                 </div>
             </div>
 
-            {{-- Card 3: Pesanan Masuk (Kuning/Orange - Indikasi Aksi) --}}
+            {{-- Card 3: Pesanan Masuk (Kuning/Orange) --}}
             <div class="group bg-white rounded-3xl p-6 shadow-lg shadow-green-900/5 border border-white hover:border-orange-200 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden" data-aos="fade-up" data-aos-delay="200">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-full mix-blend-multiply filter blur-2xl opacity-50 -mr-10 -mt-10 transition-all group-hover:bg-orange-100"></div>
                 
@@ -82,28 +82,6 @@
                     <div class="flex items-end gap-2 mt-1">
                         <p class="text-3xl font-black text-slate-800">{{ $stats['incoming_orders'] }}</p>
                         <span class="text-sm font-medium text-slate-400 mb-1">Pesanan</span>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Card 4: Pendapatan (Emerald/Dark Green - Uang) --}}
-            <div class="group bg-gradient-to-br from-green-600 to-emerald-700 rounded-3xl p-6 shadow-xl shadow-green-600/20 border border-green-500 hover:shadow-2xl hover:shadow-green-600/30 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden" data-aos="fade-up" data-aos-delay="300">
-                {{-- Decorative circles for dark card --}}
-                <div class="absolute top-0 right-0 w-40 h-40 bg-white rounded-full mix-blend-overlay opacity-10 -mr-10 -mt-10"></div>
-                <div class="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full mix-blend-overlay opacity-10 -ml-10 -mb-10"></div>
-                
-                <div class="relative z-10 text-white">
-                    <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white mb-4 group-hover:bg-white/30 transition-colors">
-                        {{-- Icon Wallet/Money --}}
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <p class="text-sm font-bold text-green-100 uppercase tracking-wider opacity-80">Pendapatan</p>
-                    <div class="mt-1">
-                        <p class="text-2xl lg:text-3xl font-black text-white tracking-tight">
-                            Rp {{ number_format($stats['total_revenue'], 0, ',', '.') }}
-                        </p>
                     </div>
                 </div>
             </div>

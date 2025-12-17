@@ -133,6 +133,12 @@
                     <span id="badge-pesanan-mobile" class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm hidden">0</span>
                 </a>
 
+                {{-- [BARU] MENU DOMPET SAYA (MOBILE) --}}
+                <a href="{{ route('petani.dompet.index') }}" class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('dompet.*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                    Dompet Saya
+                </a>
+
                 {{-- Pesan / Chat (Mobile) --}}
                 <a href="{{ route('chat.index') }}" class="flex items-center justify-between px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('chat.*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                     <div class="flex items-center">
@@ -200,6 +206,13 @@
                         </div>
                         {{-- [REALTIME] Badge Pesanan Desktop --}}
                         <span id="badge-pesanan-desktop" class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto shadow-sm hidden">0</span>
+                    </a>
+
+                    {{-- [BARU] MENU DOMPET SAYA (DESKTOP) --}}
+                    <a href="{{ route('petani.dompet.index') }}" 
+                       class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('dompet.*') ? 'bg-green-50 text-green-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                        Dompet Saya
                     </a>
 
                     {{-- Pesan / Chat (Desktop) --}}

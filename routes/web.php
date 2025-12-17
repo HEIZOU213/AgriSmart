@@ -25,11 +25,13 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\WithdrawController;
 
 // Petani
 use App\Http\Controllers\Petani\DashboardController as PetaniDashboard;
 use App\Http\Controllers\Petani\ProdukController as PetaniProduk;
 use App\Http\Controllers\Petani\PesananController as PetaniPesananController;
+use App\Http\Controllers\Petani\DompetController;
 
 // Konsumen
 use App\Http\Controllers\Konsumen\PesananController as KonsumenPesanan;
@@ -102,6 +104,9 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.destroy');
     Route::post('/pesan-order/{id}', [PesanOrderController::class, 'store'])->name('pesan.store');
     
+    Route::get('/payment-finish', [CheckoutController::class, 'callback'])->name('payment.finish');
+
+    Route::post('/pesanan/{id}/cancel', [CheckoutController::class, 'cancelOrder'])->name('pesanan.cancel');
 
     // --- LOGIC REDIRECT DASHBOARD ---
     // Route ini menangani kemana user pergi setelah login/klik dashboard
@@ -150,6 +155,10 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/inbox/{id}', [KontakController::class, 'destroy'])->name('kontak.destroy');
 
         Route::resource('products', AdminProductController::class)->except(['create', 'store', 'show']);
+
+        Route::get('/withdraw', [WithdrawController::class, 'index'])->name('withdraw.index');
+        Route::patch('/withdraw/{id}/approve', [WithdrawController::class, 'approve'])->name('withdraw.approve');
+
     });
 
     // 2. PETANI ROUTES
@@ -157,6 +166,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [PetaniDashboard::class, 'index'])->name('dashboard');
         Route::resource('produk', PetaniProduk::class);
         Route::resource('pesanan', PetaniPesananController::class)->only(['index', 'show', 'update', 'destroy']);
+
+        Route::get('/dompet', [DompetController::class, 'index'])->name('dompet.index');
+        Route::post('/dompet', [DompetController::class, 'store'])->name('dompet.store');
     });
 
     // 3. KONSUMEN ROUTES
