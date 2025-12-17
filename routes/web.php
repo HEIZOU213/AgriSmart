@@ -218,12 +218,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [PetaniDashboard::class, 'index'])->name('dashboard');
         Route::resource('produk', PetaniProduk::class);
         Route::resource('pesanan', PetaniPesananController::class)->only(['index', 'show', 'update', 'destroy']);
-<<<<<<< HEAD
-=======
 
         Route::get('/dompet', [DompetController::class, 'index'])->name('dompet.index');
         Route::post('/dompet', [DompetController::class, 'store'])->name('dompet.store');
->>>>>>> 634d30b21666cc326287c6d4c66a45291e448cb4
+
     });
 
     // 3. KONSUMEN ROUTES

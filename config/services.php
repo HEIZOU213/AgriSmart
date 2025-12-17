@@ -35,17 +35,15 @@ return [
         ],
     ],
 
-<<<<<<< HEAD
     'google' => [
         'client_id' => env(key: 'GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_CALLBACK_URL'),
     ],
-=======
+
     'midtrans' => [
     'server_key' => env('MIDTRANS_SERVER_KEY'),
     'client_key' => env('MIDTRANS_CLIENT_KEY'),
 ],
->>>>>>> 634d30b21666cc326287c6d4c66a45291e448cb4
 
 ];
