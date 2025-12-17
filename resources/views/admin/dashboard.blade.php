@@ -109,5 +109,39 @@
 
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    
+    <div class="p-6 bg-green-600 rounded-2xl shadow-lg text-white flex items-center justify-between">
+        <div>
+            <h3 class="text-sm font-medium opacity-80 uppercase tracking-wider">Keuntungan AgriSmart</h3>
+            <p class="text-3xl font-black mt-1">
+                Rp {{ number_format($stats['pendapatan_bersih'], 0, ',', '.') }}
+            </p>
+            <p class="text-xs mt-2 opacity-70">Total dari 06% komisi transaksi sukses</p>
+        </div>
+        <div class="p-3 bg-white/20 rounded-xl">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+    </div>
+
+    <div class="p-6 bg-blue-600 rounded-2xl shadow-lg text-white flex items-center justify-between">
+        <div>
+            <h3 class="text-sm font-medium opacity-80 uppercase tracking-wider">Dana Mengendap (Milik Petani)</h3>
+            <p class="text-3xl font-black mt-1">
+                Rp {{ number_format($stats['uang_titipan'], 0, ',', '.') }}
+            </p>
+            <p class="text-xs mt-2 opacity-70">Uang yang siap ditarik (Withdraw) oleh petani</p>
+        </div>
+        <div class="p-3 bg-white/20 rounded-xl">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        </div>
+    </div>
+
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    {{-- Kode kartu user yang lama taruh disini --}}
+</div>
+
     </div>
 </x-admin-layout>

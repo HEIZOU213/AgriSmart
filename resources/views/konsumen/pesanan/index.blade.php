@@ -92,13 +92,41 @@
 
                             {{-- Actions Buttons --}}
                             <div class="flex items-center gap-3 w-full sm:w-auto">
+
+                                {{-- [BARU] TOMBOL BAYAR (Hanya muncul jika Pending & Token Ada) --}}
+                                @if ($item->status == 'pending' && $item->snap_token)
+                                    <button type="button" 
+                                        onclick="snap.pay('{{ $item->snap_token }}', {
+                                            onSuccess: function(result){ window.location.href = '/payment-finish?order_id=' + result.order_id; },
+                                            onPending: function(result){ location.reload(); },
+                                            onError: function(result){ location.reload(); }
+                                        })"
+                                        class="flex-1 sm:flex-none text-center px-4 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 flex items-center justify-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                        </svg>
+                                        Bayar
+                                    </button>
+                                @endif
+
+                                @if ($item->status == 'pending')
+    {{-- Form Cancel Manual --}}
+    <form action="{{ route('pesanan.cancel', $item->id) }}" method="POST" 
+          onsubmit="return confirm('Yakin ingin membatalkan pesanan? Stok akan dikembalikan.');">
+        @csrf
+        <button type="submit" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-xs font-bold transition">
+            Batalkan Pesanan
+        </button>
+    </form>
+@endif
+                                
                                 {{-- Tombol Detail --}}
                                 <a href="{{ route('konsumen.pesanan.show', $item->id) }}" 
                                    class="flex-1 sm:flex-none text-center px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                                     Lihat Detail
                                 </a>
                                 
-                                {{-- Tombol Arsip (Icon only untuk desktop, full text untuk mobile jika perlu) --}}
+                                {{-- Tombol Arsip --}}
                                 <form action="{{ route('konsumen.pesanan.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengarsipkan/menghapus riwayat pesanan ini?');">
                                     @csrf
                                     @method('DELETE')
@@ -133,4 +161,8 @@
         </div>
 
     </div>
+
+    {{-- [BARU] SCRIPT MIDTRANS (Wajib Ada untuk Tombol Bayar) --}}
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+
 </x-konsumen-layout>

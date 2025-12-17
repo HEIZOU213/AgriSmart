@@ -84,34 +84,55 @@ class PesananController extends Controller
     /**
      * Update Status Pesanan
      */
-    public function update(Request $request, string $id)
+   public function update(Request $request, string $id)
     {
         $petaniId = Auth::id();
 
-        // Cek apakah pesanan ini benar mengandung produk milik petani yang login
-        $produkIds = Produk::where('user_id', $petaniId)->pluck('id');
-        $orderHasPetaniProduct = DetailPesanan::where('pesanan_id', $id)
+        // 1. Cek Kepemilikan (Security)
+        $produkIds = \App\Models\Produk::where('user_id', $petaniId)->pluck('id');
+        $orderHasPetaniProduct = \App\Models\DetailPesanan::where('pesanan_id', $id)
                                               ->whereIn('produk_id', $produkIds)
                                               ->exists();
         
         if (!$orderHasPetaniProduct) {
-            abort(403, 'Akses Dilarang. Anda tidak memiliki produk di pesanan ini.');
+            abort(403, 'Akses Dilarang.');
         }
         
-        $request->validate([
-            'status' => 'required|in:paid,shipping,done,cancelled',
-        ]);
-        
         $pesanan = Pesanan::findOrFail($id);
+
+        // 2. Validasi Status (Seperti sebelumnya)
+        if ($request->status == 'paid') {
+            return back()->with('error', 'Status "Paid" hanya boleh diubah otomatis oleh Sistem.');
+        }
+        if ($pesanan->status == 'paid' && $request->status == 'pending') {
+            return back()->with('error', 'Pesanan sudah lunas, tidak dapat dikembalikan ke pending.');
+        }
+
+        $request->validate([
+            'status' => 'required|in:shipping,done,cancelled', 
+        ]);
+
+        // === LOGIKA BARU: POTONG SALDO JIKA CANCEL ===
+        // Cek kondisi: Status sebelumnya 'paid' DAN Petani minta ubah jadi 'cancelled'
+        if ($pesanan->status == 'paid' && $request->status == 'cancelled') {
+            
+            // Ambil data petani yang sedang login
+            $petani = \App\Models\User::find($petaniId);
+            
+            // Kurangi Saldo Petani (Refund Logic)
+            // Pastikan saldo cukup, atau biarkan minus sebagai hutang
+            $petani->saldo = $petani->saldo - $pesanan->seller_income;
+            $petani->save();
+        }
+        // ============================================
+        
+        // 3. Simpan Perubahan Status
         $pesanan->status = $request->status;
         $pesanan->save();
 
-        return redirect()->route('petani.pesanan.show', $pesanan->id)
-                         ->with('success', 'Status pesanan berhasil diperbarui menjadi ' . $request->status . '.');
-    }
+        // (Opsional) Jika status cancelled, kita bisa kembalikan stok produk juga disini
 
-    public function create() { abort(404); }
-    public function store(Request $request) { abort(404); }
-    public function edit(string $id) { abort(404); }
-    public function destroy(string $id) { abort(404); }
+        return redirect()->route('petani.pesanan.show', $pesanan->id)
+                         ->with('success', 'Status diperbarui. Saldo telah disesuaikan.');
+    }
 }
