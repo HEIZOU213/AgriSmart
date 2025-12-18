@@ -69,4 +69,16 @@ class ProdukController extends Controller
             'produk' => $produk
         ]);
     }
+
+    // API: Mengirim daftar produk ke HP
+    public function apiIndex()
+    {
+        // Ambil semua produk beserta data petaninya
+        $produk = Produk::with('user')->where('stok', '>', 0)->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $produk
+        ]);
+    }
 }

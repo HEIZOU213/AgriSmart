@@ -37,4 +37,16 @@ class EdukasiController extends Controller
             'edukasi' => $edukasi
         ]);
     }
+
+    // Tambahkan ini di paling bawah EdukasiController
+    public function apiIndex()
+    {
+        // Mengambil semua data edukasi, diurutkan dari yang terbaru
+        $data = \App\Models\Edukasi::latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
 }
