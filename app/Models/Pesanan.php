@@ -27,6 +27,15 @@ class Pesanan extends Model
         'status',
         'bukti_pembayaran',
         'is_seen', // <--- WAJIB ADA UNTUK NOTIFIKASI
+
+        // JANGAN LUPA DUA KOLOM INI:
+        'alamat_kirim',    // <--- WAJIB ADA
+        'snap_token',      // <--- WAJIB ADA (Untuk Midtrans)
+        
+        // Kolom tambahan dari database Anda
+        'admin_fee',
+        'seller_income',
+        'konsumen_arsip',
     ];
 
     /**

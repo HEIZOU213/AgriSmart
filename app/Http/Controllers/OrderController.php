@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Order;
 use App\Models\Product; // Asumsi ada model Product
+use App\Models\Pesanan;
 use Midtrans\Config;
 use Midtrans\Snap;
+
 
 class OrderController extends Controller
 {
@@ -59,5 +62,20 @@ class OrderController extends Controller
 
         // 7. Tampilkan Halaman Bayar
         return view('orders.show', compact('order', 'snapToken'));
+    }
+
+    // API: Ambil Riwayat Pesanan User
+    public function index()
+    {
+        // PERBAIKAN: Gunakan 'detailPesanan.produk' (sesuai nama fungsi di Model)
+        $orders = Pesanan::where('user_id', Auth::id())
+                    ->with('detailPesanan.produk') 
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders
+        ]);
     }
 }

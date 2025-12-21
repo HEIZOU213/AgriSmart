@@ -280,4 +280,78 @@ class CheckoutController extends Controller
 
         return redirect()->back()->with('error', 'Pesanan sudah diproses, tidak dapat dibatalkan.');
     }
+
+    //bagian api
+    public function apiProcess(Request $request)
+    {
+        // 1. Validasi Input
+        $request->validate([
+            'alamat_pengiriman' => 'required|string',
+            'catatan' => 'nullable|string',
+        ]);
+
+        $user = Auth::user();
+
+        // 2. Ambil Data Keranjang (Pakai Model Keranjang)
+        $carts = Keranjang::with('produk')->where('user_id', $user->id)->get();
+
+        if ($carts->isEmpty()) {
+            return response()->json(['message' => 'Keranjang kosong'], 400);
+        }
+
+        // 3. Hitung Total
+        $totalHarga = 0;
+        foreach ($carts as $cart) {
+            // Sesuai kolom database: 'jumlah'
+            $totalHarga += $cart->produk->harga * $cart->jumlah;
+        }
+        
+        $ongkir = 15000; // Ongkir Flat sementara
+        $grandTotal = $totalHarga + $ongkir;
+
+        // 4. Mulai Transaksi Database
+        DB::beginTransaction();
+        try {
+            // A. Buat Order Baru (Sesuai Tabel 'pesanan')
+            $order = Pesanan::create([
+                'user_id' => $user->id,
+                // Format Kode Pesanan: INV/YYYYMMDD/RANDOM
+                'kode_pesanan' => 'INV/' . date('Ymd') . '/' . strtoupper(Str::random(6)), 
+                'alamat_kirim' => $request->alamat_pengiriman,
+                'status' => 'pending',
+                'total_harga' => $grandTotal,
+                'snap_token' => null, // Nanti diisi Midtrans
+                'is_seen' => 0,
+                'konsumen_arsip' => 0
+            ]);
+
+            // B. Pindahkan Item Keranjang ke Detail Order (Sesuai Tabel 'detail_pesanan')
+            foreach ($carts as $cart) {
+                DetailPesanan::create([
+                    'pesanan_id' => $order->id,
+                    'produk_id' => $cart->produk_id, // Kolom 'produk_id'
+                    'jumlah' => $cart->jumlah,       // Kolom 'jumlah'
+                    'harga_satuan' => $cart->produk->harga,
+                ]);
+            }
+
+            // C. Kosongkan Keranjang User
+            Keranjang::where('user_id', $user->id)->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesanan berhasil dibuat',
+                'data' => $order
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false, 
+                'message' => 'Gagal order: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }   

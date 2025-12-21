@@ -6,6 +6,7 @@ use App\Models\Produk;
 use App\Models\Keranjang; // <-- Gunakan Model Baru
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class CartController extends Controller
 {
@@ -103,5 +104,74 @@ class CartController extends Controller
         Keranjang::where('user_id', $userId)->where('produk_id', $id)->delete();
 
         return redirect()->back()->with('success', 'Produk dihapus dari keranjang.');
+    }
+
+    // =================================================================
+    // BAGIAN 2: KHUSUS UNTUK APLIKASI FLUTTER (API / JSON)
+    // =================================================================
+
+    // 1. API: Ambil Daftar Keranjang
+    public function apiIndex()
+    {
+        // Ganti Cart:: menjadi Keranjang::
+        $carts = Keranjang::with('produk')->where('user_id', Auth::id())->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $carts
+        ]);
+    }
+
+    // 2. API: Tambah ke Keranjang
+    public function apiStore(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'product_id' => 'required|exists:produk,id',
+            'qty'        => 'required|integer|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        // Ganti Cart:: menjadi Keranjang::
+        $existingCart = Keranjang::where('user_id', Auth::id())
+                            ->where('produk_id', $request->product_id)
+                            ->first();
+
+        if ($existingCart) {
+            $existingCart->jumlah += $request->qty;
+            $existingCart->save();
+        } else {
+            // Ganti Cart:: menjadi Keranjang::
+            Keranjang::create([
+                'user_id'   => Auth::id(),
+                'produk_id' => $request->product_id,
+                'jumlah'    => $request->qty
+            ]);
+        }
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Produk berhasil masuk keranjang'
+        ]);
+    }
+
+    // 3. API: Hapus Item
+    public function apiDestroy($id)
+    {
+        // Ganti Cart:: menjadi Keranjang::
+        $cart = Keranjang::where('user_id', Auth::id())->where('id', $id)->first();
+        
+        if ($cart) {
+            $cart->delete();
+            return response()->json(['success' => true, 'message' => 'Item dihapus']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Item tidak ditemukan'], 404);
     }
 }

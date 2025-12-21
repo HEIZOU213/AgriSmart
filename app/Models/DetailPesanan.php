@@ -12,10 +12,19 @@ class DetailPesanan extends Model
 
     /**
      * Menentukan nama tabel yang terkait dengan model.
-     *
-     * @var string
      */
     protected $table = 'detail_pesanan';
+
+    /**
+     * [PENTING] Daftar kolom yang boleh diisi.
+     * Tanpa ini, Laravel akan menolak menyimpan data barang belanjaan.
+     */
+    protected $fillable = [
+        'pesanan_id',   // <--- WAJIB ADA
+        'produk_id',    // <--- WAJIB ADA
+        'jumlah',
+        'harga_satuan'
+    ];
 
     /**
      * Relasi Many-to-One: Satu Detail Pesanan milik satu Pesanan
@@ -30,6 +39,7 @@ class DetailPesanan extends Model
      */
     public function produk(): BelongsTo
     {
-        return $this->belongsTo(Produk::class);
+        // Pastikan nama model Produk sesuai (Produk::class)
+        return $this->belongsTo(Produk::class, 'produk_id', 'id');
     }
 }
