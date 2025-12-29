@@ -73,8 +73,12 @@ class ProdukController extends Controller
     // API: Mengirim daftar produk ke HP
     public function apiIndex()
     {
-        // Ambil semua produk beserta data petaninya
-        $produk = Produk::with('user')->where('stok', '>', 0)->get();
+        // PERBAIKAN: Tambahkan 'kategoriProduk' di dalam with([])
+        // Agar Flutter bisa mengambil: json['kategori_produk']['nama_kategori']
+        $produk = Produk::with(['user', 'kategoriProduk'])
+                        ->where('stok', '>', 0)
+                        ->latest() // Opsional: Urutkan dari yang terbaru
+                        ->get();
         
         return response()->json([
             'success' => true,

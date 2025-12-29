@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage; // <-- 1. IMPORT FACADE STORAGE
+use Illuminate\Support\Facades\Validator;
 
 class ProdukController extends Controller
 {
@@ -151,4 +152,165 @@ class ProdukController extends Controller
         return redirect()->route('petani.produk.index')
                          ->with('success', 'Produk panen berhasil dihapus.');
     }
+
+    /**
+     * API: Menampilkan List Produk milik Petani yang sedang login
+     */
+    public function apiIndex(Request $request)
+    {
+        $user = $request->user();
+
+        // Ambil produk dimana user_id sesuai dengan user yang login
+        $produk = Produk::where('user_id', $user->id)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+
+        // Modifikasi data foto agar URL-nya lengkap (untuk Flutter)
+        $produk->transform(function ($item) {
+            if ($item->foto_produk && !str_starts_with($item->foto_produk, 'http')) {
+                // Pastikan URL gambar lengkap
+                $item->foto_produk = url('storage/' . $item->foto_produk);
+            }
+            return $item;
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'List Produk Petani',
+            'data' => $produk
+        ]);
+    }
+
+    /**
+     * API: Tambah Produk Baru
+     */
+    public function apiStore(Request $request)
+    {
+        // 1. Validasi Input
+        $validator = Validator::make($request->all(), [
+            'nama_produk' => 'required|string|max:255',
+            'kategori_produk_id' => 'required', // Bisa ID kategori
+            'harga' => 'required|numeric',
+            'stok' => 'required|integer',
+            'deskripsi' => 'nullable|string',
+            'foto_produk' => 'nullable|image|max:2048', // Max 2MB
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi Gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = $request->user();
+        $data = $request->all();
+        $data['user_id'] = $user->id; // Set Pemilik Produk
+
+        // 2. Upload Foto
+        if ($request->hasFile('foto_produk')) {
+            // Simpan ke folder 'public/produk'
+            $path = $request->file('foto_produk')->store('produk', 'public');
+            $data['foto_produk'] = $path;
+        }
+
+        // 3. Simpan ke Database
+        $produk = Produk::create($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Produk Berhasil Ditambahkan',
+            'data' => $produk
+        ], 201);
+    }
+
+    /**
+     * API: Update Produk
+     */
+    public function apiUpdate(Request $request, $id)
+    {
+        // 1. Cari Produk
+        $produk = Produk::find($id);
+
+        if (!$produk) {
+            return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+        }
+
+        // 2. Validasi Input (Gunakan Validator yang sudah diimport)
+        $validator = Validator::make($request->all(), [
+            'nama_produk' => 'required|string',
+            'harga'       => 'required|numeric',
+            'stok'        => 'required|integer',
+            'kategori_produk_id' => 'required',
+            'foto_produk' => 'nullable|image|max:2048', // Boleh kosong saat update
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        try {
+            // 3. Update Data Teks
+            $produk->nama_produk = $request->nama_produk;
+            $produk->deskripsi   = $request->deskripsi;
+            $produk->harga       = $request->harga;
+            $produk->stok        = $request->stok;
+            $produk->kategori_produk_id = $request->kategori_produk_id;
+
+            // 4. Cek Apakah Ada Gambar Baru?
+            if ($request->hasFile('foto_produk')) {
+                // Hapus gambar lama jika ada (opsional, biar server gak penuh)
+                if ($produk->foto_produk && Storage::exists('public/' . $produk->foto_produk)) {
+                    Storage::delete('public/' . $produk->foto_produk);
+                }
+
+                // Upload gambar baru
+                $path = $request->file('foto_produk')->store('produk', 'public');
+                $produk->foto_produk = $path;
+            }
+
+            $produk->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil diupdate',
+                'data'    => $produk
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal update: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * API: Hapus Produk
+     */
+    public function apiDestroy(Request $request, $id)
+    {
+        $user = $request->user();
+        $produk = Produk::where('user_id', $user->id)->where('id', $id)->first();
+
+        if (!$produk) {
+            return response()->json(['success' => false, 'message' => 'Produk tidak ditemukan'], 404);
+        }
+
+        // Hapus file foto
+        if ($produk->foto_produk && Storage::disk('public')->exists($produk->foto_produk)) {
+            Storage::disk('public')->delete($produk->foto_produk);
+        }
+
+        $produk->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Produk Berhasil Dihapus'
+        ]);
+    }   
 }

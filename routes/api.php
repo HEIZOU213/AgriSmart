@@ -3,90 +3,127 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// --- Import Semua Controller ---
-use App\Http\Controllers\Api\PaymentCallbackController; 
+// --- 1. IMPOR CONTROLLER (SESUAIKAN DENGAN STRUKTUR FOLDER ANDA) ---
+
+// Controller Khusus API (Yang biasanya return JSON)
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PaymentCallbackController;
+use App\Http\Controllers\Api\PetaniDashboardController; // <--- Controller Dashboard Baru
+
+// Controller Umum (Hybrid: Bisa View / JSON jika ditambahkan method api*)
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\EdukasiController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\OrderController; // Controller History yang baru kita buat
+use App\Http\Controllers\OrderController; // Untuk History Order Umum
+use App\Http\Controllers\ChatController;  // Chat Umum
+use App\Http\Controllers\MarketChatController; // Chat Jual Beli
+use App\Http\Controllers\KontakController; // Untuk Kontak Kami
 
-// Import Controller Petani & Konsumen
+// Controller Khusus Role (Petani/Konsumen)
 use App\Http\Controllers\Petani\ProdukController as PetaniProdukController;
 use App\Http\Controllers\Petani\PesananController as PetaniPesananController;
+use App\Http\Controllers\Petani\DompetController as PetaniDompetController;
 use App\Http\Controllers\Konsumen\PesananController as KonsumenPesananController;
 
 /*
 |--------------------------------------------------------------------------
-| API ROUTES AGRI SMART (FIXED VERSION)
+| API ROUTES AGRI SMART (SYNCHRONIZED WITH WEB)
 |--------------------------------------------------------------------------
 */
 
-// 1. PAYMENT GATEWAY (JANGAN DIHAPUS)
+// ====================================================
+// 1. PUBLIC ROUTES (TIDAK BUTUH LOGIN)
+// ====================================================
+
+// Payment Gateway Callback (Midtrans)
 Route::post('midtrans-callback', [PaymentCallbackController::class, 'handle']);
 
-// 2. PUBLIC ROUTES (Tanpa Login)
+// Auth (Register & Login)
+Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']); 
-Route::get('/produk', [ProdukController::class, 'apiIndex']);
-Route::get('/produk/{id}', [ProdukController::class, 'apiShow']); 
-Route::get('/edukasi', [EdukasiController::class, 'apiIndex']);
-Route::get('/edukasi/{slug}', [EdukasiController::class, 'apiShow']);
 
-// 3. PRIVATE ROUTES (Wajib Login)
+// Halaman Depan (Public Data)
+Route::get('/produk', [ProdukController::class, 'apiIndex']);      // List Produk
+Route::get('/produk/{id}', [ProdukController::class, 'apiShow']);  // Detail Produk
+Route::get('/edukasi', [EdukasiController::class, 'apiIndex']);    // List Edukasi
+Route::get('/edukasi/{slug}', [EdukasiController::class, 'apiShow']); // Detail Edukasi
+
+// Kontak Kami
+Route::post('/kontak', [KontakController::class, 'apiStore']); // Kirim Pesan Kontak
+
+// ====================================================
+// 2. PROTECTED ROUTES (WAJIB LOGIN / BERTOKEN)
+// ====================================================
 Route::middleware('auth:sanctum')->group(function () {
-    
-    // --- FITUR UMUM USER (Profil, Logout) ---
+
+    // --- USER INFO & LOGOUT ---
     Route::get('/user', function (Request $request) {
         return response()->json([
             'success' => true,
-            'data' => $request->user()
+            'data' => $request->user() // Mengambil data user yang sedang login
         ]);
-    }); // <--- Penutup route user yang tadi hilang
-
+    });
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/profile/update', [AuthController::class, 'updateProfile']); 
 
-    // --- FITUR KERANJANG (CART) ---
+    // --- PROFILE ---
+    Route::post('/profile/update', [AuthController::class, 'updateProfile']); 
+    Route::post('/profile/password', [AuthController::class, 'updatePassword']);
+
+    // --- KERANJANG (CART) ---
     Route::get('/cart', [CartController::class, 'apiIndex']); 
     Route::post('/cart/add', [CartController::class, 'apiStore']); 
+    Route::patch('/cart/update/{id}', [CartController::class, 'apiUpdate']);
     Route::delete('/cart/remove/{id}', [CartController::class, 'apiDestroy']);
 
-    // --- FITUR CHECKOUT & HISTORY (Ditaruh di sini agar bisa diakses User Login) ---
-    // Route ini yang dicari Flutter: /api/checkout dan /api/orders
-    Route::post('/checkout', [CheckoutController::class, 'apiProcess']);
-    Route::get('/orders', [OrderController::class, 'index']); // <--- INI PENTING (HISTORY)
+    // --- CHECKOUT & ORDER HISTORY (UMUM) ---
+    Route::post('/checkout', [CheckoutController::class, 'apiProcess']); // Proses Pesanan
+    Route::get('/orders', [OrderController::class, 'index']); // List Semua Order User Tersebut
+    Route::get('/orders/{id}', [OrderController::class, 'show']); // Detail Order
 
-    // --- FITUR CHAT ---
+    // --- CHAT SYSTEM (MARKET & UMUM) ---
+    // Chat Umum
     Route::get('/chat', [ChatController::class, 'apiIndex']); 
-    Route::get('/chat/{id}/messages', [ChatController::class, 'apiGetMessages']); 
+    Route::get('/chat/{id}', [ChatController::class, 'apiGetMessages']); 
     Route::post('/chat/send', [ChatController::class, 'apiSendMessage']); 
+    
+    // Market Chat (Sesuai Web)
+    Route::get('/market-chat/list', [MarketChatController::class, 'getChatList']);
+    Route::get('/market-chat/{receiver_id}', [MarketChatController::class, 'getMessages']);
+    Route::post('/market-chat/send', [MarketChatController::class, 'sendMessage']);
 
-    // --- FITUR PETANI (Khusus Role Petani) ---
-    // Pastikan user di database memiliki kolom 'role' = 'petani'
-    // Dan Anda memiliki middleware 'role' yang sudah didaftarkan di Kernel.php
+    // ====================================================
+    // 3. ROLE: PETANI ROUTES
+    // ====================================================
     Route::middleware('role:petani')->group(function () {
-        Route::get('/petani/dashboard', [PetaniProdukController::class, 'apiDashboard']);
-        // Manajemen Produk Petani
+        
+        // Dashboard Petani (Menggunakan Controller Baru yang kita buat)
+        Route::get('/petani/dashboard', [PetaniDashboardController::class, 'index']);
+
+        // Manajemen Produk (CRUD)
         Route::get('/petani/produk', [PetaniProdukController::class, 'apiIndex']);
-        Route::post('/petani/produk', [PetaniProdukController::class, 'apiStore']);
-        Route::post('/petani/produk/{id}', [PetaniProdukController::class, 'apiUpdate']); 
+        Route::post('/petani/produk/store', [PetaniProdukController::class, 'apiStore']);
+        Route::post('/petani/produk/{id}', [PetaniProdukController::class, 'apiUpdate']); // Pakai POST untuk update file di Flutter
         Route::delete('/petani/produk/{id}', [PetaniProdukController::class, 'apiDestroy']);
-        // Pesanan Masuk
+
+        // Manajemen Pesanan Masuk
         Route::get('/petani/pesanan', [PetaniPesananController::class, 'apiIndex']);
         Route::post('/petani/pesanan/{id}/update-status', [PetaniPesananController::class, 'apiUpdateStatus']);
+
+        // Dompet Petani (Optional: Jika di Flutter mau ditampilkan)
+        // Route::get('/petani/dompet', [PetaniDompetController::class, 'apiIndex']);
     });
 
-    // --- FITUR KONSUMEN (Khusus Role Konsumen) ---
+    // ====================================================
+    // 4. ROLE: KONSUMEN ROUTES
+    // ====================================================
     Route::middleware('role:konsumen')->group(function () {
-        // Jika nanti ingin memindahkan checkout khusus konsumen, pindahkan ke sini.
-        // Tapi untuk testing sekarang, biarkan checkout & orders di atas (Global Auth).
         
-        // Riwayat Pesanan (Versi Controller Konsumen Spesifik)
+        // Pesanan Konsumen (History & Tracking)
         Route::get('/konsumen/pesanan', [KonsumenPesananController::class, 'apiIndex']);
-        Route::get('/konsumen/pesanan/{id}', [KonsumenPesananController::class, 'apiShow']);
+        
+        // Cancel Pesanan
+        Route::put('/konsumen/pesanan/{id}/cancel', [KonsumenPesananController::class, 'apiCancel']);
     });
 
-}); // <--- Penutup Group Auth Sanctum
+});

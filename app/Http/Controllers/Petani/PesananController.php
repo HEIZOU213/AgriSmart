@@ -135,4 +135,69 @@ class PesananController extends Controller
         return redirect()->route('petani.pesanan.show', $pesanan->id)
                          ->with('success', 'Status diperbarui. Saldo telah disesuaikan.');
     }
+
+    // API: Ambil Daftar Pesanan (Untuk Tab List)
+    public function apiIndex(Request $request)
+    {
+        $user = $request->user();
+
+        // 1. Ambil ID Produk Petani
+        $productIds = Produk::where('user_id', $user->id)->pluck('id');
+
+        if ($productIds->isEmpty()) {
+            return response()->json(['success' => true, 'data' => []]);
+        }
+
+        // 2. Cari Pesanan yang memuat produk petani ini
+        // Menggunakan relasi 'detailPesanan' (sesuai Model Pesanan)
+        $orders = Pesanan::whereHas('detailPesanan', function ($query) use ($productIds) {
+            $query->whereIn('produk_id', $productIds);
+        })
+        ->with(['detailPesanan' => function ($query) use ($productIds) {
+            $query->whereIn('produk_id', $productIds)->with('produk');
+        }, 'user']) // Load data pembeli
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders
+        ]);
+    }
+
+    // API: Update Status (Konfirmasi/Kirim)
+    public function apiUpdateStatus(Request $request, $id)
+    {
+        // 1. Validasi Input
+        $request->validate([
+            'status' => 'required|string' // status yang dikirim: 'confirmed', 'shipped', dll
+        ]);
+
+        // 2. Cari Pesanan Berdasarkan ID
+        $pesanan = Pesanan::find($id);
+
+        if (!$pesanan) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Pesanan tidak ditemukan'
+            ], 404);
+        }
+
+        // 3. Update Status di Database
+        try {
+            $pesanan->status = $request->status;
+            $pesanan->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diubah menjadi ' . $request->status,
+                'data' => $pesanan
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal simpan ke database: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

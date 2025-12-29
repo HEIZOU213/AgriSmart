@@ -19,6 +19,20 @@ class Produk extends Model
     protected $table = 'produk';
 
     /**
+     * KOLOM YANG BOLEH DIISI (Mass Assignment)
+     * Tambahkan ini agar data bisa disimpan controller
+     */
+    protected $fillable = [
+        'user_id',            // ID Petani
+        'kategori_produk_id', // ID Kategori
+        'nama_produk',
+        'deskripsi',
+        'harga',
+        'stok',
+        'foto_produk',
+    ];
+
+    /**
      * Relasi Many-to-One: Satu Produk dimiliki oleh satu User (Petani)
      */
     public function user(): BelongsTo
