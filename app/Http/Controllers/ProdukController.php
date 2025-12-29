@@ -70,15 +70,50 @@ class ProdukController extends Controller
         ]);
     }
 
-    // API: Mengirim daftar produk ke HP
-    public function apiIndex()
+    // API: Mengirim daftar produk ke HP dengan FILTER LENGKAP
+    public function apiIndex(Request $request)
     {
-        // PERBAIKAN: Tambahkan 'kategoriProduk' di dalam with([])
-        // Agar Flutter bisa mengambil: json['kategori_produk']['nama_kategori']
-        $produk = Produk::with(['user', 'kategoriProduk'])
-                        ->where('stok', '>', 0)
-                        ->latest() // Opsional: Urutkan dari yang terbaru
-                        ->get();
+        // 1. Mulai Query
+        $query = Produk::with(['user', 'kategoriProduk']);
+
+        // 2. Filter Pencarian (Nama Produk atau Penjual)
+        if ($request->has('q') && $request->q != '') {
+            $keyword = $request->q;
+            $query->where(function ($q) use ($keyword) {
+                $q->where('nama_produk', 'like', '%' . $keyword . '%')
+                  ->orWhereHas('user', function ($subQ) use ($keyword) {
+                      $subQ->where('name', 'like', '%' . $keyword . '%');
+                  });
+            });
+        }
+
+        // 3. Filter Kategori
+        if ($request->has('kategori') && $request->kategori != '') {
+            $query->where('kategori_produk_id', $request->kategori);
+        }
+
+        // 4. Filter Stok
+        if ($request->has('stok')) {
+            if ($request->stok == 'tersedia') {
+                $query->where('stok', '>', 0);
+            } elseif ($request->stok == 'habis') {
+                $query->where('stok', '<=', 0);
+            }
+        } else {
+            // Default: Hanya tampilkan yang stoknya ada (Opsional, sesuaikan kebutuhan)
+            // $query->where('stok', '>', 0); 
+        }
+
+        // 5. Filter Harga (Sortir)
+        if ($request->has('harga') && in_array($request->harga, ['asc', 'desc'])) {
+            $query->orderBy('harga', $request->harga);
+        } else {
+            // Default Sort: Terbaru
+            $query->latest();
+        }
+
+        // 6. Eksekusi
+        $produk = $query->get();
         
         return response()->json([
             'success' => true,
