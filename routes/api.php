@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PaymentCallbackController;
 use App\Http\Controllers\Api\PetaniDashboardController; // <--- Controller Dashboard Baru
+use App\Http\Controllers\Api\NotifikasiController;
+use App\Http\Controllers\Api\KeranjangController; // <--- PASTIKAN INI ADA
 
 // Controller Umum (Hybrid: Bisa View / JSON jika ditambahkan method api*)
 use App\Http\Controllers\ProdukController;
@@ -91,6 +93,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/market-chat/list', [MarketChatController::class, 'getChatList']);
     Route::get('/market-chat/{receiver_id}', [MarketChatController::class, 'getMessages']);
     Route::post('/market-chat/send', [MarketChatController::class, 'sendMessage']);
+
+    Route::get('/notifikasi', [NotifikasiController::class, 'index']);
+    Route::get('/keranjang/count', [KeranjangController::class, 'count']);
+    Route::get('/notifikasi/count', [NotifikasiController::class, 'countUnread']);
 
     // ====================================================
     // 3. ROLE: PETANI ROUTES

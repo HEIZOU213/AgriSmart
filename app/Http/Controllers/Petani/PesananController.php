@@ -6,91 +6,85 @@ use App\Http\Controllers\Controller;
 use App\Models\Pesanan;
 use App\Models\Produk;
 use App\Models\DetailPesanan;
-use App\Models\PesanOrder; // <--- WAJIB DITAMBAHKAN AGAR TIDAK ERROR DI FUNGSI SHOW
+use App\Models\PesanOrder;
+use App\Models\User;
+use App\Models\Notifikasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB; // Import DB untuk transaksi
 
 class PesananController extends Controller
 {
     /**
-     * Menampilkan daftar pesanan yang berisi produk milik petani ini
-     * DENGAN FITUR FILTER (Produk & Tanggal).
+     * Menampilkan daftar pesanan (Versi WEB)
      */
     public function index(Request $request)
     {
         $petaniId = Auth::id();
 
-        // Query Dasar: Ambil Pesanan yang punya detail produk milik petani ini
+        // Query Dasar
         $query = Pesanan::whereHas('detailPesanan.produk', function($q) use ($petaniId) {
             $q->where('user_id', $petaniId);
         });
 
-        // --- FILTER 1: Cari Nama Produk ---
+        // Filter
         if ($request->filled('filter_produk')) {
             $keyword = $request->filter_produk;
             $query->whereHas('detailPesanan.produk', function($q) use ($keyword) {
                 $q->where('nama_produk', 'like', '%' . $keyword . '%');
             });
         }
-
-        // --- FILTER 2: Cari Tanggal ---
         if ($request->filled('filter_tanggal')) {
             $query->whereDate('created_at', $request->filter_tanggal);
         }
-
-        // --- FILTER 3: Status ---
         if ($request->filled('filter_status')) {
             $query->where('status', $request->filter_status);
         }
 
-        // Eksekusi Data
-        // 'with(\'user\')' ini sudah benar untuk mengambil data nama pelanggan
-        $pesananMasuk = $query->with('user') 
+        $pesananMasuk = $query->with('user')
                               ->orderBy('created_at', 'desc')
                               ->paginate(10)
-                              ->withQueryString(); 
+                              ->withQueryString();
                             
         return view('petani.pesanan.index', ['pesananMasuk' => $pesananMasuk]);
     }
 
     /**
-     * Menampilkan detail pesanan
+     * Detail Pesanan (Versi WEB)
      */
     public function show(string $id)
     {
-        // 1. Ambil data pesanan
         $pesanan = Pesanan::where('id', $id)
-                      ->with(['user', 'detailPesanan.produk']) 
-                      ->firstOrFail();
+                          ->with(['user', 'detailPesanan.produk'])
+                          ->firstOrFail();
 
-        // [LOGIKA BARU] TANDAI SEBAGAI SUDAH DILIHAT (Mark as Seen)
-        // Jika status masih pending DAN belum dilihat, ubah jadi dilihat.
+        // Tandai sudah dilihat (Pastikan kolom is_seen ada di DB)
         if ($pesanan->status == 'pending' && $pesanan->is_seen == 0) {
             $pesanan->update(['is_seen' => true]);
         }
 
-        // 2. Ambil log pesan/chat
+        // Ambil log pesan
         $pesanLog = PesanOrder::where('pesanan_id', $id)
-                                ->with('user') 
-                                ->orderBy('created_at', 'asc')
-                                ->get();
+                              ->with('user')
+                              ->orderBy('created_at', 'asc')
+                              ->get();
 
         return view('petani.pesanan.show', [
             'pesanan' => $pesanan,
-            'pesanLog' => $pesanLog 
+            'pesanLog' => $pesanLog
         ]);
     }
 
     /**
-     * Update Status Pesanan
+     * Update Status (Versi WEB)
      */
-   public function update(Request $request, string $id)
+    public function update(Request $request, string $id)
     {
         $petaniId = Auth::id();
 
         // 1. Cek Kepemilikan (Security)
-        $produkIds = \App\Models\Produk::where('user_id', $petaniId)->pluck('id');
-        $orderHasPetaniProduct = \App\Models\DetailPesanan::where('pesanan_id', $id)
+        $produkIds = Produk::where('user_id', $petaniId)->pluck('id');
+        $orderHasPetaniProduct = DetailPesanan::where('pesanan_id', $id)
                                               ->whereIn('produk_id', $produkIds)
                                               ->exists();
         
@@ -100,7 +94,7 @@ class PesananController extends Controller
         
         $pesanan = Pesanan::findOrFail($id);
 
-        // 2. Validasi Status (Seperti sebelumnya)
+        // 2. Validasi Status
         if ($request->status == 'paid') {
             return back()->with('error', 'Status "Paid" hanya boleh diubah otomatis oleh Sistem.');
         }
@@ -112,50 +106,52 @@ class PesananController extends Controller
             'status' => 'required|in:shipping,done,cancelled', 
         ]);
 
-        // === LOGIKA BARU: POTONG SALDO JIKA CANCEL ===
-        // Cek kondisi: Status sebelumnya 'paid' DAN Petani minta ubah jadi 'cancelled'
+        // 3. LOGIKA POTONG SALDO (Refund)
         if ($pesanan->status == 'paid' && $request->status == 'cancelled') {
-            
-            // Ambil data petani yang sedang login
-            $petani = \App\Models\User::find($petaniId);
-            
-            // Kurangi Saldo Petani (Refund Logic)
-            // Pastikan saldo cukup, atau biarkan minus sebagai hutang
+            $petani = User::find($petaniId);
             $petani->saldo = $petani->saldo - $pesanan->seller_income;
             $petani->save();
         }
-        // ============================================
         
-        // 3. Simpan Perubahan Status
+        // 4. LOGIKA KEMBALIKAN STOK (Restock)
+        if ($request->status == 'cancelled' && $pesanan->status != 'cancelled') {
+             foreach ($pesanan->detailPesanan as $detail) {
+                $produk = $detail->produk;
+                if ($produk && $produk->user_id == $petaniId) {
+                    $produk->stok = $produk->stok + $detail->jumlah;
+                    $produk->save();
+                }
+            }
+        }
+
+        // 5. Simpan Perubahan Status
         $pesanan->status = $request->status;
         $pesanan->save();
 
-        // (Opsional) Jika status cancelled, kita bisa kembalikan stok produk juga disini
-
         return redirect()->route('petani.pesanan.show', $pesanan->id)
-                         ->with('success', 'Status diperbarui. Saldo telah disesuaikan.');
+                         ->with('success', 'Status diperbarui.');
     }
 
-    // API: Ambil Daftar Pesanan (Untuk Tab List)
+    // ----------------------------------------------------------------------
+    // API (UNTUK APLIKASI FLUTTER)
+    // ----------------------------------------------------------------------
+
+    // API: Ambil Daftar Pesanan
     public function apiIndex(Request $request)
     {
         $user = $request->user();
-
-        // 1. Ambil ID Produk Petani
         $productIds = Produk::where('user_id', $user->id)->pluck('id');
 
         if ($productIds->isEmpty()) {
             return response()->json(['success' => true, 'data' => []]);
         }
 
-        // 2. Cari Pesanan yang memuat produk petani ini
-        // Menggunakan relasi 'detailPesanan' (sesuai Model Pesanan)
         $orders = Pesanan::whereHas('detailPesanan', function ($query) use ($productIds) {
             $query->whereIn('produk_id', $productIds);
         })
         ->with(['detailPesanan' => function ($query) use ($productIds) {
             $query->whereIn('produk_id', $productIds)->with('produk');
-        }, 'user']) // Load data pembeli
+        }, 'user'])
         ->orderBy('created_at', 'desc')
         ->get();
 
@@ -165,39 +161,88 @@ class PesananController extends Controller
         ]);
     }
 
-    // API: Update Status (Konfirmasi/Kirim)
+    // API: Update Status (DIPERBAIKI DENGAN NOTIFIKASI OTOMATIS)
     public function apiUpdateStatus(Request $request, $id)
     {
-        // 1. Validasi Input
         $request->validate([
-            'status' => 'required|string' // status yang dikirim: 'confirmed', 'shipped', dll
+            'status' => 'required|string'
         ]);
 
-        // 2. Cari Pesanan Berdasarkan ID
-        $pesanan = Pesanan::find($id);
+        return DB::transaction(function () use ($request, $id) {
+            $user = $request->user();
+            
+            // Load detail pesanan, produk, DAN user pembeli
+            $pesanan = Pesanan::with(['detailPesanan.produk', 'user'])->find($id);
 
-        if (!$pesanan) {
-            return response()->json([
-                'success' => false, 
-                'message' => 'Pesanan tidak ditemukan'
-            ], 404);
-        }
+            if (!$pesanan) {
+                return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan'], 404);
+            }
 
-        // 3. Update Status di Database
-        try {
-            $pesanan->status = $request->status;
+            $oldStatus = $pesanan->status;
+            $newStatus = $request->status;
+            $pembeliId = $pesanan->user_id; // AMBIL ID PEMBELI SECARA OTOMATIS
+
+            // 1. LOGIKA RESTOCK (Jika batal, kembalikan stok)
+            if ($newStatus == 'cancelled' && $oldStatus != 'cancelled') {
+                foreach ($pesanan->detailPesanan as $detail) {
+                    $produk = $detail->produk;
+                    if ($produk && $produk->user_id == $user->id) {
+                        $produk->stok = $produk->stok + $detail->jumlah;
+                        $produk->save();
+                    }
+                }
+            }
+
+            // 2. LOGIKA REFUND (Potong Saldo Petani jika sudah lunas tapi dibatalkan)
+            if ($oldStatus == 'paid' && $newStatus == 'cancelled') {
+                $pendapatan = $pesanan->seller_income ?? 0;
+                
+                if ($pendapatan > 0) {
+                    $petani = User::find($user->id);
+                    $petani->saldo = $petani->saldo - $pendapatan;
+                    $petani->save();
+                }
+            }
+
+            // 3. --- [BARU] LOGIKA KIRIM NOTIFIKASI OTOMATIS ---
+            $judul = "Update Pesanan #" . ($pesanan->kode_pesanan ?? $pesanan->id);
+            $pesan = "";
+            $type = "info";
+
+            if ($newStatus == 'paid') {
+                $pesan = "Pesanan Anda telah DITERIMA oleh petani dan sedang diproses.";
+                $type = "success";
+            } elseif ($newStatus == 'shipping') {
+                $pesan = "Pesanan Anda sedang DALAM PENGIRIMAN menuju alamat Anda.";
+                $type = "info";
+            } elseif ($newStatus == 'cancelled') {
+                $pesan = "Mohon maaf, pesanan Anda DIBATALKAN oleh petani. Stok akan dikembalikan.";
+                $type = "danger";
+            } elseif ($newStatus == 'done') {
+                $pesan = "Pesanan selesai. Terima kasih telah berbelanja!";
+                $type = "success";
+            }
+
+            // Buat Notifikasi di Database (Hanya jika ada pesan status)
+            if ($pesan != "") {
+                Notifikasi::create([
+                    'user_id' => $pembeliId, // Ini akan otomatis mengirim ke pembeli yang benar
+                    'judul'   => $judul,
+                    'pesan'   => $pesan,
+                    'type'    => $type,
+                    'is_read' => false
+                ]);
+            }
+            // ------------------------------------------------
+
+            $pesanan->status = $newStatus;
             $pesanan->save();
 
             return response()->json([
-                'success' => true,
-                'message' => 'Status berhasil diubah menjadi ' . $request->status,
+                'success' => true, 
+                'message' => 'Status berhasil diubah & Notifikasi terkirim', 
                 'data' => $pesanan
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal simpan ke database: ' . $e->getMessage()
-            ], 500);
-        }
+        });
     }
 }
