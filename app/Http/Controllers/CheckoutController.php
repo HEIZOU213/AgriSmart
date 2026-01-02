@@ -335,7 +335,7 @@ class CheckoutController extends Controller
                 }
 
                 // Hitung Ongkir & Komisi
-                $ongkir = 15000; // Bisa dibuat dinamis nanti
+                $ongkir = 0; // Bisa dibuat dinamis nanti
                 $grandTotal = $totalPerPetani + $ongkir;
                 
                 $adminFee = $totalPerPetani * 0.10; // 10% Fee

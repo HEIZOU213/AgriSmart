@@ -91,6 +91,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password), // Enkripsi password
+            'no_telepon' => $request->no_telepon,
             'role' => 'konsumen', // Default role user baru adalah konsumen
         ]);
 
