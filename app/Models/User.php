@@ -81,4 +81,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Pesanan::class);
     }
+
+    public function devices()
+    {
+        return $this->hasMany(Device::class);
+    }
 }

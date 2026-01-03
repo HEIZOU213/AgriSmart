@@ -6,130 +6,96 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <meta name="description"
-        content="Marketplace Pertanian AgriSmart. Temukan hasil panen segar langsung dari petani dengan harga terbaik.">
+    <!-- ========== SEO META TAGS ========== -->
+    <meta name="description" content="Marketplace Pertanian AgriSmart. Temukan hasil panen segar langsung dari petani dengan harga terbaik.">
     <meta name="keywords" content="Marketplace Tani, Jual Sayur, AgriSmart, Petani Digital, Panen Segar">
     <meta property="og:title" content="Marketplace - {{ config('app.name', 'AgriSmart') }}">
     <meta property="og:description" content="Belanja hasil tani segar langsung dari sumbernya.">
     <meta property="og:image" content="{{ asset('images/hero1.png') }}">
 
+    <!-- ========== FAVICON & TITLE ========== -->
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <title>Marketplace - {{ config('app.name', 'AgriSmart') }}</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <!-- ========== EXTERNAL STYLESHEETS ========== -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- ========== VITE ASSETS ========== -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <!-- ========== CUSTOM STYLES ========== -->
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
+        /* Utility untuk AlpineJS */
         [x-cloak] {
             display: none !important;
         }
 
+        /* Custom Scrollbar Styling */
         ::-webkit-scrollbar {
             width: 10px;
         }
-
         ::-webkit-scrollbar-track {
             background: #f0fdf4;
         }
-
         ::-webkit-scrollbar-thumb {
             background: #16a34a;
             border-radius: 5px;
             border: 2px solid #f0fdf4;
         }
-
         ::-webkit-scrollbar-thumb:hover {
             background: #15803d;
         }
 
+        /* Custom Animations */
         .animate-float {
             animation: float 6s ease-in-out infinite;
         }
 
         @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-20px);
-            }
-
-            100% {
-                transform: translateY(0px);
-            }
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
         }
 
+        /* Text Truncation Utilities (Line Clamp) */
         .line-clamp-1 {
             display: -webkit-box;
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-
         .line-clamp-3 {
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-
-        @keyframes blob {
-            0% {
-                transform: translate(0px, 0px) scale(1);
-            }
-
-            33% {
-                transform: translate(30px, -50px) scale(1.1);
-            }
-
-            66% {
-                transform: translate(-20px, 20px) scale(0.9);
-            }
-
-            100% {
-                transform: translate(0px, 0px) scale(1);
-            }
-        }
-
-        .animate-blob {
-            animation: blob 7s infinite;
-        }
-
-        .animation-delay-2000 {
-            animation-delay: 2s;
-        }
-
-        .animation-delay-4000 {
-            animation-delay: 4s;
-        }
     </style>
 </head>
 
-<body
-    class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
+<body class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
 
+    <!-- ========== NAVIGATION COMPONENT ========== -->
     <x-navbar />
 
     <main class="flex-1">
 
-        <section class="relative overflow-hidden pt-20 pb-14 lg:pt-28 lg:pb-20 bg-slate-50">
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <!-- ========== HERO SECTION ========== -->
+        <section class="relative overflow-visible pt-20 pb-10 lg:pt-28 lg:pb-16 bg-slate-50">
+            
+            <!-- Background Decoration -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
                 <div class="w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-5">
                     <div class="w-full h-full animate-[spin_30s_linear_infinite]">
                         <img src="images/nav-logo.png" alt="Background Decorative" class="w-full h-full object-contain">
@@ -137,144 +103,230 @@
                 </div>
             </div>
 
+            <!-- Hero Content Container -->
             <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
-                <div class="text-center mb-8" data-aos="fade-up">
-                    <span
-                        class="inline-block py-1 px-3 rounded-full bg-green-100/50 text-green-700 text-xs font-bold tracking-wider uppercase mb-4 border border-green-200/50 shadow-sm">
+
+                <!-- Hero Title & Description -->
+                <div class="text-center mb-6" data-aos="fade-up">
+                    <span class="inline-block py-1 px-3 rounded-full bg-green-100/50 text-green-700 text-[10px] sm:text-xs font-bold tracking-wider uppercase mb-3 border border-green-200/50 shadow-sm">
                         Marketplace Terpercaya
                     </span>
-                    <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-5">
-                        Marketplace
-                        <span class="text-green-600">
-                            Pertanian Terbaik
-                        </span>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-3">
+                        Marketplace <span class="text-green-600">Pertanian Terbaik</span>
                     </h2>
-                    <p class="text-lg text-slate-600 max-w-2xl mx-auto mb-8">
+                    <p class="text-base text-slate-600 max-w-xl mx-auto mb-6">
                         Temukan hasil panen segar langsung dari petani dengan harga terbaik
                     </p>
                 </div>
 
+                <!-- ========== SEARCH & FILTER FORM ========== -->
                 <div class="max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-                    <form action="{{ route('produk.index') }}" method="GET" class="space-y-4">
+                    <form action="{{ route('produk.index') }}" method="GET" class="space-y-3">
 
-                        <div class="w-full">
-                            <div
-                                class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm transition-all duration-200 overflow-hidden p-1">
-                                <input type="search" name="q" value="{{ request('q') }}"
+                        <!-- Search Input -->
+                        <div class="w-full" x-data="{ search: '{{ request('q') }}' }">
+                            <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm transition-all duration-200 overflow-hidden p-1">
+                                
+                                <input type="search" name="q" x-model="search" value="{{ request('q') }}"
                                     placeholder="Cari produk pertanian..."
-                                    class="flex-1 pl-4 pr-4 py-3 bg-transparent text-slate-700 outline-none text-sm font-medium placeholder:text-slate-400">
+                                    class="flex-1 pl-4 pr-4 py-2.5 bg-transparent text-slate-700 outline-none border-none focus:border-none focus:ring-0 shadow-none hover:border-none text-sm font-medium placeholder:text-slate-400 [&::-webkit-search-cancel-button]:appearance-none">
 
+                                <!-- Clear Search Button -->
+                                <button type="button" x-show="search.length > 0" x-cloak
+                                    @click="search = ''; $nextTick(() => { $el.closest('form').submit() })"
+                                    class="p-2 text-slate-400 hover:text-green-600 transition-colors duration-200">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+
+                                <!-- Submit Button -->
                                 <button type="submit"
-                                    class="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center shadow-sm">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z">
-                                        </path>
+                                    class="px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 flex items-center justify-center shadow-sm"
+                                    title="Cari dan Terapkan Filter">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                                     </svg>
                                 </button>
                             </div>
                         </div>
 
+                        <!-- Filter Dropdowns -->
                         <div class="w-full">
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 relative z-30">
                                 @php
-                                    $selectWrapper = "relative";
-                                    $selectClass = "w-full appearance-none bg-white border border-gray-200 text-slate-600 text-sm font-medium py-3 pl-4 pr-10 rounded-xl focus:outline-none focus:border-gray-200 cursor-pointer shadow-sm";
-                                    $iconWrapper = "absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400";
+                                    // Helper classes untuk styling dropdown agar konsisten
+                                    $btnClass = 'w-full bg-white text-slate-600 text-sm font-medium py-2.5 pl-4 pr-4 rounded-xl text-left shadow-sm flex items-center justify-between transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-200';
+                                    $dropdownClass = 'absolute z-50 mt-1.5 w-full bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-y-auto py-1 custom-scrollbar ring-1 ring-black ring-opacity-5 focus:outline-none';
+                                    $itemClass = 'px-4 py-2 text-sm text-slate-600 cursor-pointer transition-colors hover:bg-green-50 hover:text-green-700';
+                                    $activeItemClass = 'bg-green-50 text-green-700 font-bold';
                                 @endphp
 
-                                <div class="{{ $selectWrapper }}">
-                                    <select name="kategori" class="{{ $selectClass }}">
-                                        <option value="">Semua Kategori</option>
-                                        @if(isset($kategoris))
-                                            @foreach($kategoris as $kategori)
-                                                <option value="{{ $kategori->id }}" {{ request('kategori') == $kategori->id ? 'selected' : '' }}>
+                                <!-- ========== KATEGORI DROPDOWN ========== -->
+                                <div class="relative" x-data="{
+                                    open: false,
+                                    selected: '{{ request('kategori') && isset($kategoris) ? $kategoris->where('id', request('kategori'))->first()->nama_kategori ?? 'Semua Kategori' : 'Semua Kategori' }}',
+                                    val: '{{ request('kategori') }}'
+                                }" @click.outside="open = false">
+
+                                    <input type="hidden" name="kategori" :value="val">
+
+                                    <button type="button" @click="open = !open" class="{{ $btnClass }}">
+                                        <span x-text="selected" class="truncate mr-2"></span>
+                                        <svg class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"
+                                            :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </button>
+
+                                    <div x-show="open" x-cloak 
+                                        x-transition:enter="transition ease-out duration-100"
+                                        x-transition:enter-start="transform opacity-0 scale-95"
+                                        x-transition:enter-end="transform opacity-100 scale-100"
+                                        x-transition:leave="transition ease-in duration-75"
+                                        x-transition:leave-start="transform opacity-100 scale-100"
+                                        x-transition:leave-end="transform opacity-0 scale-95"
+                                        class="{{ $dropdownClass }}">
+
+                                        <div @click="selected = 'Semua Kategori'; val = ''; open = false"
+                                            class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === '' }">
+                                            Semua Kategori
+                                        </div>
+
+                                        @if (isset($kategoris))
+                                            @foreach ($kategoris as $kategori)
+                                                <div @click="selected = '{{ $kategori->nama_kategori }}'; val = '{{ $kategori->id }}'; open = false"
+                                                    class="{{ $itemClass }}"
+                                                    :class="{ '{{ $activeItemClass }}': val == '{{ $kategori->id }}' }">
                                                     {{ $kategori->nama_kategori }}
-                                                </option>
+                                                </div>
                                             @endforeach
                                         @endif
-                                    </select>
-                                    <div class="{{ $iconWrapper }}">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7"></path>
-                                        </svg>
                                     </div>
                                 </div>
 
-                                <div class="{{ $selectWrapper }}">
-                                    <select name="harga" class="{{ $selectClass }}">
-                                        <option value="">Urutkan Harga</option>
-                                        <option value="asc" {{ request('harga') == 'asc' ? 'selected' : '' }}>Termurah
-                                        </option>
-                                        <option value="desc" {{ request('harga') == 'desc' ? 'selected' : '' }}>Termahal
-                                        </option>
-                                    </select>
-                                    <div class="{{ $iconWrapper }}">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7"></path>
+                                <!-- ========== HARGA DROPDOWN ========== -->
+                                <div class="relative" x-data="{
+                                    open: false,
+                                    selected: '{{ request('harga') == 'asc' ? 'Termurah' : (request('harga') == 'desc' ? 'Termahal' : 'Urutkan Harga') }}',
+                                    val: '{{ request('harga') }}'
+                                }" @click.outside="open = false">
+
+                                    <input type="hidden" name="harga" :value="val">
+
+                                    <button type="button" @click="open = !open" class="{{ $btnClass }}">
+                                        <span x-text="selected" class="truncate mr-2"></span>
+                                        <svg class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"
+                                            :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
+                                    </button>
+
+                                    <div x-show="open" x-cloak 
+                                        x-transition:enter="transition ease-out duration-100"
+                                        x-transition:enter-start="transform opacity-0 scale-95"
+                                        x-transition:enter-end="transform opacity-100 scale-100"
+                                        x-transition:leave="transition ease-in duration-75"
+                                        x-transition:leave-start="transform opacity-100 scale-100"
+                                        x-transition:leave-end="transform opacity-0 scale-95"
+                                        class="{{ $dropdownClass }}">
+
+                                        <div @click="selected = 'Urutkan Harga'; val = ''; open = false"
+                                            class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === '' }">
+                                            Urutkan Harga (Default)
+                                        </div>
+                                        <div @click="selected = 'Termurah'; val = 'asc'; open = false"
+                                            class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === 'asc' }">
+                                            Termurah
+                                        </div>
+                                        <div @click="selected = 'Termahal'; val = 'desc'; open = false"
+                                            class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === 'desc' }">
+                                            Termahal
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="{{ $selectWrapper }}">
-                                    <select name="stok" class="{{ $selectClass }}">
-                                        <option value="">Status Stok</option>
-                                        <option value="tersedia" {{ request('stok') == 'tersedia' ? 'selected' : '' }}>
-                                            Tersedia</option>
-                                        <option value="habis" {{ request('stok') == 'habis' ? 'selected' : '' }}>Habis
-                                        </option>
-                                    </select>
-                                    <div class="{{ $iconWrapper }}">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 9l-7 7-7-7"></path>
+                                <!-- ========== STOK DROPDOWN ========== -->
+                                <div class="relative" x-data="{
+                                    open: false,
+                                    selected: '{{ request('stok') == 'tersedia' ? 'Tersedia' : (request('stok') == 'habis' ? 'Habis' : 'Status Stok') }}',
+                                    val: '{{ request('stok') }}'
+                                }" @click.outside="open = false">
+
+                                    <input type="hidden" name="stok" :value="val">
+
+                                    <button type="button" @click="open = !open" class="{{ $btnClass }}">
+                                        <span x-text="selected" class="truncate mr-2"></span>
+                                        <svg class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"
+                                            :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
+                                    </button>
+
+                                    <div x-show="open" x-cloak 
+                                        x-transition:enter="transition ease-out duration-100"
+                                        x-transition:enter-start="transform opacity-0 scale-95"
+                                        x-transition:enter-end="transform opacity-100 scale-100"
+                                        x-transition:leave="transition ease-in duration-75"
+                                        x-transition:leave-start="transform opacity-100 scale-100"
+                                        x-transition:leave-end="transform opacity-0 scale-95"
+                                        class="{{ $dropdownClass }}">
+
+                                        <div @click="selected = 'Status Stok'; val = ''; open = false"
+                                            class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === '' }">
+                                            Semua Status
+                                        </div>
+                                        <div @click="selected = 'Tersedia'; val = 'tersedia'; open = false"
+                                            class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === 'tersedia' }">
+                                            Tersedia
+                                        </div>
+                                        <div @click="selected = 'Habis'; val = 'habis'; open = false"
+                                            class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === 'habis' }">
+                                            Habis
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        @if(request('kategori') || request('harga') || request('stok'))
-                            <div class="flex flex-wrap items-center justify-center gap-2 pt-2 animate-fade-in-up">
-                                <span class="text-xs font-medium text-slate-400 mr-1">Filter aktif:</span>
+                        <!-- ========== ACTIVE FILTER TAGS ========== -->
+                        @if (request('kategori') || request('harga') || request('stok'))
+                            <div class="flex flex-wrap items-center justify-center gap-2 pt-1 animate-fade-in-up">
+                                <span class="text-[10px] font-medium text-slate-400 mr-1 uppercase tracking-wide">Filter:</span>
 
                                 @php
-                                    $tagClass = "inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white border border-gray-200 text-xs font-medium text-slate-600 shadow-sm";
-                                    $closeBtnClass = "text-slate-400 hover:text-red-500 transition-colors ml-1 p-0.5 rounded-full hover:bg-red-50";
+                                    $tagClass = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-white border border-gray-200 text-xs font-medium text-slate-600 shadow-sm';
+                                    $closeBtnClass = 'text-slate-400 hover:text-green-600 transition-colors ml-0.5';
                                     $closeIcon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
                                 @endphp
 
-                                @if(request('kategori'))
-                                    @php $selKat = isset($kategoris) ? $kategoris->where('id', request('kategori'))->first() : null; @endphp
+                                @if (request('kategori'))
+                                    @php
+                                        $selKat = isset($kategoris) ? $kategoris->where('id', request('kategori'))->first() : null;
+                                    @endphp
                                     <div class="{{ $tagClass }}">
                                         <span>{{ $selKat ? $selKat->nama_kategori : 'Kategori' }}</span>
-                                        <button type="button" onclick="removeFilter('kategori')"
-                                            class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
+                                        <button type="button" onclick="removeFilter('kategori')" class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
                                     </div>
                                 @endif
 
-                                @if(request('harga'))
+                                @if (request('harga'))
                                     <div class="{{ $tagClass }}">
                                         <span>{{ request('harga') == 'asc' ? 'Termurah' : 'Termahal' }}</span>
-                                        <button type="button" onclick="removeFilter('harga')"
-                                            class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
+                                        <button type="button" onclick="removeFilter('harga')" class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
                                     </div>
                                 @endif
 
-                                @if(request('stok'))
+                                @if (request('stok'))
                                     <div class="{{ $tagClass }}">
                                         <span>{{ request('stok') == 'tersedia' ? 'Stok Ada' : 'Habis' }}</span>
-                                        <button type="button" onclick="removeFilter('stok')"
-                                            class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
+                                        <button type="button" onclick="removeFilter('stok')" class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
                                     </div>
                                 @endif
 
-                                <a href="{{ route('produk.index') }}"
-                                    class="ml-2 text-xs font-medium text-slate-400 hover:text-red-600 transition-colors">
-                                    Hapus Semua
+                                <!-- Reset All Filters Link -->
+                                <a href="{{ route('produk.index') }}" class="ml-1 text-[10px] font-bold text-slate-400 hover:text-green-600 transition-colors uppercase tracking-wide">
+                                    Reset
                                 </a>
                             </div>
                         @endif
@@ -284,144 +336,114 @@
             </div>
         </section>
 
+        <!-- ========== PRODUCTS SECTION ========== -->
         <section class="py-16 lg:py-24 relative bg-white border-t border-green-50 overflow-hidden">
+            
+            <!-- Background Decoration -->
             <div class="absolute inset-0 pointer-events-none overflow-hidden">
-                <div
-                    class="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-[1000px] h-[300px] md:h-[500px] bg-green-50/40 rounded-full blur-[80px] md:blur-[120px] -mt-20 md:-mt-32">
-                </div>
-                <div
-                    class="absolute bottom-0 right-0 w-[300px] md:w-[600px] h-[200px] md:h-[400px] bg-green-50/30 rounded-full blur-[60px] md:blur-[100px] translate-y-1/3 translate-x-1/3">
-                </div>
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-[1000px] h-[300px] md:h-[500px] bg-green-50/40 rounded-full blur-[80px] md:blur-[120px] -mt-20 md:-mt-32"></div>
+                <div class="absolute bottom-0 right-0 w-[300px] md:w-[600px] h-[200px] md:h-[400px] bg-green-50/30 rounded-full blur-[60px] md:blur-[100px] translate-y-1/3 translate-x-1/3"></div>
 
-                <svg class="absolute top-0 right-0 w-[350px] md:w-[700px] h-[350px] md:h-[700px] opacity-25 translate-x-1/4 md:translate-x-1/3 -translate-y-1/4"
-                    viewBox="0 0 100 100" preserveAspectRatio="none">
+                <svg class="absolute top-0 right-0 w-[350px] md:w-[700px] h-[350px] md:h-[700px] opacity-25 translate-x-1/4 md:translate-x-1/3 -translate-y-1/4" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path d="M0 100 Q 50 -20 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
                     <path d="M0 100 Q 50 0 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
                     <path d="M0 100 Q 50 20 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
                 </svg>
 
-                <svg class="absolute bottom-0 left-0 w-[300px] md:w-[600px] h-[300px] md:h-[600px] opacity-20 -translate-x-1/3 translate-y-1/4 rotate-180"
-                    viewBox="0 0 100 100" preserveAspectRatio="none">
+                <svg class="absolute bottom-0 left-0 w-[300px] md:w-[600px] h-[300px] md:h-[600px] opacity-20 -translate-x-1/3 translate-y-1/4 rotate-180" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <path d="M0 100 Q 50 0 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
                     <path d="M0 100 Q 50 20 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
                     <path d="M0 100 Q 50 40 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
                 </svg>
             </div>
 
+            <!-- Products Container -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                @if(session('success'))
+                
+                <!-- Success Message Notification -->
+                @if (session('success'))
                     <div x-data="{ show: true }" x-show="show" x-transition
                         class="mb-8 p-4 bg-green-50 border border-green-200 text-green-800 rounded-2xl flex items-center justify-between shadow-sm"
                         data-aos="fade-up">
                         <div class="flex items-center gap-3">
-                            <div
-                                class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 flex-shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
                             </div>
                             <span class="font-medium">{{ session('success') }}</span>
                         </div>
                         <button @click="show = false" class="text-green-600 hover:text-green-800">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
                         </button>
                     </div>
                 @endif
 
-                @if(isset($daftarProduk) && !$daftarProduk->isEmpty())
+                <!-- ========== PRODUCTS GRID ========== -->
+                @if (isset($daftarProduk) && !$daftarProduk->isEmpty())
+                    
                     <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 lg:gap-8">
-                        @foreach($daftarProduk as $index => $item)
+                        @foreach ($daftarProduk as $index => $item)
+                            <!-- Single Product Card -->
                             <div data-aos="fade-up" data-aos-delay="{{ $index * 100 }}"
-                                class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-green-500 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+                                class="group bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-green-500 transition-all duration-300 hover:-translate-y-2">
+
+                                <!-- Product Image -->
                                 <div class="relative aspect-square overflow-hidden bg-slate-50">
-                                    @if($item->foto_produk)
-                                        <img src="{{ asset('storage/' . $item->foto_produk) }}" alt="{{ $item->nama_produk }}"
+                                    @if ($item->foto_produk)
+                                        <img src="{{ asset('storage/' . $item->foto_produk) }}"
+                                            alt="{{ $item->nama_produk }}" loading="lazy"
                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                     @else
+                                        <!-- Image Placeholder -->
                                         <div class="w-full h-full flex items-center justify-center">
                                             <div class="text-center">
-                                                <svg class="w-16 h-16 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                    </path>
+                                                <svg class="w-16 h-16 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                                 </svg>
                                                 <p class="text-xs text-slate-400 font-medium">No Image</p>
                                             </div>
                                         </div>
                                     @endif
 
-                                    <div
-                                        class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-green-600 px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg text-[8px] sm:text-[10px] font-bold text-white shadow-md uppercase tracking-wide">
+                                    <!-- Category Badge -->
+                                    <div class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-green-600 px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg text-[8px] sm:text-[10px] font-bold text-white shadow-md uppercase tracking-wide">
                                         {{ $item->kategoriProduk->nama_kategori ?? 'Umum' }}
                                     </div>
                                 </div>
 
+                                <!-- Product Details -->
                                 <div class="p-3 sm:p-5 bg-white">
-                                    <h3
-                                        class="text-sm sm:text-lg font-bold text-slate-900 mb-2 sm:mb-3 line-clamp-1 group-hover:text-green-600 transition-colors">
+                                    <!-- Product Name -->
+                                    <h3 class="text-sm sm:text-lg font-bold text-slate-900 mb-2 sm:mb-3 line-clamp-1 group-hover:text-green-600 transition-colors">
                                         {{ $item->nama_produk }}
                                     </h3>
 
-                                    <div class="space-y-1 sm:space-y-2 mb-2 sm:mb-4 pb-2 sm:pb-4 border-b border-slate-100">
-                                        <div class="flex items-start gap-1 sm:gap-2">
-                                            <svg class="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
-                                                </path>
-                                            </svg>
-                                            <p class="text-[10px] sm:text-xs font-medium text-slate-700 truncate">
-                                                {{ $item->user->name ?? 'Penjual' }}
-                                            </p>
-                                        </div>
-                                        <div class="flex items-start gap-1 sm:gap-2">
-                                            <svg class="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 flex-shrink-0 mt-0.5" fill="none"
-                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                                </path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            </svg>
-                                            <p class="text-[10px] sm:text-xs text-slate-500 truncate">
-                                                {{ $item->user->alamat ?? 'Alamat tidak tersedia' }}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class="flex items-center justify-between mb-2 sm:mb-4 bg-slate-50 rounded-lg px-2 sm:px-3 py-1 sm:py-2">
+                                    <!-- Stock Information -->
+                                    <div class="flex items-center justify-between mb-2 sm:mb-4 bg-slate-50 rounded-lg px-2 sm:px-3 py-1 sm:py-2">
                                         <span class="text-[10px] sm:text-xs text-slate-600 font-medium">Stok</span>
-                                        <span
-                                            class="text-[10px] sm:text-sm font-bold {{ ($item->stok ?? 0) > 0 ? 'text-green-600' : 'text-red-500' }}">
+                                        <span class="text-[10px] sm:text-sm font-bold {{ ($item->stok ?? 0) > 0 ? 'text-green-600' : 'text-red-500' }}">
                                             {{ $item->stok ?? 0 }} {{ $item->satuan ?? '' }}
                                         </span>
                                     </div>
 
+                                    <!-- Price & Cart Button -->
                                     <div class="flex items-center justify-between gap-2">
                                         <div class="min-w-0">
-                                            <p class="text-[10px] sm:text-xs text-slate-500 font-medium mb-0.5 sm:mb-1">Harga
-                                            </p>
+                                            <p class="text-[10px] sm:text-xs text-slate-500 font-medium mb-0.5 sm:mb-1">Harga</p>
                                             <p class="text-base sm:text-2xl font-bold text-slate-900 truncate">
                                                 Rp {{ number_format($item->harga, 0, ',', '.') }}
                                             </p>
-                                            <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 truncate">/
-                                                {{ $item->satuan ?? 'kg' }}
-                                            </p>
+                                            <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 truncate">/ {{ $item->satuan ?? 'kg' }}</p>
                                         </div>
 
+                                        <!-- View Details Button -->
                                         <a href="{{ route('produk.show', $item->id) }}"
                                             class="flex-shrink-0 w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-green-600 hover:bg-green-700 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110">
-                                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z">
-                                                </path>
+                                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                             </svg>
                                         </a>
                                     </div>
@@ -430,19 +452,17 @@
                         @endforeach
                     </div>
 
+                    <!-- ========== PAGINATION ========== -->
                     <div class="mt-12" data-aos="fade-up">
                         {{ $daftarProduk->appends(request()->query())->links() }}
                     </div>
 
                 @else
-                    <div class="text-center py-20 bg-white/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-green-200 mx-4 sm:mx-0"
-                        data-aos="fade-up">
-                        <div
-                            class="w-20 h-20 lg:w-24 lg:h-24 mx-auto mb-6 bg-white rounded-full flex items-center justify-center shadow-md">
-                            <svg class="w-10 h-10 lg:w-12 lg:h-12 text-green-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    <!-- ========== EMPTY STATE ========== -->
+                    <div class="text-center py-20 bg-white/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-green-200 mx-4 sm:mx-0" data-aos="fade-up">
+                        <div class="w-20 h-20 lg:w-24 lg:h-24 mx-auto mb-6 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <svg class="w-10 h-10 lg:w-12 lg:h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                             </svg>
                         </div>
                         <h3 class="text-lg lg:text-xl font-bold text-slate-900 mb-2">Produk Tidak Ditemukan</h3>
@@ -459,172 +479,23 @@
         </section>
     </main>
 
-    <footer id="footer" class="bg-white border-t border-slate-100 pt-16 pb-8 font-sans relative overflow-hidden">
-        <div
-            class="absolute top-0 left-0 -translate-x-1/3 -translate-y-1/3 w-[500px] h-[500px] opacity-40 pointer-events-none">
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#DCFCE7"
-                    d="M47.5,-57.2C59.6,-46.3,66.4,-28.9,65.6,-12.9C64.8,3.1,56.3,17.7,46.2,29.9C36.1,42.1,24.3,51.9,10.6,56.7C-3.1,61.5,-18.8,61.3,-31.2,54.1C-43.7,46.9,-53,32.7,-57.3,17.6C-61.6,2.5,-60.9,-13.5,-53.4,-26.8C-45.9,-40.1,-31.6,-50.7,-17.1,-54.2C-2.6,-57.7,12,-54.1,25.4,-50.4L47.5,-57.2Z"
-                    transform="translate(100 100)" />
-            </svg>
-        </div>
-        <div
-            class="absolute top-0 right-0 translate-x-1/4 -translate-y-1/4 w-[600px] h-[600px] opacity-30 pointer-events-none">
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#F0FDF4"
-                    d="M41.4,-70.3C52.6,-62.7,60.2,-49.6,67.3,-36.1C74.3,-22.6,80.8,-8.7,78.9,4.2C77,17.1,66.7,29,56.5,38.9C46.3,48.8,36.2,56.7,24.8,62.2C13.4,67.7,0.7,70.8,-11.2,69.5C-23.1,68.2,-34.2,62.5,-44.7,54.6C-55.2,46.7,-65.1,36.6,-70.6,24.2C-76.1,11.8,-77.2,-2.9,-71.9,-15.2C-66.6,-27.5,-54.9,-37.4,-43,-44.8C-31.1,-52.2,-19,-57.1,-6.3,-58.5C6.4,-59.9,20,-77.9,41.4,-70.3Z"
-                    transform="translate(100 100)" />
-            </svg>
-        </div>
+    <!-- ========== FOOTER SECTION ========== -->
+    <x-footer />
 
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 mb-16 items-start">
-                <div class="lg:col-span-5">
-                    <a href="/" class="inline-block mb-6">
-                        <img src="{{ asset('images/logo2.png') }}" alt="AgriSmart Logo"
-                            class="h-16 lg:h-20 w-auto object-contain">
-                    </a>
-                    <p class="text-slate-500 leading-relaxed mb-8 pr-0 lg:pr-12">
-                        Platform digital terintegrasi untuk pertanian cerdas. Solusi IoT inovatif untuk masa depan
-                        pangan Indonesia yang berkelanjutan.
-                    </p>
-                    <div class="flex items-center gap-3">
-                        @foreach(['facebook', 'instagram', 'twitter'] as $social)
-                            <a href="#"
-                                class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-500 border border-slate-100 transition-all duration-300 hover:bg-green-600 hover:text-white hover:scale-110 hover:shadow-lg group">
-                                <span class="sr-only">{{ ucfirst($social) }}</span>
-                                @if($social == 'facebook')
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                                    </svg>
-                                @elseif($social == 'instagram')
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0, -3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4.001-1.793-4.001-4.001s1.792-4.001 4.001-4.001c2.21 0 4.001 1.793 4.001 4.001s-1.791 4.001-4.001 4.001zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                                    </svg>
-                                @else
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                                    </svg>
-                                @endif
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
+    <!-- ========== BACK TO TOP BUTTON ========== -->
+    <x-back-button />
 
-                <div class="lg:col-span-2">
-                    <h5 class="font-bold text-slate-900 mb-6">Menu Utama</h5>
-                    <ul class="space-y-4">
-                        @foreach(['Beranda' => '/', 'Tentang Kami' => '#tentang-kami', 'Layanan' => '#layanan', 'Produk' => route('produk.index'), 'Kontak' => '#kontak'] as $label => $link)
-                            <li>
-                                <a href="{{ $link }}"
-                                    class="text-slate-500 text-sm font-medium hover:text-green-600 transition-all duration-200 block hover:translate-x-1">
-                                    {{ $label }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-
-                <div class="lg:col-span-2">
-                    <h5 class="font-bold text-slate-900 mb-6">Layanan</h5>
-                    <ul class="space-y-4">
-                        @foreach(['Konsultasi Tani' => '#', 'Marketplace Panen' => '#', 'Monitoring IoT' => '#', 'Edukasi & Pelatihan' => route('edukasi.index')] as $label => $link)
-                            <li>
-                                <a href="{{ $link }}"
-                                    class="text-slate-500 text-sm font-medium hover:text-green-600 transition-all duration-200 block hover:translate-x-1">
-                                    {{ $label }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-
-                <div class="lg:col-span-3">
-                    <h5 class="font-bold text-slate-900 mb-6">Hubungi Kami</h5>
-                    <div class="space-y-5">
-                        <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-green-600 mt-0.5 shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <p class="text-sm text-slate-500 leading-snug">
-                                Jl. Pertanian Modern No. 88,<br>Jakarta Selatan, Indonesia
-                            </p>
-                        </div>
-
-                        <div class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            <a href="mailto:info@agrismart.id"
-                                class="text-sm text-slate-500 hover:text-green-600 transition-colors">
-                                info@agrismart.id
-                            </a>
-                        </div>
-
-                        <div class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                            </svg>
-                            <a href="tel:+6281234567890"
-                                class="text-sm text-slate-500 hover:text-green-600 transition-colors">
-                                +62 812 3456 7890
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="border-t border-slate-100 pt-8 flex flex-col justify-center items-center gap-4">
-                <p class="text-sm text-slate-500 text-center">
-                    &copy; {{ date('Y') }} <span class="text-green-600 font-bold">AgriSmart</span>. All Rights Reserved.
-                </p>
-            </div>
-        </div>
-    </footer>
-
-    <button id="backToTop"
-        class="fixed bottom-6 right-4 sm:bottom-8 sm:right-8 bg-green-600 hover:bg-green-700 text-white p-2.5 sm:p-3 rounded-xl shadow-lg shadow-green-600/30 translate-y-20 opacity-0 transition-all duration-500 z-50">
-        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18">
-            </path>
-        </svg>
-    </button>
-
+    <!-- ========== EXTERNAL SCRIPTS ========== -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
+        // Inisialisasi AOS (Animate On Scroll)
         AOS.init({
             once: true,
             offset: 50,
             duration: 800,
         });
 
-        const backToTopBtn = document.getElementById('backToTop');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) {
-                backToTopBtn.classList.remove('translate-y-20', 'opacity-0');
-            } else {
-                backToTopBtn.classList.add('translate-y-20', 'opacity-0');
-            }
-        });
-
-        backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-
+        // Logic untuk Reset Filter via Javascript
         function removeFilter(filterName) {
             const url = new URL(window.location.href);
             url.searchParams.delete(filterName);

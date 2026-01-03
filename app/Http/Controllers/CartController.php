@@ -3,33 +3,51 @@
 namespace App\Http\Controllers;
 
 use App\Models\Produk;
-use App\Models\Keranjang; // <-- Gunakan Model Baru
+use App\Models\Keranjang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class CartController extends Controller
 {
+    // =================================================================
+    // BAGIAN 1: WEB VIEW (Browser Desktop/Mobile)
+    // =================================================================
+
     public function index()
     {
-        // Ambil keranjang dari DATABASE milik user yang login
         $userId = Auth::id();
-        
-        // Ambil data keranjang beserta detail produknya
-        $cartItems = Keranjang::where('user_id', $userId)->with('produk')->get();
 
-        // Kita format agar strukturnya sama seperti view cart kita sebelumnya
-        $cart = [];
-        foreach($cartItems as $item) {
-            $cart[$item->produk_id] = [
-                "nama" => $item->produk->nama_produk,
-                "jumlah" => $item->jumlah,
-                "harga" => $item->produk->harga,
-                "foto" => $item->produk->foto_produk
+        // 1. Ambil data dengan Eager Loading 'produk.user' agar hemat query database
+        // Kita butuh data 'user' (penjual) dari produk untuk grouping
+        $cartItems = Keranjang::where('user_id', $userId)
+            ->with(['produk.user'])
+            ->get();
+
+        // 2. LOGIKA GROUPING (Dipindahkan dari Blade ke sini)
+        // Kita ubah format data agar siap pakai di View
+        $groupedCart = $cartItems->map(function ($item) {
+            $produk = $item->produk;
+            $penjual = $produk->user ? $produk->user->name : 'AgriSmart Seller';
+
+            return (object) [
+                'id' => $produk->id, // ID Produk
+                'cart_id' => $item->id,   // ID Item Keranjang
+                'nama_penjual' => $penjual,
+                'nama_produk' => $produk->nama_produk,
+                'harga' => $produk->harga,
+                'jumlah' => $item->jumlah,
+                'foto' => $produk->foto_produk,
+                'satuan' => $produk->satuan ?? 'kg',
+                'stok' => $produk->stok
             ];
-        }
-        
-        return view('cart.index', ['cart' => $cart]);
+        })->groupBy('nama_penjual');
+
+        // Kirim $groupedCart ke View, dan $cartItems untuk menghitung total item di badge
+        return view('cart.index', [
+            'groupedCart' => $groupedCart,
+            'cart' => $cartItems // Untuk hitung count($cart) di view
+        ]);
     }
 
     public function store(Request $request, $id)
@@ -43,28 +61,24 @@ class CartController extends Controller
         $userId = Auth::id();
         $jumlahDiminta = $request->input('jumlah', 1);
 
-        // Validasi Stok
+        // Validasi Stok Awal
         if ($jumlahDiminta > $produk->stok) {
             return redirect()->back()->with('error', 'Stok produk tidak mencukupi!');
         }
 
-        // Cek apakah produk sudah ada di keranjang database user ini
         $itemKeranjang = Keranjang::where('user_id', $userId)
-                                  ->where('produk_id', $id)
-                                  ->first();
+            ->where('produk_id', $id)
+            ->first();
 
         if ($itemKeranjang) {
-            // Jika ada, update jumlahnya
-            $itemKeranjang->jumlah += $jumlahDiminta;
-            
-            // Cek stok lagi setelah ditambah
-            if ($itemKeranjang->jumlah > $produk->stok) {
-                return redirect()->back()->with('error', 'Total jumlah melebihi stok yang tersedia.');
+            // Cek apakah penambahan ini akan melebihi stok total
+            if (($itemKeranjang->jumlah + $jumlahDiminta) > $produk->stok) {
+                return redirect()->back()->with('error', 'Stok tidak cukup untuk menambah jumlah tersebut.');
             }
-            
+
+            $itemKeranjang->jumlah += $jumlahDiminta;
             $itemKeranjang->save();
         } else {
-            // Jika belum ada, buat baru di database
             Keranjang::create([
                 'user_id' => $userId,
                 'produk_id' => $id,
@@ -75,34 +89,46 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Produk berhasil disimpan ke keranjang');
     }
 
-    public function update(Request $request, $id)
+    // FUNGSI BARU: Update via AJAX (Tanpa Reload Halaman)
+    public function updateQuantityAjax(Request $request, $id)
     {
         $userId = Auth::id();
-        $produk = Produk::findOrFail($id);
-
-        if ($request->jumlah > $produk->stok) {
-             return redirect()->back()->with('error', 'Stok tidak mencukupi!');
-        }
-
-        // Update di Database
         $item = Keranjang::where('user_id', $userId)->where('produk_id', $id)->first();
-        
-        if ($item) {
-            $item->jumlah = $request->jumlah;
-            $item->save();
-            return redirect()->back()->with('success', 'Jumlah diperbarui.');
+
+        if (!$item) {
+            return response()->json(['success' => false, 'message' => 'Item tidak ditemukan'], 404);
         }
 
-        return redirect()->back()->with('error', 'Produk tidak ditemukan di keranjang.');
+        $produk = $item->produk;
+        $qtyBaru = $request->quantity;
+
+        // Validasi Stok
+        if ($qtyBaru > $produk->stok) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Stok tidak mencukupi (Max: ' . $produk->stok . ')'
+            ], 400);
+        }
+
+        if ($qtyBaru < 1) {
+            return response()->json(['success' => false, 'message' => 'Minimal pembelian 1'], 400);
+        }
+
+        // Simpan Perubahan
+        $item->jumlah = $qtyBaru;
+        $item->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jumlah diperbarui'
+        ]);
     }
 
+    // Fungsi Destroy Biasa (Tombol Hapus)
     public function destroy($id)
     {
         $userId = Auth::id();
-
-        // Hapus dari Database
         Keranjang::where('user_id', $userId)->where('produk_id', $id)->delete();
-
         return redirect()->back()->with('success', 'Produk dihapus dari keranjang.');
     }
 
@@ -110,68 +136,48 @@ class CartController extends Controller
     // BAGIAN 2: KHUSUS UNTUK APLIKASI FLUTTER (API / JSON)
     // =================================================================
 
-    // 1. API: Ambil Daftar Keranjang
     public function apiIndex()
     {
-        // Ganti Cart:: menjadi Keranjang::
         $carts = Keranjang::with('produk')->where('user_id', Auth::id())->get();
-
-        return response()->json([
-            'success' => true,
-            'data' => $carts
-        ]);
+        return response()->json(['success' => true, 'data' => $carts]);
     }
 
-    // 2. API: Tambah ke Keranjang
     public function apiStore(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'product_id' => 'required|exists:produk,id',
-            'qty'        => 'required|integer|min:1'
+            'qty' => 'required|integer|min:1'
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors'  => $validator->errors()
-            ], 422);
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        // Ganti Cart:: menjadi Keranjang::
         $existingCart = Keranjang::where('user_id', Auth::id())
-                            ->where('produk_id', $request->product_id)
-                            ->first();
+            ->where('produk_id', $request->product_id)
+            ->first();
 
         if ($existingCart) {
             $existingCart->jumlah += $request->qty;
             $existingCart->save();
         } else {
-            // Ganti Cart:: menjadi Keranjang::
             Keranjang::create([
-                'user_id'   => Auth::id(),
+                'user_id' => Auth::id(),
                 'produk_id' => $request->product_id,
-                'jumlah'    => $request->qty
+                'jumlah' => $request->qty
             ]);
         }
 
-        return response()->json([
-            'success' => true, 
-            'message' => 'Produk berhasil masuk keranjang'
-        ]);
+        return response()->json(['success' => true, 'message' => 'Produk masuk keranjang']);
     }
 
-    // 3. API: Hapus Item
     public function apiDestroy($id)
     {
-        // Ganti Cart:: menjadi Keranjang::
         $cart = Keranjang::where('user_id', Auth::id())->where('id', $id)->first();
-        
         if ($cart) {
             $cart->delete();
             return response()->json(['success' => true, 'message' => 'Item dihapus']);
         }
-
         return response()->json(['success' => false, 'message' => 'Item tidak ditemukan'], 404);
     }
 }

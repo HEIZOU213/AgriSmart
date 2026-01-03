@@ -5,8 +5,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 // --- Impor Tambahan untuk Socialite ---
-use Laravel\Socialite\Facades\Socialite; 
-use App\Models\User; 
+use Laravel\Socialite\Facades\Socialite;
+use App\Models\User;
 // -------------------------------------
 
 // --- Impor Controller ---
@@ -22,6 +22,9 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\KontakController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;
+
+// --- IMPOR IOT CONTROLLER (BARU) ---
+use App\Http\Controllers\IotController;
 
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
@@ -55,30 +58,27 @@ Route::get('/edukasi/{slug}', [EdukasiController::class, 'show'])->name('edukasi
 Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
 Route::get('/produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
 
+// --- LAYANAN SMART GARDEN IOT (FRONTEND BARU) ---
+Route::get('/layanan/smart-garden', [IotController::class, 'serviceIndex'])->name('layanan.index');
+Route::get('/layanan/smart-garden/{serial_number}', [IotController::class, 'serviceShow'])->name('layanan.show');
+
 // Form Kontak
 Route::get('/kontak', [KontakController::class, 'show'])->name('kontak.show');
 Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
 
 // --- AUTHENTICATION (GUEST ONLY) ---
 Route::middleware('guest')->group(function () {
-    // Register User Biasa
     Route::get('/register', [CustomAuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [CustomAuthController::class, 'processRegister']);
 
-    // Login User Biasa (Petani/Konsumen)
     Route::get('/login', [CustomAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [CustomAuthController::class, 'processLogin']);
 
-    // =======================================================
-    // --- PENAMBAHAN RUTE LARAVEL SOCIALITE (GOOGLE) ---
-    // =======================================================
-    
-    // Rute untuk mengarahkan pengguna ke Google
+    // Socialite Google
     Route::get('/auth/google/redirect', function () {
         return Socialite::driver('google')->redirect();
     })->name('socialite.google.redirect');
 
-    // Rute untuk menangani callback/balasan dari Google (Logika Utama)
     Route::get('/auth/callback', function () {
         try {
             $socialiteUser = Socialite::driver('google')->user();
@@ -89,26 +89,24 @@ Route::middleware('guest')->group(function () {
         $email = $socialiteUser->getEmail();
         $googleId = $socialiteUser->getId();
         $provider = 'google';
-        
+
         $user = User::where('email', $email)->first();
 
         if ($user) {
-            // Pengguna sudah ada: Tautkan akun Google ke akun yang sudah ada (menjaga password tradisional)
             $user->provider = $provider;
             $user->provider_id = $googleId;
             $user->foto_profil = $socialiteUser->getAvatar();
             $user->save();
         } else {
-            // Pengguna baru: Buat akun baru
             $user = User::create([
                 'name' => $socialiteUser->getName() ?? explode('@', $email)[0],
                 'email' => $email,
                 'provider' => $provider,
                 'provider_id' => $googleId,
                 'foto_profil' => $socialiteUser->getAvatar(),
-                'email_verified_at' => now(), 
+                'email_verified_at' => now(),
                 'role' => 'konsumen',
-                'password' => null, // Password NULL untuk login Socialite
+                'password' => null,
             ]);
         }
 
@@ -116,8 +114,7 @@ Route::middleware('guest')->group(function () {
         return redirect('/dashboard');
     })->name('socialite.google.callback');
 
-    // --- RAHASIA: LOGIN KHUSUS ADMIN ---
-    // URL ini tidak boleh ketahuan publik
+    // Admin Login
     Route::get('/master-control/masuk', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/master-control/masuk', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 });
@@ -129,39 +126,63 @@ Route::middleware('guest')->group(function () {
 */
 Route::middleware(['auth'])->group(function () {
 
-    // Logout (Wajib Login dulu baru bisa logout)
+    // Logout
     Route::post('/logout', [CustomAuthController::class, 'logout'])->name('logout');
 
-    // Keranjang & Profil
+    // --- [BARU] LOGIKA REDIRECT LOGIN KHUSUS HALAMAN LAYANAN ---
+    Route::get('/layanan-auth-redirect', function () {
+        return redirect()->route('layanan.index');
+    })->name('layanan.auth.check');
+    // ------------------------------------------------------------
+
+    // Keranjang & Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
+    // --- ROUTES CART (UPDATED) ---
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{id}', [CartController::class, 'store'])->name('cart.store');
-    Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/remove/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-    // Profil User
+    // [PENTING] Route Baru untuk AJAX Update Quantity
+    Route::post('/cart/update-quantity/{id}', [CartController::class, 'updateQuantityAjax'])->name('cart.update.ajax');
+
+    // Route lama 'patch' dimatikan karena method 'update' sudah dihapus di Controller
+    // Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+
+    // Route::delete('/cart/remove/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+    Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
+    // -----------------------------
+
+    // Profil
     Route::get('/profile', [CustomAuthController::class, 'showProfile'])->name('profile.edit');
     Route::patch('/profile/info', [CustomAuthController::class, 'updateProfile'])->name('profile.update');
     Route::put('/profile/password', [CustomAuthController::class, 'updatePassword'])->name('password.update');
 
-    // Fitur Chat & Pesan
+    // Chat
     Route::get('/api/cek-notifikasi', [ChatController::class, 'checkNotifications'])->name('api.notifikasi');
-
     Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
     Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
     Route::get('/api/chat/{id}/messages', [ChatController::class, 'getMessages'])->name('api.chat.messages');
     Route::post('/api/chat/{id}/send', [ChatController::class, 'sendMessage'])->name('api.chat.send');
     Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.destroy');
     Route::post('/pesan-order/{id}', [PesanOrderController::class, 'store'])->name('pesan.store');
-    
-    Route::get('/payment-finish', [CheckoutController::class, 'callback'])->name('payment.finish');
 
+    // Pesanan & Payment
+    Route::get('/payment-finish', [CheckoutController::class, 'callback'])->name('payment.finish');
     Route::post('/pesanan/{id}/cancel', [CheckoutController::class, 'cancelOrder'])->name('pesanan.cancel');
 
-    // --- LOGIC REDIRECT DASHBOARD ---
-    // Route ini menangani kemana user pergi setelah login/klik dashboard
+    // --- IOT SMART GARDEN (GLOBAL AUTH) ---
+    Route::post('/layanan/claim', [IotController::class, 'claimDevice'])->name('layanan.claim');
+    Route::post('/iot/toggle/{id}', [IotController::class, 'togglePump'])->name('iot.toggle');
+    Route::post('/iot/auto/{id}', [IotController::class, 'setAuto'])->name('iot.auto');
+    
+    // [FIXED] Menambahkan Route Manual yang sebelumnya hilang
+    Route::post('/iot/manual/{id}', [IotController::class, 'manual'])->name('iot.manual');
+
+    // [TAMBAHAN] Rute Khusus untuk AJAX Real-Time Data (Tanpa Refresh)
+    Route::get('/iot/data/{serial_number}', [IotController::class, 'getLatestData'])->name('iot.data');
+
+    // Redirect Dashboard
     Route::get('/dashboard', function () {
         $role = Auth::user()->role;
         switch ($role) {
@@ -170,7 +191,7 @@ Route::middleware(['auth'])->group(function () {
             case 'petani':
                 return redirect()->route('petani.dashboard');
             case 'konsumen':
-                return redirect()->route('homepage'); // Atau ke riwayat pesanan
+                return redirect()->route('homepage');
             default:
                 return redirect('/');
         }
@@ -189,28 +210,17 @@ Route::middleware(['auth'])->group(function () {
 
     // 1. ADMIN ROUTES
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
-        
-        // Perbaikan: Menghapus '/admin' di depan karena group sudah pakai prefix('admin')
-        // URL Hasil: /admin/api/notifikasi
-        Route::get('/api/notifikasi', action: [AdminController::class, 'cekNotifikasi'])->name('api.notifikasi');
-
-        // Ini adalah route 'admin.dashboard' yang ASLI (Pakai Controller)
+        Route::get('/api/notifikasi', [AdminController::class, 'cekNotifikasi'])->name('api.notifikasi');
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
-
         Route::resource('konten-edukasi', AdminKontenEdukasi::class);
         Route::get('/users/petani', [AdminUserController::class, 'listPetani'])->name('users.petani');
         Route::get('/users/konsumen', [AdminUserController::class, 'listKonsumen'])->name('users.konsumen');
         Route::resource('users', AdminUserController::class);
-
-        // Inbox Kontak (Admin)
         Route::get('/inbox', [KontakController::class, 'index'])->name('kontak.index');
         Route::delete('/inbox/{id}', [KontakController::class, 'destroy'])->name('kontak.destroy');
-
         Route::resource('products', AdminProductController::class)->except(['create', 'store', 'show']);
-
         Route::get('/withdraw', [WithdrawController::class, 'index'])->name('withdraw.index');
         Route::patch('/withdraw/{id}/approve', [WithdrawController::class, 'approve'])->name('withdraw.approve');
-
     });
 
     // 2. PETANI ROUTES
@@ -218,20 +228,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [PetaniDashboard::class, 'index'])->name('dashboard');
         Route::resource('produk', PetaniProduk::class);
         Route::resource('pesanan', PetaniPesananController::class)->only(['index', 'show', 'update', 'destroy']);
-
         Route::get('/dompet', [DompetController::class, 'index'])->name('dompet.index');
         Route::post('/dompet', [DompetController::class, 'store'])->name('dompet.store');
 
+        // Dashboard Internal IoT (List)
+        Route::get('/iot', [IotController::class, 'index'])->name('iot.index');
     });
 
     // 3. KONSUMEN ROUTES
     Route::middleware(['role:konsumen'])->prefix('konsumen')->name('konsumen.')->group(function () {
         Route::resource('pesanan', KonsumenPesanan::class);
-        // Checkout & Pembatalan
         Route::put('/pesanan/{id}/cancel', [KonsumenPesanan::class, 'cancel'])->name('pesanan.cancel');
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
         Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-        
     });
 
 });
