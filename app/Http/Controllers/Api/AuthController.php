@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // Wajib import Auth
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator; // Wajib import Validator
+use Illuminate\Validation\Rule; // <--- Tambahkan ini
+use Illuminate\Support\Facades\Storage;
 use App\Models\User; // Wajib import Model User
 
 class AuthController extends Controller
@@ -89,6 +91,10 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password), // Enkripsi password
+<<<<<<< HEAD
+=======
+            'no_telepon' => $request->no_telepon,
+>>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
             'role' => 'konsumen', // Default role user baru adalah konsumen
         ]);
 
@@ -108,6 +114,7 @@ class AuthController extends Controller
     // --- UPDATE PROFIL (NAMA & FOTO) ---
     public function updateProfile(Request $request)
     {
+<<<<<<< HEAD
         $user = $request->user(); // Ambil user yang sedang login
 
         // 1. Validasi
@@ -128,14 +135,84 @@ class AuthController extends Controller
             // Kita ambil nama filenya saja biar gampang
             $filename = basename($path);
             $user->foto_profil = 'storage/profiles/' . $filename;
+=======
+        $user = $request->user();
+
+        // 1. Validasi Input (Menggunakan Rule agar Validasi Email User Sendiri Diabaikan)
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'email',
+                // Artinya: Cek unik di tabel 'users', TAPI abaikan ID user yang sedang login
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'foto_profil' => 'nullable|image|max:2048',
+        ]);
+
+        // Jika validasi gagal, kirim pesan error detail
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(), // Ambil pesan error pertama
+            ], 422);
+        }
+
+        // 2. Update Data (Jika lolos validasi)
+        $user->name = $request->name;
+        $user->email = $request->email;
+
+        // 3. Update Foto
+        if ($request->hasFile('foto_profil')) {
+            if ($user->foto_profil && !preg_match('#^https?://#i', $user->foto_profil)) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            $path = $request->file('foto_profil')->store('profil', 'public');
+            $user->foto_profil = $path;
+>>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
         }
 
         $user->save();
 
         return response()->json([
             'success' => true,
+<<<<<<< HEAD
             'message' => 'Profil berhasil diperbarui',
             'data' => $user
         ]);
     }
+=======
+            'message' => 'Profil berhasil diperbarui!',
+            'data' => $user
+        ]);
+    }
+
+    // --- GANTI PASSWORD ---
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8|confirmed', // confirmed = butuh field new_password_confirmation
+        ]);
+
+        $user = $request->user();
+
+        // 1. Cek apakah password lama benar?
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password saat ini salah.',
+            ], 400);
+        }
+
+        // 2. Update Password
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password berhasil diperbarui!',
+        ]);
+    }
+>>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
 }

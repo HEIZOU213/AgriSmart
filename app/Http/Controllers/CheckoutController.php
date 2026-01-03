@@ -284,8 +284,12 @@ class CheckoutController extends Controller
         return redirect()->back()->with('error', 'Pesanan tidak dapat dibatalkan.');
     }
 
+<<<<<<< HEAD
     // ================= API SECTION (Mobile) =================
 
+=======
+    // Bagian API (SUDAH DIPERBAIKI)
+>>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
     public function apiProcess(Request $request)
     {
         // ... (Biarkan sama seperti sebelumnya atau sesuaikan jika Mobile juga butuh partial checkout)
@@ -293,17 +297,28 @@ class CheckoutController extends Controller
 
         $request->validate([
             'alamat_pengiriman' => 'required|string',
+<<<<<<< HEAD
+=======
+            // 'catatan' => 'nullable|string', 
+>>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
         ]);
 
-        $user = Auth::user();
+        $userId = Auth::id();
 
+<<<<<<< HEAD
         // Logika sederhana: ambil semua keranjang (default behavior mobile app)
         $carts = Keranjang::with('produk')->where('user_id', $user->id)->get();
+=======
+        // 2. Ambil Data Keranjang
+        // PENTING: Load relasi 'produk.user' untuk grouping berdasarkan petani
+        $cartItems = Keranjang::where('user_id', $userId)->with('produk.user')->get();
+>>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
 
-        if ($carts->isEmpty()) {
-            return response()->json(['message' => 'Keranjang kosong'], 400);
+        if ($cartItems->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Keranjang kosong'], 400);
         }
 
+<<<<<<< HEAD
         // ... Sisa logika API sama dengan sebelumnya ...
         // (Pastikan menggunakan DB Transaction seperti di method store)
 
@@ -324,5 +339,116 @@ class CheckoutController extends Controller
         // ...
 
         return response()->json(['success' => true, 'data' => $order]);
+=======
+        // 3. GROUPING: Pisahkan item berdasarkan ID Petani (User ID pemilik produk)
+        // Ini agar jika beli dari 2 petani, jadi 2 Pesanan berbeda.
+        $groupedItems = $cartItems->groupBy(function ($item) {
+            return $item->produk->user_id;
+        });
+
+        DB::beginTransaction();
+
+        try {
+            $createdOrders = []; // Untuk menampung pesanan yang berhasil dibuat
+
+            // Setup Midtrans (PENTING: Agar API juga bisa generate token)
+            Config::$serverKey = config('services.midtrans.server_key');
+            Config::$isProduction = config('services.midtrans.is_production', false);
+            Config::$isSanitized = true;
+            Config::$is3ds = true;
+
+            // Loop setiap kelompok petani
+            foreach ($groupedItems as $petaniId => $items) {
+                
+                // A. Hitung Total per Petani & Cek Stok
+                $totalPerPetani = 0;
+                foreach ($items as $item) {
+                    // Cek Stok
+                    if ($item->produk->stok < $item->jumlah) {
+                        DB::rollBack(); // Batalkan semua jika ada 1 stok kurang
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Stok untuk produk ' . $item->produk->nama_produk . ' tidak mencukupi!'
+                        ], 400);
+                    }
+                    $totalPerPetani += $item->produk->harga * $item->jumlah;
+                }
+
+                // Hitung Ongkir & Komisi
+                $ongkir = 0; // Bisa dibuat dinamis nanti
+                $grandTotal = $totalPerPetani + $ongkir;
+                
+                $adminFee = $totalPerPetani * 0.10; // 10% Fee
+                $sellerIncome = $totalPerPetani - $adminFee;
+
+                // B. Buat Order Baru (Satu Order per Petani)
+                $pesanan = Pesanan::create([
+                    'user_id' => $userId,
+                    'kode_pesanan' => 'INV/' . date('Ymd') . '/' . strtoupper(Str::random(6)),
+                    'alamat_kirim' => $request->alamat_pengiriman,
+                    'status' => 'pending',
+                    'total_harga' => $grandTotal,
+                    'admin_fee' => $adminFee,       // Simpan fee
+                    'seller_income' => $sellerIncome, // Simpan pendapatan bersih petani
+                    'is_seen' => 0,
+                    'konsumen_arsip' => 0
+                ]);
+
+                // C. Simpan Detail Pesanan & POTONG STOK
+                foreach ($items as $item) {
+                    DetailPesanan::create([
+                        'pesanan_id' => $pesanan->id,
+                        'produk_id' => $item->produk_id,
+                        'jumlah' => $item->jumlah,
+                        'harga_satuan' => $item->produk->harga,
+                    ]);
+
+                    // Potong Stok Produk
+                    $produk = Produk::find($item->produk_id);
+                    $produk->decrement('stok', $item->jumlah);
+                }
+
+                // D. Generate Midtrans Token untuk Pesanan Ini
+                $params = [
+                    'transaction_details' => [
+                        'order_id' => $pesanan->id, // Gunakan ID Order sebagai referensi
+                        'gross_amount' => (int) $grandTotal, // Wajib Integer
+                    ],
+                    'customer_details' => [
+                        'first_name' => Auth::user()->name,
+                        'email' => Auth::user()->email,
+                    ],
+                ];
+
+                try {
+                    $snapToken = Snap::getSnapToken($params);
+                    $pesanan->snap_token = $snapToken;
+                    $pesanan->save();
+                } catch (\Exception $e) {
+                    // Jika gagal connect ke Midtrans, biarkan null dulu atau handle error
+                }
+
+                $createdOrders[] = $pesanan;
+            }
+
+            // E. Hapus Keranjang setelah semua berhasil
+            Keranjang::where('user_id', $userId)->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesanan berhasil dibuat',
+                'data' => $createdOrders // Mengembalikan ARRAY pesanan (karena bisa lebih dari 1)
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal order: ' . $e->getMessage()
+            ], 500);
+        }
+>>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
     }
 }
