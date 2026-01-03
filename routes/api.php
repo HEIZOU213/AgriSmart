@@ -3,28 +3,24 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// --- 1. IMPOR CONTROLLER (SESUAIKAN DENGAN STRUKTUR FOLDER ANDA) ---
+// --- 1. IMPOR CONTROLLER ---
 
-// Controller Khusus API (Yang biasanya return JSON)
+// Controller Khusus API
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PaymentCallbackController;
-use App\Http\Controllers\Api\PetaniDashboardController; // <--- Controller Dashboard Baru
+use App\Http\Controllers\Api\PetaniDashboardController; // Controller Dashboard Baru
 use App\Http\Controllers\Api\NotifikasiController;
-use App\Http\Controllers\Api\KeranjangController; // <--- PASTIKAN INI ADA
+use App\Http\Controllers\Api\KeranjangController;
 
-// Controller Umum (Hybrid: Bisa View / JSON jika ditambahkan method api*)
+// Controller Umum (Hybrid)
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\EdukasiController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-<<<<<<< HEAD
 use App\Http\Controllers\OrderController; 
-=======
-use App\Http\Controllers\OrderController; // Untuk History Order Umum
-use App\Http\Controllers\ChatController;  // Chat Umum
+use App\Http\Controllers\ChatController;      // Chat Umum
 use App\Http\Controllers\MarketChatController; // Chat Jual Beli
-use App\Http\Controllers\KontakController; // Untuk Kontak Kami
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
+use App\Http\Controllers\KontakController;     // Untuk Kontak Kami
 
 // Controller Khusus Role (Petani/Konsumen)
 use App\Http\Controllers\Petani\ProdukController as PetaniProdukController;
@@ -32,16 +28,12 @@ use App\Http\Controllers\Petani\PesananController as PetaniPesananController;
 use App\Http\Controllers\Petani\DompetController as PetaniDompetController;
 use App\Http\Controllers\Konsumen\PesananController as KonsumenPesananController;
 
-// --- IMPORT CONTROLLER IOT (BARU) ---
+// --- IMPORT CONTROLLER IOT (PENTING DARI VERSI HEAD) ---
 use App\Http\Controllers\IotController;
 
 /*
 |--------------------------------------------------------------------------
-<<<<<<< HEAD
-| API ROUTES AGRI SMART (FULL IOT VERSION)
-=======
-| API ROUTES AGRI SMART (SYNCHRONIZED WITH WEB)
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
+| API ROUTES AGRI SMART (FULL IOT & WEB SYNC VERSION)
 |--------------------------------------------------------------------------
 */
 
@@ -56,14 +48,10 @@ Route::post('midtrans-callback', [PaymentCallbackController::class, 'handle']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-<<<<<<< HEAD
 // --- RUTE IOT UNTUK ESP32 (WAJIB PUBLIC) ---
 // ESP32 akan menembak ke sini: http://ip-address:8000/api/iot/receive
 Route::post('/iot/receive', [IotController::class, 'receiveData']);
 
-
-// 3. PRIVATE ROUTES (Wajib Login)
-=======
 // Halaman Depan (Public Data)
 Route::get('/produk', [ProdukController::class, 'apiIndex']);      // List Produk
 Route::get('/produk/{id}', [ProdukController::class, 'apiShow']);  // Detail Produk
@@ -73,10 +61,10 @@ Route::get('/edukasi/{slug}', [EdukasiController::class, 'apiShow']); // Detail 
 // Kontak Kami
 Route::post('/kontak', [KontakController::class, 'apiStore']); // Kirim Pesan Kontak
 
+
 // ====================================================
 // 2. PROTECTED ROUTES (WAJIB LOGIN / BERTOKEN)
 // ====================================================
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
 Route::middleware('auth:sanctum')->group(function () {
 
     // --- USER INFO & LOGOUT ---
@@ -86,10 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'data' => $request->user() // Mengambil data user yang sedang login
         ]);
     });
-<<<<<<< HEAD
-
-=======
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
+    
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // --- PROFILE ---
@@ -102,16 +87,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/cart/update/{id}', [CartController::class, 'apiUpdate']);
     Route::delete('/cart/remove/{id}', [CartController::class, 'apiDestroy']);
 
-<<<<<<< HEAD
-    // --- FITUR CHECKOUT & HISTORY ---
-    Route::post('/checkout', [CheckoutController::class, 'apiProcess']);
-    Route::get('/orders', [OrderController::class, 'index']);
-=======
-    // --- CHECKOUT & ORDER HISTORY (UMUM) ---
+    // --- CHECKOUT & ORDER HISTORY ---
     Route::post('/checkout', [CheckoutController::class, 'apiProcess']); // Proses Pesanan
     Route::get('/orders', [OrderController::class, 'index']); // List Semua Order User Tersebut
     Route::get('/orders/{id}', [OrderController::class, 'show']); // Detail Order
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
 
     // --- CHAT SYSTEM (MARKET & UMUM) ---
     // Chat Umum
@@ -124,14 +103,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/market-chat/{receiver_id}', [MarketChatController::class, 'getMessages']);
     Route::post('/market-chat/send', [MarketChatController::class, 'sendMessage']);
 
-<<<<<<< HEAD
-    // --- FITUR PETANI (Khusus Role Petani) ---
-    Route::middleware('role:petani')->group(function () {
-        
-        Route::get('/petani/dashboard', [PetaniProdukController::class, 'apiDashboard']);
-        
-        // Manajemen Produk Petani
-=======
+    // --- NOTIFIKASI & COUNTING ---
     Route::get('/notifikasi', [NotifikasiController::class, 'index']);
     Route::get('/keranjang/count', [KeranjangController::class, 'count']);
     Route::get('/notifikasi/count', [NotifikasiController::class, 'countUnread']);
@@ -141,16 +113,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // ====================================================
     Route::middleware('role:petani')->group(function () {
         
-        // Dashboard Petani (Menggunakan Controller Baru yang kita buat)
+        // Dashboard Petani
         Route::get('/petani/dashboard', [PetaniDashboardController::class, 'index']);
-
-        // Manajemen Produk (CRUD)
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
+        
+        // Manajemen Produk Petani
         Route::get('/petani/produk', [PetaniProdukController::class, 'apiIndex']);
         Route::post('/petani/produk/store', [PetaniProdukController::class, 'apiStore']);
         Route::post('/petani/produk/{id}', [PetaniProdukController::class, 'apiUpdate']); // Pakai POST untuk update file di Flutter
         Route::delete('/petani/produk/{id}', [PetaniProdukController::class, 'apiDestroy']);
-<<<<<<< HEAD
         
         // Pesanan Masuk
         Route::get('/petani/pesanan', [PetaniPesananController::class, 'apiIndex']);
@@ -162,26 +132,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/petani/iot/claim', [IotController::class, 'claimDevice']); // Klaim alat baru
         Route::post('/petani/iot/toggle/{id}', [IotController::class, 'togglePump']); // On/Off Pompa
         Route::post('/petani/iot/auto/{id}', [IotController::class, 'setAuto']); // Set ke Auto
-=======
 
-        // Manajemen Pesanan Masuk
-        Route::get('/petani/pesanan', [PetaniPesananController::class, 'apiIndex']);
-        Route::post('/petani/pesanan/{id}/update-status', [PetaniPesananController::class, 'apiUpdateStatus']);
-
-        // Dompet Petani (Optional: Jika di Flutter mau ditampilkan)
+        // Dompet Petani (Optional)
         // Route::get('/petani/dompet', [PetaniDompetController::class, 'apiIndex']);
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
     });
 
     // ====================================================
     // 4. ROLE: KONSUMEN ROUTES
     // ====================================================
     Route::middleware('role:konsumen')->group(function () {
-<<<<<<< HEAD
-=======
         
         // Pesanan Konsumen (History & Tracking)
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
         Route::get('/konsumen/pesanan', [KonsumenPesananController::class, 'apiIndex']);
         
         // Cancel Pesanan

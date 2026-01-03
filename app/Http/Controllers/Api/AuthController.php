@@ -91,10 +91,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password), // Enkripsi password
-<<<<<<< HEAD
-=======
             'no_telepon' => $request->no_telepon,
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
             'role' => 'konsumen', // Default role user baru adalah konsumen
         ]);
 
@@ -114,28 +111,6 @@ class AuthController extends Controller
     // --- UPDATE PROFIL (NAMA & FOTO) ---
     public function updateProfile(Request $request)
     {
-<<<<<<< HEAD
-        $user = $request->user(); // Ambil user yang sedang login
-
-        // 1. Validasi
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
-        ]);
-
-        // 2. Update Nama
-        $user->name = $request->name;
-
-        // 3. Update Foto (Jika ada upload baru)
-        if ($request->hasFile('foto_profil')) {
-            // Upload ke folder: storage/app/public/profiles
-            $path = $request->file('foto_profil')->store('public/profiles');
-            
-            // Ubah path agar bisa diakses public (storage/profiles/namagambar.jpg)
-            // Kita ambil nama filenya saja biar gampang
-            $filename = basename($path);
-            $user->foto_profil = 'storage/profiles/' . $filename;
-=======
         $user = $request->user();
 
         // 1. Validasi Input (Menggunakan Rule agar Validasi Email User Sendiri Diabaikan)
@@ -164,24 +139,19 @@ class AuthController extends Controller
 
         // 3. Update Foto
         if ($request->hasFile('foto_profil')) {
+            // Hapus foto lama jika ada (agar storage tidak penuh)
             if ($user->foto_profil && !preg_match('#^https?://#i', $user->foto_profil)) {
                 Storage::disk('public')->delete($user->foto_profil);
             }
+            // Simpan foto baru
             $path = $request->file('foto_profil')->store('profil', 'public');
             $user->foto_profil = $path;
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
         }
 
         $user->save();
 
         return response()->json([
             'success' => true,
-<<<<<<< HEAD
-            'message' => 'Profil berhasil diperbarui',
-            'data' => $user
-        ]);
-    }
-=======
             'message' => 'Profil berhasil diperbarui!',
             'data' => $user
         ]);
@@ -214,5 +184,4 @@ class AuthController extends Controller
             'message' => 'Password berhasil diperbarui!',
         ]);
     }
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
 }
