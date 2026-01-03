@@ -284,62 +284,27 @@ class CheckoutController extends Controller
         return redirect()->back()->with('error', 'Pesanan tidak dapat dibatalkan.');
     }
 
-<<<<<<< HEAD
-    // ================= API SECTION (Mobile) =================
+    // ================= API SECTION (Mobile & IoT) =================
 
-=======
-    // Bagian API (SUDAH DIPERBAIKI)
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
     public function apiProcess(Request $request)
     {
-        // ... (Biarkan sama seperti sebelumnya atau sesuaikan jika Mobile juga butuh partial checkout)
-        // Jika mobile juga butuh partial checkout, tambahkan parameter 'selected_cart_ids' di sini
-
+        // Validasi Input API
         $request->validate([
             'alamat_pengiriman' => 'required|string',
-<<<<<<< HEAD
-=======
             // 'catatan' => 'nullable|string', 
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
         ]);
 
         $userId = Auth::id();
 
-<<<<<<< HEAD
-        // Logika sederhana: ambil semua keranjang (default behavior mobile app)
-        $carts = Keranjang::with('produk')->where('user_id', $user->id)->get();
-=======
         // 2. Ambil Data Keranjang
         // PENTING: Load relasi 'produk.user' untuk grouping berdasarkan petani
+        // Untuk Mobile App, saat ini kita anggap Checkout All (semua cart)
         $cartItems = Keranjang::where('user_id', $userId)->with('produk.user')->get();
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
 
         if ($cartItems->isEmpty()) {
             return response()->json(['success' => false, 'message' => 'Keranjang kosong'], 400);
         }
 
-<<<<<<< HEAD
-        // ... Sisa logika API sama dengan sebelumnya ...
-        // (Pastikan menggunakan DB Transaction seperti di method store)
-
-        // Contoh singkat:
-        $totalHarga = 0;
-        foreach ($carts as $cart)
-            $totalHarga += $cart->produk->harga * $cart->jumlah;
-
-        $order = Pesanan::create([
-            'user_id' => $user->id,
-            'kode_pesanan' => 'INV/' . date('Ymd') . '/' . strtoupper(Str::random(6)),
-            'alamat_kirim' => $request->alamat_pengiriman,
-            'status' => 'pending',
-            'total_harga' => $totalHarga,
-        ]);
-
-        // Pindahkan ke detail & hapus keranjang...
-        // ...
-
-        return response()->json(['success' => true, 'data' => $order]);
-=======
         // 3. GROUPING: Pisahkan item berdasarkan ID Petani (User ID pemilik produk)
         // Ini agar jika beli dari 2 petani, jadi 2 Pesanan berbeda.
         $groupedItems = $cartItems->groupBy(function ($item) {
@@ -411,7 +376,7 @@ class CheckoutController extends Controller
                 // D. Generate Midtrans Token untuk Pesanan Ini
                 $params = [
                     'transaction_details' => [
-                        'order_id' => $pesanan->id, // Gunakan ID Order sebagai referensi
+                        'order_id' => $pesanan->kode_pesanan, // PENTING: Gunakan kode_pesanan (INV/..) bukan ID agar konsisten dengan Callback
                         'gross_amount' => (int) $grandTotal, // Wajib Integer
                     ],
                     'customer_details' => [
@@ -449,6 +414,5 @@ class CheckoutController extends Controller
                 'message' => 'Gagal order: ' . $e->getMessage()
             ], 500);
         }
->>>>>>> 85f6429d533ce4c2349e1e5df46b7f23322a7fec
     }
 }
