@@ -31,11 +31,13 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300">
             <div class="flex items-center justify-between h-16 lg:h-20">
 
-                {{-- 1. Logo Section --}}
-                <div class="flex-1 flex justify-start items-center">
+                {{-- ================================================
+            1. LOGO SECTION (KIRI)
+            ================================================ --}}
+            <div class="flex-1 flex justify-start items-center py-2">
                 <a href="/" class="flex items-center gap-2 group relative shrink-0">
                     <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
-                        class="h-36 lg:h-36 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                        class="h-12 sm:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
                 </a>
             </div>
 

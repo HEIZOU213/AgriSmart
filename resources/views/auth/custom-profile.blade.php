@@ -50,7 +50,7 @@
                     <div class="flex-1 flex justify-start items-center">
                         <a href="/" class="flex items-center gap-2 group relative shrink-0">
                             <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
-                                class="h-36 lg:h-36 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                                class="h-12 lg:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
                         </a>
                     </div>
 
@@ -173,7 +173,7 @@
                 <div class="flex items-center gap-2">
                     <a href="/" class="flex items-center gap-2 group relative shrink-0">
                         <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
-                            class="h-36 lg:h-40 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                            class="h-12 lg:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
                     </a>
                 </div>
                 <div class="flex items-center gap-3">
@@ -188,7 +188,7 @@
                                     src="{{ asset('storage/' . Auth::user()->foto_profil) }}">
                             @else
                                 <div
-                                    class="h-9 w-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold ring-2 ring-gray-200 group-hover:ring-indigo-500 transition">
+                                    class="h-9 w-9 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold ring-2 ring-gray-200 group-hover:ring-green-500 transition">
                                     {{ substr(Auth::user()->name, 0, 1) }}</div>
                             @endif
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -42,7 +42,7 @@ use App\Http\Controllers\IotController;
 // ====================================================
 
 // Payment Gateway Callback (Midtrans)
-Route::post('midtrans-callback', [PaymentCallbackController::class, 'handle']);
+Route::post('midtrans-callback', [App\Http\Controllers\CheckoutController::class, 'callback']);
 
 // Auth (Register & Login)
 Route::post('/register', [AuthController::class, 'register']);

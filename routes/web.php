@@ -168,7 +168,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pesan-order/{id}', [PesanOrderController::class, 'store'])->name('pesan.store');
 
     // Pesanan & Payment
-    Route::get('/payment-finish', [CheckoutController::class, 'callback'])->name('payment.finish');
+    Route::get('/payment-finish', [CheckoutController::class, 'paymentFinish'])->name('payment.finish');
     Route::post('/pesanan/{id}/cancel', [CheckoutController::class, 'cancelOrder'])->name('pesanan.cancel');
 
     // --- IOT SMART GARDEN (GLOBAL AUTH) ---

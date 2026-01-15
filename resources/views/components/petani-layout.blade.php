@@ -22,13 +22,15 @@
     {{-- NAVIGASI ATAS (FIXED) --}}
     <nav class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 md:px-6 shadow-sm">
         
-        {{-- BAGIAN KIRI: LOGO --}}
-        <div class="flex items-center gap-2">
-            <a href="/" class="flex items-center gap-2 group relative shrink-0">
-                <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
-                    class="h-36 lg:h-40 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
-            </a>
-        </div>
+        {{-- ================================================
+            1. LOGO SECTION (KIRI)
+            ================================================ --}}
+            <div class="flex-1 flex justify-start items-center py-2">
+                <a href="/" class="flex items-center gap-2 group relative shrink-0">
+                    <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
+                        class="h-12 sm:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                </a>
+            </div>
 
         {{-- BAGIAN KANAN: User Menu + Hamburger --}}
         <div class="flex items-center gap-3">
