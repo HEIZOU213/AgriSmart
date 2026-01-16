@@ -64,7 +64,7 @@ class IotController extends Controller
             return redirect()->route('login');
         }
 
-        if (Auth::user()->role !== 'admin' && $device->user_id !== Auth::id()) {
+        if (Auth::user()->role != 'admin' && $device->user_id != Auth::id()) {
             return redirect()->route('layanan.index')->with('error', 'Anda tidak memiliki akses ke alat ini.');
         }
 

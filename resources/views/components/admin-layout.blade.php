@@ -26,7 +26,7 @@
         <div class="flex items-center gap-2">
             <a href="/" class="flex items-center gap-2 group relative shrink-0">
                 <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
-                    class="h-36 lg:h-40 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                    class="h-12 lg:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
             </a>
         </div>
 

@@ -323,7 +323,7 @@
                                 berbasis AI.
                             </p>
                             <!-- Tombol Aksi -->
-                            <a href="#"
+                            <a href="{{ route('layanan.index') }}"
                                 class="inline-block px-6 py-2.5 bg-green-600 text-white font-bold text-sm sm:text-base rounded-full shadow-md hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">Lihat
                                 Dashboard</a>
                         </div>
