@@ -41,6 +41,8 @@ use App\Http\Controllers\IotController;
 // 1. PUBLIC ROUTES (TIDAK BUTUH LOGIN)
 // ====================================================
 
+Route::post('/login/google', [App\Http\Controllers\Api\AuthController::class, 'loginByGoogle']);
+
 // Payment Gateway Callback (Midtrans)
 Route::post('midtrans-callback', [App\Http\Controllers\CheckoutController::class, 'callback']);
 

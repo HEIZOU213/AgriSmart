@@ -184,4 +184,49 @@ class AuthController extends Controller
             'message' => 'Password berhasil diperbarui!',
         ]);
     }
+
+    // --- LOGIN VIA GOOGLE (API) ---
+    public function loginByGoogle(Request $request)
+    {
+        // 1. Validasi data yang dikirim Flutter
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'name' => 'required|string',
+            'google_id' => 'required|string', // ID unik dari Google
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'message' => 'Data Google tidak valid'], 422);
+        }
+
+        // 2. Cari User berdasarkan Email
+        $user = User::where('email', $request->email)->first();
+
+        if ($user) {
+            // A. Jika user sudah ada, update google_id-nya (opsional) & Login
+            // $user->update(['google_id' => $request->google_id]); // Jika punya kolom google_id
+        } else {
+            // B. Jika belum ada, Buat User Baru (Register Otomatis)
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->google_id . rand(1000,9999)), // Password acak
+                'role' => 'konsumen',
+                'no_telepon' => null, // Nanti user bisa update sendiri
+                // 'google_id' => $request->google_id, // Aktifkan jika ada kolom ini
+            ]);
+        }
+
+        // 3. Buat Token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login Google Berhasil',
+            'data' => [
+                'user' => $user,
+                'token' => $token
+            ]
+        ]);
+    }
 }
