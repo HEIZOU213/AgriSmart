@@ -144,11 +144,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // ====================================================
     Route::middleware('role:konsumen')->group(function () {
         
-        // Pesanan Konsumen (History & Tracking)
-        Route::get('/konsumen/pesanan', [KonsumenPesananController::class, 'apiIndex']);
-        
-        // Cancel Pesanan
-        Route::put('/konsumen/pesanan/{id}/cancel', [KonsumenPesananController::class, 'apiCancel']);
+        // Route Cancel Order untuk Flutter (POST /orders/{id}/cancel)
+        Route::post('/orders/{id}/cancel', [KonsumenPesananController::class, 'apiCancel']);
+
+        // Backup Route (POST /pesanan/{id}/cancel)
+        Route::post('/pesanan/{id}/cancel', [KonsumenPesananController::class, 'apiCancel']);
     });
 
 });
