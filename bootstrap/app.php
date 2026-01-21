@@ -4,8 +4,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-// Impor middleware Anda di sini
+// Impor middleware
 use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\UserActivity; 
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,10 +17,18 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         
-        // Daftarkan alias 'role' di sini
+        // 1. Alias Route
         $middleware->alias([
             'role' => CheckRole::class,
         ]);
+
+        // 2. Middleware Aktivitas User (Last Seen)
+        
+        // A. Untuk Website (Browser)
+        $middleware->appendToGroup('web', UserActivity::class);
+
+        // B. Untuk Mobile App (API) -- TAMBAHKAN BARIS INI
+        $middleware->appendToGroup('api', UserActivity::class);
 
     })
     ->withExceptions(function (Exceptions $exceptions) {

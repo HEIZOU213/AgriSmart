@@ -18,13 +18,17 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PesanOrderController;
-use App\Http\Controllers\ChatController;
+// use App\Http\Controllers\ChatController; // (Opsional: Bisa dikomentari jika sudah tidak dipakai)
+use App\Http\Controllers\MarketChatController; // <--- IMPOR CONTROLLER BARU
 use App\Http\Controllers\KontakController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;
 
 // --- IMPOR IOT CONTROLLER (BARU) ---
 use App\Http\Controllers\IotController;
+
+// --- [PERBAIKAN 1] IMPOR MIDDLEWARE ACTIVITY ---
+use App\Http\Middleware\UserActivity; 
 
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
@@ -124,7 +128,8 @@ Route::middleware('guest')->group(function () {
 | BAGIAN 2: RUTE TERPROTEKSI (WAJIB LOGIN)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])->group(function () {
+// [PERBAIKAN 2] Menambahkan UserActivity::class agar status online terupdate
+Route::middleware(['auth', UserActivity::class])->group(function () {
 
     // Logout
     Route::post('/logout', [CustomAuthController::class, 'logout'])->name('logout');
@@ -146,10 +151,6 @@ Route::middleware(['auth'])->group(function () {
     // [PENTING] Route Baru untuk AJAX Update Quantity
     Route::post('/cart/update-quantity/{id}', [CartController::class, 'updateQuantityAjax'])->name('cart.update.ajax');
 
-    // Route lama 'patch' dimatikan karena method 'update' sudah dihapus di Controller
-    // Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
-
-    // Route::delete('/cart/remove/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
     Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
     // -----------------------------
 
@@ -158,14 +159,27 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile/info', [CustomAuthController::class, 'updateProfile'])->name('profile.update');
     Route::put('/profile/password', [CustomAuthController::class, 'updatePassword'])->name('password.update');
 
-    // Chat
-    Route::get('/api/cek-notifikasi', [ChatController::class, 'checkNotifications'])->name('api.notifikasi');
-    Route::get('/chat', [ChatController::class, 'index'])->name('chat.index');
-    Route::get('/chat/{id}', [ChatController::class, 'show'])->name('chat.show');
-    Route::get('/api/chat/{id}/messages', [ChatController::class, 'getMessages'])->name('api.chat.messages');
-    Route::post('/api/chat/{id}/send', [ChatController::class, 'sendMessage'])->name('api.chat.send');
-    Route::delete('/chat/{id}', [ChatController::class, 'destroy'])->name('chat.destroy');
+    // ====================================================
+    // MARKET CHAT ROUTES (UPDATED)
+    // ====================================================
+    
+    // Halaman List Chat (Inbox)
+    Route::get('/chat', [MarketChatController::class, 'getChatList'])->name('chat.index');
+    
+    // Halaman Detail Chat (Room)
+    Route::get('/chat/detail/{userId}', [MarketChatController::class, 'show'])->name('chat.show');
+
+    // API Internal Chat (AJAX untuk JS)
+    Route::get('/api/chat/messages/{receiverId}', [MarketChatController::class, 'getMessages'])->name('api.chat.messages');
+    Route::post('/api/chat/send', [MarketChatController::class, 'sendMessage'])->name('api.chat.send');
+    
+    // [TAMBAHAN BARU] Route khusus untuk set offline saat tutup tab
+    Route::post('/chat/offline', [MarketChatController::class, 'setOffline'])->name('chat.offline');
+
+    // Fitur pesan otomatis dari pesanan (jika masih dipakai)
     Route::post('/pesan-order/{id}', [PesanOrderController::class, 'store'])->name('pesan.store');
+    
+    // ====================================================
 
     // Pesanan & Payment
     Route::get('/payment-finish', [CheckoutController::class, 'paymentFinish'])->name('payment.finish');

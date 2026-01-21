@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 // Controller Khusus API
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PaymentCallbackController;
-use App\Http\Controllers\Api\PetaniDashboardController; // Controller Dashboard Baru
+use App\Http\Controllers\Api\PetaniDashboardController; 
 use App\Http\Controllers\Api\NotifikasiController;
 use App\Http\Controllers\Api\KeranjangController;
 
@@ -18,7 +18,7 @@ use App\Http\Controllers\EdukasiController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController; 
-use App\Http\Controllers\ChatController;      // Chat Umum
+use App\Http\Controllers\ChatController;       // Chat Umum
 use App\Http\Controllers\MarketChatController; // Chat Jual Beli
 use App\Http\Controllers\KontakController;     // Untuk Kontak Kami
 
@@ -28,8 +28,11 @@ use App\Http\Controllers\Petani\PesananController as PetaniPesananController;
 use App\Http\Controllers\Petani\DompetController as PetaniDompetController;
 use App\Http\Controllers\Konsumen\PesananController as KonsumenPesananController;
 
-// --- IMPORT CONTROLLER IOT (PENTING DARI VERSI HEAD) ---
+// --- IMPORT CONTROLLER IOT ---
 use App\Http\Controllers\IotController;
+
+// --- IMPORT MIDDLEWARE ---
+use App\Http\Middleware\UserActivity; // <--- TAMBAHKAN INI
 
 /*
 |--------------------------------------------------------------------------
@@ -51,13 +54,12 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // --- RUTE IOT UNTUK ESP32 (WAJIB PUBLIC) ---
-// ESP32 akan menembak ke sini: http://ip-address:8000/api/iot/receive
 Route::post('/iot/receive', [IotController::class, 'receiveData']);
 
 // Halaman Depan (Public Data)
-Route::get('/produk', [ProdukController::class, 'apiIndex']);      // List Produk
-Route::get('/produk/{id}', [ProdukController::class, 'apiShow']);  // Detail Produk
-Route::get('/edukasi', [EdukasiController::class, 'apiIndex']);    // List Edukasi
+Route::get('/produk', [ProdukController::class, 'apiIndex']);       // List Produk
+Route::get('/produk/{id}', [ProdukController::class, 'apiShow']);   // Detail Produk
+Route::get('/edukasi', [EdukasiController::class, 'apiIndex']);     // List Edukasi
 Route::get('/edukasi/{slug}', [EdukasiController::class, 'apiShow']); // Detail Edukasi
 
 // Kontak Kami
@@ -67,13 +69,14 @@ Route::post('/kontak', [KontakController::class, 'apiStore']); // Kirim Pesan Ko
 // ====================================================
 // 2. PROTECTED ROUTES (WAJIB LOGIN / BERTOKEN)
 // ====================================================
-Route::middleware('auth:sanctum')->group(function () {
+// [PERBAIKAN] Tambahkan UserActivity di sini agar jalan setelah login divalidasi
+Route::middleware(['auth:sanctum', UserActivity::class])->group(function () {
 
     // --- USER INFO & LOGOUT ---
     Route::get('/user', function (Request $request) {
         return response()->json([
             'success' => true,
-            'data' => $request->user() // Mengambil data user yang sedang login
+            'data' => $request->user() 
         ]);
     });
     
@@ -100,7 +103,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat/{id}', [ChatController::class, 'apiGetMessages']); 
     Route::post('/chat/send', [ChatController::class, 'apiSendMessage']); 
     
-    // Market Chat (Sesuai Web)
+    // Market Chat (Sesuai Web - INI PENTING UNTUK MOBILE APP)
+    // Mobile App akan akses endpoint ini untuk update Last Seen & Chat
     Route::get('/market-chat/list', [MarketChatController::class, 'getChatList']);
     Route::get('/market-chat/{receiver_id}', [MarketChatController::class, 'getMessages']);
     Route::post('/market-chat/send', [MarketChatController::class, 'sendMessage']);
@@ -121,7 +125,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Manajemen Produk Petani
         Route::get('/petani/produk', [PetaniProdukController::class, 'apiIndex']);
         Route::post('/petani/produk/store', [PetaniProdukController::class, 'apiStore']);
-        Route::post('/petani/produk/{id}', [PetaniProdukController::class, 'apiUpdate']); // Pakai POST untuk update file di Flutter
+        Route::post('/petani/produk/{id}', [PetaniProdukController::class, 'apiUpdate']); 
         Route::delete('/petani/produk/{id}', [PetaniProdukController::class, 'apiDestroy']);
         
         // Pesanan Masuk
@@ -129,14 +133,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/petani/pesanan/{id}/update-status', [PetaniPesananController::class, 'apiUpdateStatus']);
 
         // --- MANAJEMEN ALAT IOT (PETANI) ---
-        // Route ini dipakai Aplikasi HP Petani untuk kontrol alat
         Route::get('/petani/iot', [IotController::class, 'index']);        // List semua alat
         Route::post('/petani/iot/claim', [IotController::class, 'claimDevice']); // Klaim alat baru
         Route::post('/petani/iot/toggle/{id}', [IotController::class, 'togglePump']); // On/Off Pompa
         Route::post('/petani/iot/auto/{id}', [IotController::class, 'setAuto']); // Set ke Auto
-
-        // Dompet Petani (Optional)
-        // Route::get('/petani/dompet', [PetaniDompetController::class, 'apiIndex']);
     });
 
     // ====================================================
@@ -144,10 +144,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // ====================================================
     Route::middleware('role:konsumen')->group(function () {
         
-        // Route Cancel Order untuk Flutter (POST /orders/{id}/cancel)
+        // Route Cancel Order untuk Flutter
         Route::post('/orders/{id}/cancel', [KonsumenPesananController::class, 'apiCancel']);
 
-        // Backup Route (POST /pesanan/{id}/cancel)
+        // Backup Route
         Route::post('/pesanan/{id}/cancel', [KonsumenPesananController::class, 'apiCancel']);
     });
 
