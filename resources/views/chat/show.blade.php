@@ -137,7 +137,7 @@
                         </div>
                         <button type="submit"
                             class="flex-shrink-0 w-11 h-11 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg shadow-green-600/20 flex items-center justify-center active:scale-95 transform focus:outline-none focus:ring-2 focus:ring-green-300">
-                            <svg class="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 rotate-135" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                             </svg>
@@ -156,8 +156,9 @@
             currentUserId: "{{ Auth::id() }}",
             csrfToken: "{{ csrf_token() }}",
             urls: {
-                messages: (id) => `/api/chat/messages/${id}?t=${new Date().getTime()}`,
-                send: `/api/chat/send`,
+                // [PERBAIKAN] Menggunakan route() agar URL dinamis sesuai hosting/localhost
+                messages: (id) => "{{ route('ajax.chat.messages', ':id') }}".replace(':id', id) + `?t=${new Date().getTime()}`,
+                send: "{{ route('ajax.chat.send') }}",
                 offline: "{{ route('chat.offline') }}"
             }
         };
@@ -182,6 +183,20 @@
         let pollInterval = null;
         let isFetching = false;
         const notifSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
+
+        // [BARU] Auto-focus dan resize jika ada pesan bawaan (dari Produk)
+        document.addEventListener("DOMContentLoaded", function() {
+            const textBox = ui.messageInput;
+            if (textBox.value.trim() !== "") {
+                textBox.style.height = 'auto';
+                textBox.style.height = (textBox.scrollHeight) + 'px';
+                textBox.focus();
+                // Pindahkan kursor ke akhir teks
+                const val = textBox.value; 
+                textBox.value = ''; 
+                textBox.value = val;
+            }
+        });
 
         // --- REPLY LOGIC ---
         window.triggerReply = function (id, name, message) {
@@ -415,7 +430,8 @@
                     body: JSON.stringify({
                         receiver_id: config.receiverId,
                         message: text,
-                        reply_to_id: replyId
+                        // [PERBAIKAN] Jika replyId kosong, kirim null (agar lolos validasi database)
+                        reply_to_id: replyId || null 
                     })
                 });
                 if (response.ok) fetchMessages();
@@ -442,8 +458,8 @@
         function setStatusOnline() {
             fetchMessages();
             if (!pollInterval) {
-                // [SARAN] Polling 500ms sangat membebani server. Pertimbangkan menggunakan WebSocket (Pusher/Reverb) atau tingkatkan interval ke 2000-3000ms.
-                pollInterval = setInterval(fetchMessages, 500);
+                // [PERBAIKAN] Meningkatkan interval ke 3000ms agar aman untuk Shared Hosting
+                pollInterval = setInterval(fetchMessages, 3000);
             }
         }
 

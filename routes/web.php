@@ -173,8 +173,8 @@ Route::middleware(['auth', UserActivity::class])->group(function () {
     Route::get('/chat/product/{id}', [MarketChatController::class, 'chatWithProduct'])->name('chat.product');
 
     // API Internal Chat (AJAX untuk JS)
-    Route::get('/api/chat/messages/{receiverId}', [MarketChatController::class, 'getMessages'])->name('api.chat.messages');
-    Route::post('/api/chat/send', [MarketChatController::class, 'sendMessage'])->name('api.chat.send');
+    Route::get('/ajax/chat/messages/{receiverId}', [MarketChatController::class, 'getMessages'])->name('ajax.chat.messages');
+    Route::post('/ajax/chat/send', [MarketChatController::class, 'sendMessage'])->name('ajax.chat.send');
     
     // [TAMBAHAN BARU] Route khusus untuk set offline saat tutup tab
     Route::post('/chat/offline', [MarketChatController::class, 'setOffline'])->name('chat.offline');
