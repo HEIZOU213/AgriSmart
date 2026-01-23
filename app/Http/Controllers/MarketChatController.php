@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\MarketChat;
-use App\Models\User; 
+use App\Models\User;
+use App\Models\Produk; // [BARU] Import Model Produk
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache; 
@@ -63,11 +64,47 @@ class MarketChatController extends Controller
         ]);
     }
 
-    // ... (Fungsi show TETAP SAMA) ...
-    public function show($userId)
+    // [UPDATE] Fungsi show ditambahkan Request untuk menangkap text prefilled DAN back_url
+    public function show(Request $request, $userId)
     {
         $receiver = User::findOrFail($userId);
-        return view('chat.show', compact('receiver'));
+        
+        // [BARU] Ambil pesan dari URL parameter (jika ada)
+        $prefilledText = $request->query('text', '');
+
+        // [BARU] Tangkap URL untuk tombol kembali
+        // Jika 'back_url' ada di URL, pakai itu. Jika tidak, default ke halaman List Chat.
+        $backUrl = $request->query('back_url', route('chat.index'));
+
+        return view('chat.show', compact('receiver', 'prefilledText', 'backUrl'));
+    }
+
+    // [BARU] Fungsi Jembatan untuk Chat dari Produk
+    public function chatWithProduct($id)
+    {
+        $myId = Auth::id();
+
+        // 1. Cari Produk berdasarkan ID
+        $produk = Produk::findOrFail($id);
+        
+        // 2. Ambil ID Pemilik Produk (Petani)
+        $sellerId = $produk->user_id;
+
+        // 3. Cek agar tidak chat diri sendiri
+        if ($sellerId == $myId) {
+            return back()->with('error', 'Tidak bisa mengirim pesan ke produk sendiri.');
+        }
+
+        // 4. Siapkan pesan pembuka
+        $message = "Halo, saya tertarik dengan produk *{$produk->nama_produk}*. Apakah stok masih tersedia?";
+
+        // 5. REDIRECT ke route 'chat.show' yang sudah ada
+        // Membawa userId penjual, text pesan, DAN back_url ke halaman produk
+        return redirect()->route('chat.show', [
+            'userId' => $sellerId,
+            'text' => $message,
+            'back_url' => route('produk.show', $id) // <--- Logika kembali ke halaman produk
+        ]);
     }
 
     // ... (Fungsi sendMessage UPDATE FITUR REPLY) ...

@@ -169,6 +169,9 @@ Route::middleware(['auth', UserActivity::class])->group(function () {
     // Halaman Detail Chat (Room)
     Route::get('/chat/detail/{userId}', [MarketChatController::class, 'show'])->name('chat.show');
 
+    // [BARU] Route khusus klik dari Produk (Jembatan ke chat.show)
+    Route::get('/chat/product/{id}', [MarketChatController::class, 'chatWithProduct'])->name('chat.product');
+
     // API Internal Chat (AJAX untuk JS)
     Route::get('/api/chat/messages/{receiverId}', [MarketChatController::class, 'getMessages'])->name('api.chat.messages');
     Route::post('/api/chat/send', [MarketChatController::class, 'sendMessage'])->name('api.chat.send');

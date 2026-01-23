@@ -8,26 +8,57 @@
 
     <title>Chat - {{ $receiver->name }}</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
 
         /* Scrollbar Configuration */
-        ::-webkit-scrollbar { width: 8px; }
-        @media (min-width: 640px) { ::-webkit-scrollbar { width: 10px; } }
-        ::-webkit-scrollbar-track { background: #f0fdf4; }
-        ::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 5px; border: 2px solid #f0fdf4; }
-        ::-webkit-scrollbar-thumb:hover { background: #15803d; }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        @media (min-width: 640px) {
+            ::-webkit-scrollbar {
+                width: 10px;
+            }
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f0fdf4;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #16a34a;
+            border-radius: 5px;
+            border: 2px solid #f0fdf4;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #15803d;
+        }
 
         /* Custom Animations */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .animate-fade-in-up { animation: fadeInUp 0.2s ease-out forwards; }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.2s ease-out forwards;
+        }
     </style>
 </head>
 
@@ -37,40 +68,48 @@
             <div class="bg-white overflow-hidden flex flex-col h-full border-x border-slate-200 relative shadow-lg">
 
                 <div class="bg-white border-b border-slate-100 p-3 flex items-center gap-3 shadow-sm z-20">
-                    <a href="{{ route('chat.index') }}" class="p-2 rounded-full hover:bg-slate-100 transition text-slate-600" title="Kembali">
+                    <a href="{{ $backUrl ?? route('chat.index') }}"
+                        class="p-2 rounded-full hover:bg-slate-100 transition text-slate-600" title="Kembali">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
                     </a>
 
                     <div class="relative">
-                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-green-100 to-emerald-200 flex items-center justify-center text-green-700 font-bold text-lg border border-white shadow-sm">
+                        <div
+                            class="h-10 w-10 rounded-full bg-gradient-to-br from-green-100 to-emerald-200 flex items-center justify-center text-green-700 font-bold text-lg border border-white shadow-sm">
                             {{ substr($receiver->name, 0, 1) }}
                         </div>
-                        <span id="status-dot" class="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white bg-slate-400"></span>
+                        <span id="status-dot"
+                            class="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white bg-slate-400"></span>
                     </div>
 
                     <div class="flex flex-col justify-center">
                         <h2 class="font-bold text-base text-slate-800 leading-none">
                             {{ $receiver->name }}
                         </h2>
-                        <span id="status-text" class="text-xs text-slate-500 mt-1 font-medium transition-colors duration-300">
+                        <span id="status-text"
+                            class="text-xs text-slate-500 mt-1 font-medium transition-colors duration-300">
                             Memuat status...
                         </span>
                     </div>
                 </div>
 
-                <div class="absolute inset-0 z-0 bg-slate-50" 
-                     style="background-image: url('{{ asset('images/logo2.png') }}'); background-size: 500px; background-repeat: no-repeat; background-position: center; opacity: 0.6; top: 30px;">
+                <div class="absolute inset-0 z-0 bg-slate-50"
+                    style="background-image: url('{{ asset('images/logo2.png') }}'); background-size: 500px; background-repeat: no-repeat; background-position: center; opacity: 0.6; top: 30px;">
                 </div>
 
-                <div id="chat-box" class="relative z-10 flex-1 p-4 overflow-y-auto space-y-2 scroll-smooth bg-transparent">
+                <div id="chat-box"
+                    class="relative z-10 flex-1 p-4 overflow-y-auto space-y-2 scroll-smooth bg-transparent">
                     <div id="loading-msg" class="text-center text-slate-400 text-sm mt-10">Memuat percakapan...</div>
                 </div>
 
-                <div id="reply-preview-box" class="hidden relative z-20 px-4 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between animate-fade-in-up">
+                <div id="reply-preview-box"
+                    class="hidden relative z-20 px-4 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between animate-fade-in-up">
                     <div class="flex-1 flex items-center overflow-hidden">
-                        <div class="bg-white border-l-4 border-green-600 rounded-r-md p-3 shadow-sm text-sm w-full overflow-hidden border border-slate-100">
+                        <div
+                            class="bg-white border-l-4 border-green-600 rounded-r-md p-3 shadow-sm text-sm w-full overflow-hidden border border-slate-100">
                             <div class="text-green-700 font-bold text-xs mb-1 flex items-center">
                                 <span class="mr-1">Membalas</span>
                                 <span id="reply-to-name" class="truncate">Reply Name</span>
@@ -78,9 +117,11 @@
                             <div class="text-slate-600 text-xs truncate" id="reply-to-text">Message Content</div>
                         </div>
                     </div>
-                    <button onclick="cancelReply()" class="ml-3 p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-200 rounded-full transition-colors flex-shrink-0">
+                    <button onclick="cancelReply()"
+                        class="ml-3 p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-200 rounded-full transition-colors flex-shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
@@ -88,14 +129,17 @@
                 <div class="relative z-10 px-4 py-3 bg-white border-t border-slate-100">
                     <form id="chat-form" class="flex items-center gap-3">
                         <input type="hidden" id="reply-input-id" value="">
-                        <div class="flex-1 min-w-0 bg-slate-50 rounded-2xl border border-slate-200 flex items-center px-4 py-2 focus-within:bg-white shadow-sm transition-all">
+                        <div
+                            class="flex-1 min-w-0 bg-slate-50 rounded-2xl border border-slate-200 flex items-center px-4 py-2 focus-within:bg-white shadow-sm transition-all">
                             <textarea id="message-input" rows="1"
                                 class="w-full border-none bg-transparent focus:outline-none focus:ring-0 resize-none py-1.5 text-sm sm:text-base max-h-32 placeholder-slate-400 text-slate-800"
-                                placeholder="Ketik pesan..." style="font-family: inherit; line-height: 1.5;"></textarea>
+                                placeholder="Ketik pesan..." style="font-family: inherit; line-height: 1.5;">{{ $prefilledText ?? '' }}</textarea>
                         </div>
-                        <button type="submit" class="flex-shrink-0 w-11 h-11 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg shadow-green-600/20 flex items-center justify-center active:scale-95 transform focus:outline-none focus:ring-2 focus:ring-green-300">
+                        <button type="submit"
+                            class="flex-shrink-0 w-11 h-11 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg shadow-green-600/20 flex items-center justify-center active:scale-95 transform focus:outline-none focus:ring-2 focus:ring-green-300">
                             <svg class="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                             </svg>
                         </button>
                     </form>
@@ -140,7 +184,7 @@
         const notifSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
 
         // --- REPLY LOGIC ---
-        window.triggerReply = function(id, name, message) {
+        window.triggerReply = function (id, name, message) {
             ui.reply.inputId.value = id;
             ui.reply.name.innerText = name;
             ui.reply.text.innerText = message;
@@ -148,12 +192,12 @@
             ui.messageInput.focus();
         };
 
-        window.cancelReply = function() {
+        window.cancelReply = function () {
             ui.reply.inputId.value = '';
             ui.reply.box.classList.add('hidden');
         };
 
-        ui.messageInput.addEventListener('keydown', function(e) {
+        ui.messageInput.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 ui.chatForm.dispatchEvent(new Event('submit'));
@@ -288,11 +332,11 @@
                                 </div>
                             </div>
                         </div>`;
-                    
+
                     // [SARAN] insertAdjacentHTML dengan input user berpotensi XSS jika 'msg.message' tidak disanitasi total di backend.
                     ui.chatBox.insertAdjacentHTML('beforeend', html);
 
-                    if (!isMe) notifSound.play().catch(e => {});
+                    if (!isMe) notifSound.play().catch(e => { });
                 }
             });
 
@@ -325,7 +369,7 @@
             if (!text.trim()) return;
 
             const fakeTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
+
             let tempReplyHtml = '';
             if (replyId) {
                 tempReplyHtml = `
@@ -380,7 +424,7 @@
             }
         });
 
-        ui.messageInput.addEventListener('input', function() {
+        ui.messageInput.addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
         });
@@ -404,7 +448,7 @@
         }
 
         window.addEventListener('beforeunload', setStatusOffline);
-        document.addEventListener('visibilitychange', function() {
+        document.addEventListener('visibilitychange', function () {
             if (document.visibilityState === 'hidden') {
                 setStatusOffline();
             } else {
@@ -415,4 +459,5 @@
         setStatusOnline();
     </script>
 </body>
+
 </html>
