@@ -20,6 +20,10 @@ class MarketChat extends Model
         'reply_to_id', // [BARU] Wajib ada agar bisa di-save controller
     ];
 
+    protected $casts = [
+        'is_read' => 'boolean',
+    ];
+
     public function sender()
     {
         return $this->belongsTo(User::class, 'sender_id');

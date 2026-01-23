@@ -137,7 +137,7 @@
                         </div>
                         <button type="submit"
                             class="flex-shrink-0 w-11 h-11 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg shadow-green-600/20 flex items-center justify-center active:scale-95 transform focus:outline-none focus:ring-2 focus:ring-green-300">
-                            <svg class="w-5 h-5 rotate-135" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                             </svg>
@@ -249,7 +249,7 @@
         function renderSmartChat(messages) {
             if (messages.length === 0) {
                 if (!document.getElementById('empty-msg')) {
-                    ui.chatBox.innerHTML = `<div id="empty-msg" class="flex flex-col items-center justify-center h-full text-slate-400 opacity-70"></div>`;
+                    ui.chatBox.innerHTML = `<div id="empty-msg" class="flex flex-col items-center justify-center h-full text-slate-400 opacity-70"><p class="text-sm font-medium">Belum ada pesan.</p></div>`;
                 }
                 return;
             } else {
@@ -282,7 +282,8 @@
                         const checkEl = existingMsg.querySelector('.check-status');
                         if (checkEl) {
                             const currentRead = checkEl.getAttribute('data-read') == '1';
-                            if (msg.is_read && !currentRead) {
+                            // [PERBAIKAN] Tambahkan '== 1' agar 0 tidak dianggap true
+                            if (msg.is_read == 1 && !currentRead) {
                                 checkEl.setAttribute('data-read', '1');
                                 checkEl.classList.remove('text-slate-400');
                                 checkEl.classList.add('text-blue-500', 'font-bold');
@@ -308,7 +309,8 @@
 
                     let checkStatus = '';
                     if (isMe) {
-                        const colorClass = msg.is_read ? 'text-blue-500 font-bold' : 'text-slate-400';
+                        // [PERBAIKAN] Tambahkan '== 1' disini juga
+                        const colorClass = (msg.is_read == 1) ? 'text-blue-500 font-bold' : 'text-slate-400';
                         checkStatus = `<span class="${colorClass} ml-1 text-[11px] check-status" data-read="${msg.is_read}">✓✓</span>`;
                     }
 
