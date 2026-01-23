@@ -249,7 +249,7 @@
         function renderSmartChat(messages) {
             if (messages.length === 0) {
                 if (!document.getElementById('empty-msg')) {
-                    ui.chatBox.innerHTML = `<div id="empty-msg" class="flex flex-col items-center justify-center h-full text-slate-400 opacity-70"><p class="text-sm font-medium">Belum ada pesan.</p></div>`;
+                    ui.chatBox.innerHTML = `<div id="empty-msg" class="flex flex-col items-center justify-center h-full text-slate-400 opacity-70"></div>`;
                 }
                 return;
             } else {
