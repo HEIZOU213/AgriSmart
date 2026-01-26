@@ -33,6 +33,27 @@
                 'icon' => 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
             ],
         ];
+
+        // LOGIKA PERBAIKAN FOTO PROFIL (GOOGLE VS LOCAL)
+        $user = Auth::user();
+        $navbarPhotoUrl = null;
+        $userInitials = '';
+
+        if ($user) {
+            $userInitials = strtoupper(substr($user->name, 0, 1));
+            
+            if ($user->foto_profil) {
+                // Cek apakah URL eksternal (Google) atau Local Storage
+                if (!preg_match('#^https?://#i', $user->foto_profil)) {
+                    // Foto Lokal
+                    $navbarPhotoUrl = asset('storage/' . $user->foto_profil);
+                } else {
+                    // Foto URL (Google), bersihkan parameter size
+                    $cleanUrl = preg_replace('/\?sz=\d+$/', '', $user->foto_profil);
+                    $navbarPhotoUrl = preg_replace('/=s\d+-c$/', '=s0-c', $cleanUrl);
+                }
+            }
+        }
     @endphp
 
     <nav x-data="{ mobileOpen: false, scrolled: false, dropdownOpen: false }"
@@ -114,11 +135,12 @@
                             <button @click="dropdownOpen = !dropdownOpen"
                                 class="relative flex items-center justify-center w-10 h-10 rounded-full text-white font-bold text-lg hover:shadow-lg hover:shadow-green-100 border-2 border-transparent hover:border-green-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 overflow-hidden">
 
-                                <div class="h-10 w-10 rounded-full overflow-hidden {{ Auth::user()->foto_profil ? 'bg-transparent' : 'bg-green-600' }} flex items-center justify-center text-xl font-semibold border border-gray-300">
-                                    @if (Auth::user()->foto_profil)
-                                        <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}" alt="Foto Profil" class="w-full h-full object-cover">
+                                {{-- UPDATE: Gunakan variable $navbarPhotoUrl --}}
+                                <div class="h-10 w-10 rounded-full overflow-hidden {{ $navbarPhotoUrl ? 'bg-transparent' : 'bg-green-600' }} flex items-center justify-center text-xl font-semibold border border-gray-300">
+                                    @if ($navbarPhotoUrl)
+                                        <img src="{{ $navbarPhotoUrl }}" alt="Foto Profil" class="w-full h-full object-cover">
                                     @else
-                                        <span>{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                        <span>{{ $userInitials }}</span>
                                     @endif
                                 </div>
                             </button>
@@ -136,11 +158,12 @@
                                 {{-- Header Dropdown --}}
                                 <div class="px-6 py-5 border-b border-green-50 bg-green-50/50">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full {{ Auth::user()->foto_profil ? 'bg-transparent' : 'bg-green-600' }} text-white flex items-center justify-center font-bold text-lg shadow-sm overflow-hidden border border-gray-300">
-                                            @if(Auth::user()->foto_profil)
-                                                <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}" alt="Profil" class="w-full h-full object-cover">
+                                        {{-- UPDATE: Gunakan variable $navbarPhotoUrl --}}
+                                        <div class="w-10 h-10 rounded-full {{ $navbarPhotoUrl ? 'bg-transparent' : 'bg-green-600' }} text-white flex items-center justify-center font-bold text-lg shadow-sm overflow-hidden border border-gray-300">
+                                            @if($navbarPhotoUrl)
+                                                <img src="{{ $navbarPhotoUrl }}" alt="Profil" class="w-full h-full object-cover">
                                             @else
-                                                <span class="text-white">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                                <span class="text-white">{{ $userInitials }}</span>
                                             @endif
                                         </div>
                                         <div class="overflow-hidden">
