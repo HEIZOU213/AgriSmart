@@ -1,3 +1,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Scrollbar Kustom */
+
+/* Lebar scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Bagian track (latar belakang lintasan scroll) */
+::-webkit-scrollbar-track {
+    background: #f0fdf4; /* Warna hijau sangat muda (green-50) */
+}
+
+/* Bagian thumb (batang yang bisa digeser) */
+::-webkit-scrollbar-thumb {
+    background: #16a34a; /* Warna hijau utama (green-600) */
+    border-radius: 5px;
+    border: 2px solid #f0fdf4; /* Memberikan efek jarak (padding) dengan border */
+}
+
+/* Efek saat mouse berada di atas scrollbar */
+::-webkit-scrollbar-thumb:hover {
+    background: #15803d; /* Warna hijau lebih gelap saat di-hover (green-700) */
+}
