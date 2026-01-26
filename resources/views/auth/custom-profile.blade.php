@@ -33,10 +33,27 @@
     {{-- ====================================================================== --}}
 
     @php
-        // LOGIKA MENU NAVIGASI TENGAH BERDASARKAN ROLE
+        // 1. DATA USER & LOGIKA FOTO PROFIL UNTUK NAVBAR
+        $user = Auth::user();
+        $navbarPhotoUrl = null;
+        $userInitials = strtoupper(substr($user->name ?? $user->email, 0, 1));
+
+        if ($user->foto_profil) {
+            // Cek apakah URL eksternal (Google) atau Local Storage
+            if (!preg_match('#^https?://#i', $user->foto_profil)) {
+                // Foto Lokal
+                $navbarPhotoUrl = asset('storage/' . $user->foto_profil);
+            } else {
+                // Foto URL (Google), bersihkan parameter size untuk resolusi tinggi
+                $cleanUrl = preg_replace('/\?sz=\d+$/', '', $user->foto_profil);
+                $navbarPhotoUrl = preg_replace('/=s\d+-c$/', '=s0-c', $cleanUrl);
+            }
+        }
+
+        // 2. LOGIKA MENU NAVIGASI TENGAH BERDASARKAN ROLE
         $navItems = [];
 
-        if(Auth::user()->role === 'konsumen') {
+        if($user->role === 'konsumen') {
             $navItems = [
                 [
                     'name' => 'Pesanan Saya',
@@ -45,7 +62,7 @@
                     'icon' => 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'
                 ]
             ];
-        } elseif(Auth::user()->role === 'admin') {
+        } elseif($user->role === 'admin') {
             $navItems = [
                 [
                     'name' => 'Dashboard',
@@ -54,7 +71,7 @@
                     'icon' => 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z'
                 ]
             ];
-        } elseif(Auth::user()->role === 'petani') {
+        } elseif($user->role === 'petani') {
             $navItems = [
                 [
                     'name' => 'Dashboard',
@@ -102,7 +119,7 @@
                     @endforeach
 
                     {{-- MENU CHAT (KHUSUS KONSUMEN) --}}
-                    @if(Auth::user()->role === 'konsumen')
+                    @if($user->role === 'konsumen')
                         <a href="{{ url('/chat') }}"
                             class="relative px-3 py-2 rounded-lg font-semibold transition-all duration-300 group overflow-hidden {{ request()->is('chat*') ? 'text-green-700' : 'text-slate-600 hover:text-green-700' }}">
                             <span class="relative flex items-center gap-2 text-sm lg:text-base whitespace-nowrap">
@@ -122,7 +139,7 @@
                 <div class="flex-1 flex justify-end items-center gap-2 sm:gap-4">
 
                     {{-- Ikon Keranjang (KHUSUS KONSUMEN) --}}
-                    @if(Auth::user()->role === 'konsumen')
+                    @if($user->role === 'konsumen')
                         <a href="{{ route('cart.index') }}"
                             class="group relative p-2 text-slate-600 hover:text-green-700 transition-colors hidden sm:block mr-1">
                             <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,11 +155,12 @@
                     <div class="hidden lg:block relative">
                         <button @click="dropdownOpen = !dropdownOpen"
                             class="relative flex items-center justify-center w-10 h-10 rounded-full text-white font-bold text-lg hover:shadow-lg hover:shadow-green-100 border-2 border-transparent hover:border-green-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 overflow-hidden">
-                            <div class="h-10 w-10 rounded-full overflow-hidden {{ Auth::user()->foto_profil ? 'bg-transparent' : 'bg-green-600' }} flex items-center justify-center text-xl font-semibold border border-gray-300">
-                                @if (Auth::user()->foto_profil)
-                                    <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}" alt="Foto Profil" class="w-full h-full object-cover">
+                            {{-- PERBAIKAN: Menggunakan $navbarPhotoUrl --}}
+                            <div class="h-10 w-10 rounded-full overflow-hidden {{ $navbarPhotoUrl ? 'bg-transparent' : 'bg-green-600' }} flex items-center justify-center text-xl font-semibold border border-gray-300">
+                                @if ($navbarPhotoUrl)
+                                    <img src="{{ $navbarPhotoUrl }}" alt="Foto Profil" class="w-full h-full object-cover">
                                 @else
-                                    <span>{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                    <span>{{ $userInitials }}</span>
                                 @endif
                             </div>
                         </button>
@@ -159,17 +177,17 @@
 
                             <div class="px-6 py-5 border-b border-green-50 bg-green-50/50">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full {{ Auth::user()->foto_profil ? 'bg-transparent' : 'bg-green-600' }} text-white flex items-center justify-center font-bold text-lg shadow-sm overflow-hidden border border-gray-300">
-                                        @if(Auth::user()->foto_profil)
-                                            <img src="{{ asset('storage/' . Auth::user()->foto_profil) }}" alt="Profil" class="w-full h-full object-cover">
+                                    {{-- PERBAIKAN: Menggunakan $navbarPhotoUrl di dalam dropdown --}}
+                                    <div class="w-10 h-10 rounded-full {{ $navbarPhotoUrl ? 'bg-transparent' : 'bg-green-600' }} text-white flex items-center justify-center font-bold text-lg shadow-sm overflow-hidden border border-gray-300">
+                                        @if($navbarPhotoUrl)
+                                            <img src="{{ $navbarPhotoUrl }}" alt="Profil" class="w-full h-full object-cover">
                                         @else
-                                            <span class="text-white">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                                            <span class="text-white">{{ $userInitials }}</span>
                                         @endif
                                     </div>
                                     <div class="overflow-hidden">
-                                        <h4 class="font-bold text-slate-800 text-sm truncate">{{ Auth::user()->name }}</h4>
-                                        <p class="text-xs text-slate-500 truncate">{{ Auth::user()->email }}</p>
-                                        {{-- BAGIAN ROLE DIHAPUS SESUAI PERMINTAAN --}}
+                                        <h4 class="font-bold text-slate-800 text-sm truncate">{{ $user->name }}</h4>
+                                        <p class="text-xs text-slate-500 truncate">{{ $user->email }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -185,21 +203,21 @@
                                 </a>
 
                                 {{-- Link Dashboard / Beranda (Tergantung Role) --}}
-                                @if(Auth::user()->role === 'konsumen')
+                                @if($user->role === 'konsumen')
                                     <a href="/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-green-700 hover:bg-green-50 transition-all group">
                                         <svg class="w-5 h-5 text-slate-400 group-hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                                         </svg>
                                         Beranda
                                     </a>
-                                @elseif(Auth::user()->role === 'admin')
+                                @elseif($user->role === 'admin')
                                     <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-green-700 hover:bg-green-50 transition-all group">
                                         <svg class="w-5 h-5 text-slate-400 group-hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                                         </svg>
                                         Dashboard
                                     </a>
-                                @elseif(Auth::user()->role === 'petani')
+                                @elseif($user->role === 'petani')
                                     <a href="{{ route('petani.dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-green-700 hover:bg-green-50 transition-all group">
                                         <svg class="w-5 h-5 text-slate-400 group-hover:text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -259,7 +277,7 @@
                     </a>
                 @endforeach
 
-                @if(Auth::user()->role === 'konsumen')
+                @if($user->role === 'konsumen')
                     <a href="{{ url('/chat') }}" @click="mobileOpen = false"
                         class="flex items-center justify-between gap-4 py-3 px-4 text-base font-semibold {{ request()->is('chat*') ? 'text-green-700 bg-green-50' : 'text-slate-700 hover:text-green-700 hover:bg-green-50' }} rounded-xl transition-all duration-300 group">
                         <div class="flex items-center gap-4">
@@ -324,11 +342,11 @@
             
             {{-- Tombol Kembali (Mobile Only / Optional jika sudah ada di navbar) --}}
             <div class="md:hidden">
-                @if(Auth::user()->role === 'admin')
+                @if($user->role === 'admin')
                     <a href="{{ route('admin.dashboard') }}"
                         class="inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-800">&larr;
                         Kembali ke Dashboard</a>
-                @elseif(Auth::user()->role === 'petani')
+                @elseif($user->role === 'petani')
                     <a href="{{ route('petani.dashboard') }}"
                         class="inline-flex items-center text-sm font-medium text-green-600 hover:text-green-800">&larr;
                         Kembali ke Dashboard</a>
@@ -380,21 +398,21 @@
 
                     {{-- Foto Profil Section --}}
                     @php
-                        $user = $user ?? Auth::user(); // Gunakan variabel $user dari view (jika ada) atau Auth::user()
-                        $photoUrl = null;
+                        // PERBAIKAN: Logika Foto Profil Form agar sama dengan Navbar
+                        // $user sudah didefinisikan di atas (Line 38), jadi aman digunakan
+                        $formPhotoUrl = null;
 
                         if ($user->foto_profil) {
-                            // Cek apakah itu path lokal atau URL eksternal (Socialite)
                             if (!preg_match('#^https?://#i', $user->foto_profil)) {
-                                // Jika path lokal, gunakan asset('storage/')
-                                $photoUrl = asset('storage/' . $user->foto_profil);
+                                // Foto Lokal: ambil dari storage
+                                $formPhotoUrl = asset('storage/' . $user->foto_profil);
                             } else {
-                                // Jika URL eksternal (Socialite)
-                                $photoUrl = $user->foto_profil;
+                                // Foto URL (misal: Google), bersihkan parameter size
+                                $cleanUrl = preg_replace('/\?sz=\d+$/', '', $user->foto_profil);
+                                $formPhotoUrl = preg_replace('/=s\d+-c$/', '=s0-c', $cleanUrl);
                             }
                         }
 
-                        // Tentukan inisial untuk fallback
                         $initials = strtoupper(substr($user->name ?? $user->email, 0, 1));
                     @endphp
 
@@ -402,9 +420,9 @@
                         <div class="shrink-0 relative group">
 
                             {{-- TAMPILKAN FOTO PROFIL --}}
-                            @if($photoUrl)
+                            @if($formPhotoUrl)
                                 <img class="h-24 w-24 object-cover rounded-full ring-4 ring-white shadow-lg transition"
-                                    src="{{ $photoUrl }}" alt="Foto Profil {{ $user->name }}" />
+                                    src="{{ $formPhotoUrl }}" alt="Foto Profil {{ $user->name }}" />
                             @else
                                 <div class="h-24 w-24 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white text-3xl font-bold ring-4 ring-white shadow-lg transition">
                                     {{ $initials }}
@@ -477,6 +495,7 @@
                                 </svg>
                             </div>
                             <input id="no_telepon" name="no_telepon" type="text"
+                                class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                                 class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                                 value="{{ old('no_telepon', $user->no_telepon) }}">
                         </div>
