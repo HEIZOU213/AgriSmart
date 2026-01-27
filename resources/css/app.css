@@ -23,5 +23,5 @@
 
 /* Efek saat mouse berada di atas scrollbar */
 ::-webkit-scrollbar-thumb:hover {
-    background: #15803d; /* Warna hijau lebih gelap saat di-hover (green-700) */
+    background: #15803d; 
 }
