@@ -76,8 +76,8 @@
             <p class="text-slate-500 text-sm">Kelola informasi profil dan keamanan.</p>
         </div>
 
-        {{-- Flex Container --}}
-        <div class="flex flex-col lg:flex-row lg:gap-10 lg:items-start">
+        {{-- PERBAIKAN: Menghapus 'lg:items-start' agar sidebar bisa stretch dan sticky bekerja --}}
+        <div class="flex flex-col lg:flex-row lg:gap-10">
 
             {{-- ========================================================= 
                  1. SIDEBAR NAVIGASI 
@@ -104,9 +104,8 @@
                 <aside class="w-full sm:w-72 sm:max-w-xs bg-white lg:bg-transparent shadow-2xl lg:shadow-none h-full lg:h-auto fixed lg:relative left-0 top-0 z-50 lg:z-auto px-6 pb-6 pt-24 lg:p-0 flex-shrink-0 transition-transform duration-300 transform lg:transform-none overflow-y-auto lg:overflow-visible"
                        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
                     
-                    {{-- Inner Div Sidebar --}}
-                    {{-- HAPUS class 'sticky top-28' agar sidebar ikut bergerak (scroll) bersama halaman --}}
-                    <div class="bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-3xl p-6">
+                    {{-- Inner Div dengan Sticky Top - Sidebar akan mengambang saat discroll --}}
+                    <div class="bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-3xl p-6 sticky top-28">
                         
                         {{-- Judul Sidebar di Mobile --}}
                         <div class="lg:hidden mb-6 flex items-center justify-between">
