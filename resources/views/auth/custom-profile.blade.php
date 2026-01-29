@@ -106,7 +106,7 @@
                        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
                     
                     {{-- Inner Div dengan Sticky Top --}}
-                    <div class="bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-3xl p-6 sticky top-28">
+                    <div class="bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-3xl p-6">
                         
                         {{-- Judul Sidebar di Mobile --}}
                         <div class="lg:hidden mb-6 flex items-center justify-between">
