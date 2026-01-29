@@ -3,10 +3,12 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue; // <--- 1. TAMBAHAN PENTING
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class OtpLoginMail extends Mailable
+// 2. TAMBAHKAN 'implements ShouldQueue' DI SINI
+class OtpLoginMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -26,6 +28,6 @@ class OtpLoginMail extends Mailable
     public function build()
     {
         return $this->subject('Kode Masuk AgriSmart Anda') // Judul Email
-                    ->view('emails.otp_login'); // Nama file tampilan (kita buat di langkah 2.3)
+                    ->view('emails.otp_login'); // Nama file tampilan
     }
 }
