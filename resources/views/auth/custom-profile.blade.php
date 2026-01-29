@@ -1,55 +1,43 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth overflow-x-hidden">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'AgriSmart') }} - Edit Profil</title>
+    <title>Edit Profil - {{ config('app.name', 'AgriSmart') }}</title>
 
-    {{-- FONTS --}}
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-
-    {{-- Scripts & Styles via Vite --}}
+    {{-- FONT: Plus Jakarta Sans (Sesuai Index) --}}
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    {{-- TAILWIND & SCRIPTS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://cdn.tailwindcss.com"></script>
-    {{-- Alpine.js (Diperlukan untuk toggle) --}}
+    
+    {{-- Alpine.js --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F3F4F6; }
-        
-        /* Custom Colors GreenPoint */
-        .text-green-custom { color: #3f9c4e; }
-        .bg-green-custom { background-color: #3f9c4e; }
-        .border-green-custom { border-color: #3f9c4e; }
-        .focus\:border-green-custom:focus { border-color: #3f9c4e; }
-        
-        /* Sidebar Styles */
-        .nav-item-active {
-            background-color: #3f9c4e;
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(63, 156, 78, 0.4);
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        .nav-item-inactive {
-            color: #374151;
-        }
-        .nav-item-inactive:hover {
-            background-color: #ecfdf5;
-            color: #3f9c4e;
-        }
-
         [x-cloak] { display: none !important; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f0fdf4; }
+        ::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #15803d; }
     </style>
 </head>
 
-<body class="font-sans antialiased bg-gray-50 text-slate-800" x-data="{ sidebarOpen: false }">
+<body class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white"
+      x-data="{ sidebarOpen: false }">
 
-    <x-navbar></x-navbar>
+    {{-- NAVBAR --}}
+    <x-navbar />
 
-    {{-- Definisi ulang $user & Logika Foto --}}
+    {{-- PHP LOGIC (Tidak Dirubah) --}}
     @php
         $user = Auth::user();
         $formPhotoUrl = null;
@@ -65,272 +53,267 @@
         }
     @endphp
 
-    {{-- Main Container --}}
-    <div class="container mx-auto px-4 sm:px-6 py-8 sm:py-12 mt-20">
-        <div class="flex flex-col lg:flex-row lg:gap-8">
+    {{-- BACKGROUND DECORATIONS (Sesuai Index) --}}
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-br from-green-100/40 via-green-50/20 to-transparent rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-green-100/30 to-transparent rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
+        <div class="absolute inset-0 opacity-[0.015]" style="background-image: radial-gradient(circle at 1px 1px, rgb(22 163 74) 1px, transparent 0); background-size: 40px 40px;"></div>
+    </div>
 
-            {{-- ========================================================= 
-                 1. SIDEBAR NAVIGASI 
-                 (Mobile: Off-canvas / Fixed Overlay)
-                 (Desktop: Static Sidebar)
-            ========================================================= --}}
+    {{-- MAIN CONTAINER --}}
+    <main class="flex-1 w-full pt-24 pb-12 sm:pt-28 sm:pb-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
-            {{-- TOMBOL TOGGLE MOBILE (Floating Action Button) --}}
-            <button @click="sidebarOpen = !sidebarOpen" 
-                class="lg:hidden fixed bottom-6 right-6 z-50 p-4 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 hover:shadow-green-200 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-300">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {{-- Ikon Hamburger (Saat Menu Tutup) --}}
-                    <path x-show="!sidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16" />
-                    {{-- Ikon Silang (Saat Menu Buka) --}}
-                    <path x-show="sidebarOpen" x-cloak stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-
-            {{-- WRAPPER SIDEBAR --}}
-            {{-- Pada Mobile: Fixed inset full (Overlay). Pada Desktop: Relative block --}}
-            <div :class="sidebarOpen ? 'fixed inset-0 z-40 flex' : 'hidden lg:block'" class="lg:contents">
-                
-                {{-- Overlay Background (Mobile Only) --}}
-                <div x-show="sidebarOpen" x-transition.opacity 
-                     @click="sidebarOpen = false"
-                     class="fixed inset-0 bg-black/50 lg:hidden"></div>
-
-                {{-- Konten Sidebar --}}
-                {{-- PERBAIKAN: Menambahkan class 'pt-24' (padding top) dan mengubah 'p-6' menjadi 'px-6 pb-6' agar ada jarak dari navbar --}}
-                <aside class="w-full sm:w-72 sm:max-w-xs bg-white lg:bg-transparent shadow-2xl lg:shadow-none h-full lg:h-auto fixed lg:relative left-0 top-0 z-50 lg:z-auto px-6 pb-6 pt-24 lg:p-0 flex-shrink-0 transition-transform duration-300 transform lg:transform-none"
-                       :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
-                    
-                    <div class="bg-white shadow-lg rounded-3xl p-6 sticky top-24 h-full lg:h-auto overflow-y-auto">
-                        
-                        {{-- Judul Sidebar di Mobile --}}
-                        <div class="lg:hidden mb-6 flex items-center justify-between">
-                            <h3 class="text-xl font-bold text-gray-800">Menu</h3>
-                            <button @click="sidebarOpen = false" class="text-gray-500 hover:text-red-500">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                            </button>
-                        </div>
-
-                        <nav class="space-y-2">
-                            {{-- 1. Kelola Profile --}}
-                            <a href="#section-profile" id="link-profile" @click="sidebarOpen = false; setActive('link-profile')"
-                               class="flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 nav-item-active">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                <span class="font-medium">Kelola Profile</span>
-                            </a>
-
-                            {{-- 2. Ganti Password --}}
-                            <a href="#section-password" id="link-password" @click="sidebarOpen = false; setActive('link-password')"
-                               class="flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 nav-item-inactive">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                                <span class="font-medium">Ganti Password</span>
-                            </a>
-
-                            {{-- 3. KEMBALI KE DASHBOARD (Khusus Admin/Petani) --}}
-                            @if($user->role === 'admin' || $user->role === 'petani')
-                                @php
-                                    $dashboardRoute = ($user->role === 'admin') ? route('admin.dashboard') : route('petani.dashboard');
-                                @endphp
-                                <a href="{{ $dashboardRoute }}"
-                                   class="flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 nav-item-inactive hover:bg-green-50 text-green-custom">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                    </svg>
-                                    <span class="font-medium">Kembali ke Dashboard</span>
-                                </a>
-                            @endif
-
-                            {{-- 4. Tombol Keluar --}}
-                            <form method="POST" action="{{ route('logout') }}" class="block w-full pt-4 border-t border-gray-100 mt-2">
-                                @csrf
-                                <button type="submit" 
-                                    class="flex items-center space-x-3 w-full px-4 py-3 text-red-600 rounded-xl transition-all duration-300 hover:bg-red-50 text-left group">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                    </svg>
-                                    <span class="font-medium">Keluar</span>
-                                </button>
-                            </form>
-                        </nav>
-                    </div>
-                </aside>
+            {{-- HEADER HALAMAN --}}
+            <div class="mb-8 sm:mb-12">
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Pengaturan Akun</h1>
+                <p class="text-slate-500 mt-1">Kelola informasi profil dan keamanan akun Anda.</p>
             </div>
 
-            {{-- 2. KONTEN UTAMA --}}
-            <div class="flex-1 space-y-8">
+            <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
+                
+                {{-- ================================================
+                     SIDEBAR NAVIGASI
+                ================================================ --}}
+                
+                {{-- Mobile Toggle Button --}}
+                <div class="lg:hidden mb-4">
+                    <button @click="sidebarOpen = !sidebarOpen" 
+                            class="flex items-center gap-2 px-4 py-2.5 bg-white border border-green-200 rounded-xl shadow-sm text-slate-700 font-semibold w-full hover:bg-green-50 transition-colors">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        <span>Menu Pengaturan</span>
+                    </button>
+                </div>
 
-                {{-- Flash Messages --}}
-                @if (session('status') === 'profile-updated')
-                    <div class="p-4 bg-green-50 border-l-4 border-green-custom text-green-700 rounded-r-lg shadow-sm flex items-center animate-pulse">
-                        <svg class="w-6 h-6 mr-3 text-green-custom" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <p class="text-sm">Informasi profil Anda telah diperbarui.</p>
+                {{-- Sidebar Container --}}
+                <aside class="lg:w-72 flex-shrink-0">
+                    <div :class="sidebarOpen ? 'fixed inset-0 z-50 flex' : 'hidden lg:block'" class="lg:sticky lg:top-28 lg:h-fit">
+                        
+                        {{-- Mobile Backdrop --}}
+                        <div x-show="sidebarOpen" x-transition.opacity @click="sidebarOpen = false" class="fixed inset-0 bg-black/40 lg:hidden"></div>
+
+                        {{-- Menu Content --}}
+                        <div class="relative w-4/5 max-w-xs bg-white lg:bg-white lg:w-full h-full lg:h-auto p-6 lg:p-6 lg:rounded-2xl lg:border lg:border-green-100 lg:shadow-lg overflow-y-auto transition-transform duration-300"
+                             :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:transform-none'">
+                            
+                            {{-- Header Mobile Sidebar --}}
+                            <div class="lg:hidden flex items-center justify-between mb-6">
+                                <span class="text-lg font-bold text-slate-900">Menu</span>
+                                <button @click="sidebarOpen = false" class="text-slate-400 hover:text-red-500">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+
+                            {{-- Menu Links --}}
+                            <nav class="space-y-2">
+                                {{-- 1. Kelola Profile --}}
+                                <a href="#section-profile" @click="sidebarOpen = false"
+                                   class="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 bg-green-50 text-green-700 border border-green-100 shadow-sm font-semibold">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                    <span>Kelola Profile</span>
+                                </a>
+
+                                {{-- 2. Ganti Password --}}
+                                <a href="#section-password" @click="sidebarOpen = false"
+                                   class="group flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-green-600 transition-all duration-300 font-medium">
+                                    <svg class="w-5 h-5 text-slate-400 group-hover:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                    <span>Ganti Password</span>
+                                </a>
+
+                                <div class="my-4 border-t border-slate-100"></div>
+
+                                {{-- 3. Kembali ke Dashboard --}}
+                                @if($user->role === 'admin' || $user->role === 'petani')
+                                    @php
+                                        $dashboardRoute = ($user->role === 'admin') ? route('admin.dashboard') : route('petani.dashboard');
+                                    @endphp
+                                    <a href="{{ $dashboardRoute }}"
+                                       class="group flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-green-600 transition-all duration-300 font-medium">
+                                        <svg class="w-5 h-5 text-slate-400 group-hover:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                                        <span>Dashboard</span>
+                                    </a>
+                                @endif
+
+                                {{-- 4. Logout --}}
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="group w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-300 font-medium text-left">
+                                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                        <span>Keluar</span>
+                                    </button>
+                                </form>
+                            </nav>
                         </div>
                     </div>
-                @endif
-                @if (session('status') === 'password-updated')
-                    <div class="p-4 bg-green-50 border-l-4 border-green-custom text-green-700 rounded-r-lg shadow-sm flex items-center animate-pulse">
-                        <svg class="w-6 h-6 mr-3 text-green-custom" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <div>
-                            <p class="font-bold">Berhasil!</p>
-                            <p class="text-sm">Kata sandi Anda telah diperbarui.</p>
+                </aside>
+
+                {{-- ================================================
+                     KONTEN UTAMA
+                ================================================ --}}
+                <div class="flex-1 space-y-8">
+
+                    {{-- Flash Messages --}}
+                    @if (session('status') === 'profile-updated' || session('status') === 'password-updated')
+                        <div class="p-4 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-200 flex items-start gap-3 shadow-sm animate-fade-in-down">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <div>
+                                <p class="font-bold">Berhasil Disimpan!</p>
+                                <p class="text-sm opacity-90">Perubahan data akun Anda telah berhasil diperbarui.</p>
+                            </div>
                         </div>
-                    </div>
-                @endif
+                    @endif
 
-                {{-- CARD 1: FORM EDIT PROFIL --}}
-                <div id="section-profile" class="bg-white p-6 sm:p-8 lg:p-12 rounded-2xl lg:rounded-3xl shadow-xl lg:shadow-2xl relative overflow-hidden scroll-mt-28">
-                    {{-- Dekorasi Blob Background --}}
-                    <div class="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-br from-green-50 to-green-100 rounded-full blur-2xl sm:blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50 pointer-events-none"></div>
+                    {{-- FORM 1: EDIT PROFIL --}}
+                    <div id="section-profile" class="bg-white rounded-3xl p-6 sm:p-10 border border-green-50 shadow-xl relative overflow-hidden scroll-mt-32">
+                        
+                        {{-- Header Form --}}
+                        <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Profil Saya</h2>
+                                <p class="text-sm text-slate-500 mt-1">Perbarui foto dan detail pribadi Anda.</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                            </div>
+                        </div>
 
-                    <div class="relative z-10">
-                        <h2 class="text-3xl font-bold text-gray-900 mb-2">Kelola Profile</h2>
-                        <p class="text-gray-500 mb-8">Perbarui foto profil dan detail kontak Anda.</p>
-
-                        <form method="post" action="{{ route('profile.update') }}" class="space-y-8" enctype="multipart/form-data">
+                        <form method="post" action="{{ route('profile.update') }}" class="space-y-6" enctype="multipart/form-data">
                             @csrf
                             @method('patch')
 
-                            {{-- Foto Profil --}}
-                            <div class="text-center mb-8">
-                                <label for="foto_profil" class="cursor-pointer inline-block group">
-                                    <div class="relative">
-                                        <div id="profile-photo-preview" class="w-32 h-32 sm:w-40 sm:h-40 mx-auto rounded-full overflow-hidden shadow-lg border-4 border-white transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                                            @if($formPhotoUrl)
-                                                <img src="{{ $formPhotoUrl }}" alt="Foto Profil" class="object-cover w-full h-full">
-                                            @else
-                                                <div class="w-full h-full bg-green-100 flex items-center justify-center text-green-600 text-4xl font-bold">{{ $initials }}</div>
-                                            @endif
-                                        </div>
-                                        <div class="absolute inset-0 rounded-full flex items-center justify-center bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <i class="fas fa-camera text-white text-3xl"></i>
-                                        </div>
+                            {{-- Foto Profil Section --}}
+                            <div class="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mb-8">
+                                <div class="relative group cursor-pointer">
+                                    <div id="profile-photo-preview" class="w-32 h-32 rounded-full overflow-hidden border-4 border-green-50 shadow-lg group-hover:border-green-200 transition-all duration-300">
+                                        @if($formPhotoUrl)
+                                            <img src="{{ $formPhotoUrl }}" alt="Foto Profil" class="object-cover w-full h-full">
+                                        @else
+                                            <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 text-4xl font-bold">{{ $initials }}</div>
+                                        @endif
                                     </div>
-                                    <p class="mt-3 text-sm font-semibold text-green-custom">Klik untuk mengganti foto</p>
-                                </label>
-                                <input type="file" id="foto_profil" name="foto_profil" class="hidden" accept="image/*" />
-                                @error('foto_profil') <span class="text-red-500 text-xs font-medium mt-1 block">{{ $message }}</span> @enderror
+                                    <label for="foto_profil" class="absolute bottom-0 right-0 bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-full shadow-lg cursor-pointer transition-transform hover:scale-110">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                    </label>
+                                    <input type="file" id="foto_profil" name="foto_profil" class="hidden" accept="image/*" />
+                                </div>
+                                <div class="text-center sm:text-left">
+                                    <h3 class="font-bold text-slate-900">Foto Profil</h3>
+                                    <p class="text-xs text-slate-500 mt-1 max-w-[200px]">Format: JPG, PNG, GIF. Maksimal 2MB. Klik ikon kamera untuk mengubah.</p>
+                                    @error('foto_profil') <span class="text-red-500 text-xs font-medium mt-2 block">{{ $message }}</span> @enderror
+                                </div>
                             </div>
 
-                            {{-- Input Nama --}}
-                            <div class="group">
-                                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-                                <div class="relative">
+                            <div class="grid md:grid-cols-2 gap-5">
+                                {{-- Nama --}}
+                                <div class="group">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Nama Lengkap</label>
                                     <input id="name" name="name" type="text" value="{{ old('name', $user->name) }}" required
-                                        class="block w-full text-lg py-3 border-b-2 border-gray-200 text-gray-800 bg-transparent focus:outline-none focus:border-green-custom transition-colors placeholder-gray-400">
+                                        class="w-full px-4 py-3 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400">
+                                    @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
-                                @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                            </div>
 
-                            {{-- Input Email --}}
-                            <div class="group">
-                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <div class="relative">
+                                {{-- Email --}}
+                                <div class="group">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Alamat Email</label>
                                     <input id="email" name="email" type="email" value="{{ old('email', $user->email) }}" required
-                                        class="block w-full text-lg py-3 border-b-2 border-gray-200 text-gray-800 bg-transparent focus:outline-none focus:border-green-custom transition-colors placeholder-gray-400">
+                                        class="w-full px-4 py-3 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400">
+                                    @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
-                                @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                            </div>
 
-                            {{-- Input Telepon --}}
-                            <div class="group">
-                                <label for="no_telepon" class="block text-sm font-medium text-gray-700 mb-1">No. Telepon / WhatsApp</label>
-                                <div class="relative">
+                                {{-- Telepon --}}
+                                <div class="group md:col-span-2">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">No. WhatsApp / Telepon</label>
                                     <input id="no_telepon" name="no_telepon" type="text" value="{{ old('no_telepon', $user->no_telepon) }}"
-                                        class="block w-full text-lg py-3 border-b-2 border-gray-200 text-gray-800 bg-transparent focus:outline-none focus:border-green-custom transition-colors placeholder-gray-400">
+                                        class="w-full px-4 py-3 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400">
+                                </div>
+
+                                {{-- Alamat --}}
+                                <div class="group md:col-span-2">
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Alamat Lengkap</label>
+                                    <textarea id="alamat" name="alamat" rows="3" placeholder="Masukkan alamat lengkap Anda..."
+                                        class="w-full px-4 py-3 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium placeholder:text-slate-400 resize-none">{{ old('alamat', $user->alamat ?? '') }}</textarea>
                                 </div>
                             </div>
 
-                            {{-- Input Alamat --}}
-                            <div class="group">
-                                <label for="alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label>
-                                <div class="relative">
-                                    <textarea id="alamat" name="alamat" rows="2" placeholder="Masukkan alamat lengkap Anda..."
-                                        class="block w-full text-lg py-3 border-b-2 border-gray-200 text-gray-800 bg-transparent focus:outline-none focus:border-green-custom transition-colors resize-none placeholder-gray-400">{{ old('alamat', $user->alamat ?? '') }}</textarea>
-                                </div>
-                            </div>
-
-                            {{-- Tombol Simpan --}}
-                            <div class="flex justify-end pt-4">
+                            {{-- Tombol Save --}}
+                            <div class="flex justify-end pt-4 border-t border-slate-100 mt-6">
                                 <button type="submit" id="saveProfileBtn" disabled
-                                    class="w-full sm:w-auto px-8 py-3 rounded-xl font-semibold text-white transition-all duration-300 transform shadow-sm"
-                                    style="background-color: #d1d5db; cursor: not-allowed;">
-                                    Simpan Perubahan
+                                    class="group px-8 py-3.5 bg-slate-200 text-slate-400 font-bold rounded-2xl transition-all duration-300 flex items-center gap-2 cursor-not-allowed">
+                                    <span>Simpan Perubahan</span>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                 </button>
                             </div>
                         </form>
                     </div>
-                </div>
 
-                {{-- CARD 2: FORM GANTI PASSWORD --}}
-                <div id="section-password" class="bg-white p-6 sm:p-8 lg:p-12 rounded-2xl lg:rounded-3xl shadow-xl lg:shadow-2xl relative overflow-hidden scroll-mt-28">
-                    <div class="relative z-10">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Keamanan Akun</h2>
-                        <p class="text-gray-500 mb-8">Perbarui kata sandi Anda untuk menjaga keamanan akun.</p>
+                    {{-- FORM 2: GANTI PASSWORD --}}
+                    <div id="section-password" class="bg-white rounded-3xl p-6 sm:p-10 border border-green-50 shadow-xl relative overflow-hidden scroll-mt-32">
+                        
+                        <div class="flex items-center justify-between mb-8 pb-6 border-b border-slate-100">
+                            <div>
+                                <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Ganti Password</h2>
+                                <p class="text-sm text-slate-500 mt-1">Pastikan password Anda kuat dan aman.</p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-50 rounded-2xl flex items-center justify-center text-orange-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                            </div>
+                        </div>
 
                         <form method="post" action="{{ route('password.update') }}" class="space-y-6">
                             @csrf
                             @method('put')
 
                             <div class="group">
-                                <label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">Password Saat Ini</label>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">Password Saat Ini</label>
                                 <input id="current_password" name="current_password" type="password" autocomplete="current-password"
-                                    class="block w-full text-lg py-2 border-b-2 border-gray-200 text-gray-800 bg-transparent focus:outline-none focus:border-green-custom transition-colors">
+                                    class="w-full px-4 py-3 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium">
                                 @error('current_password') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid md:grid-cols-2 gap-5">
                                 <div class="group">
-                                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Password Baru</label>
                                     <input id="password" name="password" type="password" autocomplete="new-password"
-                                        class="block w-full text-lg py-2 border-b-2 border-gray-200 text-gray-800 bg-transparent focus:outline-none focus:border-green-custom transition-colors">
+                                        class="w-full px-4 py-3 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium">
                                     @error('password') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="group">
-                                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Konfirmasi Password</label>
                                     <input id="password_confirmation" name="password_confirmation" type="password" autocomplete="new-password"
-                                        class="block w-full text-lg py-2 border-b-2 border-gray-200 text-gray-800 bg-transparent focus:outline-none focus:border-green-custom transition-colors">
+                                        class="w-full px-4 py-3 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 outline-none text-slate-900 font-medium">
                                 </div>
                             </div>
 
                             <div class="flex justify-end pt-4">
                                 <button type="submit"
-                                    class="w-full sm:w-auto px-8 py-3 rounded-xl font-semibold text-white bg-gray-800 hover:bg-black transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                                    Update Password
+                                    class="group px-8 py-3.5 bg-slate-900 hover:bg-black text-white font-bold rounded-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 shadow-lg flex items-center gap-2">
+                                    <span>Update Password</span>
+                                    <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                 </button>
                             </div>
                         </form>
                     </div>
-                </div>
 
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    {{-- SCRIPTS (Untuk interaksi tombol & foto preview) --}}
+    {{-- FOOTER --}}
+    <x-footer />
+    
+    {{-- BACK TO TOP --}}
+    <x-back-button />
+
+    {{-- JAVASCRIPT: Logic Deteksi Perubahan & Preview Foto --}}
     <script>
-        function setActive(id) {
-            document.querySelectorAll('nav a').forEach(el => {
-                el.classList.remove('nav-item-active');
-                el.classList.add('nav-item-inactive');
-            });
-            const activeEl = document.getElementById(id);
-            if(activeEl){
-                activeEl.classList.remove('nav-item-inactive');
-                activeEl.classList.add('nav-item-active');
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             const inputs = ['name', 'email', 'no_telepon', 'alamat'].map(id => document.getElementById(id));
             const photoInput = document.getElementById('foto_profil');
             const saveBtn = document.getElementById('saveProfileBtn');
             const photoPreviewContainer = document.getElementById('profile-photo-preview');
 
+            // Simpan nilai awal
             const originalValues = {};
             inputs.forEach(input => { if(input) originalValues[input.id] = input.value; });
 
@@ -342,19 +325,19 @@
 
                 if (hasChanges) {
                     saveBtn.disabled = false;
-                    saveBtn.style.backgroundColor = '#3f9c4e';
-                    saveBtn.style.cursor = 'pointer';
-                    saveBtn.classList.add('hover:shadow-xl', 'hover:-translate-y-0.5');
+                    // Style Active Button (Hijau)
+                    saveBtn.className = "group px-8 py-3.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 shadow-lg shadow-green-200 flex items-center gap-2 cursor-pointer";
                 } else {
                     saveBtn.disabled = true;
-                    saveBtn.style.backgroundColor = '#d1d5db';
-                    saveBtn.style.cursor = 'not-allowed';
-                    saveBtn.classList.remove('hover:shadow-xl', 'hover:-translate-y-0.5');
+                    // Style Disabled Button (Abu-abu)
+                    saveBtn.className = "group px-8 py-3.5 bg-slate-200 text-slate-400 font-bold rounded-2xl transition-all duration-300 flex items-center gap-2 cursor-not-allowed";
                 }
             };
 
+            // Listener Input Text
             inputs.forEach(input => { if(input) input.addEventListener('input', checkChanges); });
             
+            // Listener Input File (Foto)
             photoInput.addEventListener('change', (e) => {
                 checkChanges();
                 const file = e.target.files[0];
