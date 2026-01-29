@@ -76,7 +76,8 @@
             <p class="text-slate-500 text-sm">Kelola informasi profil dan keamanan.</p>
         </div>
 
-        <div class="flex flex-col lg:flex-row lg:gap-10">
+        {{-- PERUBAHAN PENTING: items-start agar sticky berfungsi dengan benar --}}
+        <div class="flex flex-col lg:flex-row lg:gap-10 lg:items-start">
 
             {{-- ========================================================= 
                  1. SIDEBAR NAVIGASI 
@@ -100,10 +101,12 @@
                      class="fixed inset-0 bg-slate-900/50 lg:hidden backdrop-blur-sm"></div>
 
                 {{-- Konten Sidebar --}}
-                <aside class="w-full sm:w-72 sm:max-w-xs bg-white lg:bg-transparent shadow-2xl lg:shadow-none h-full lg:h-auto fixed lg:relative left-0 top-0 z-50 lg:z-auto px-6 pb-6 pt-24 lg:p-0 flex-shrink-0 transition-transform duration-300 transform lg:transform-none overflow-y-auto"
+                {{-- PERBAIKAN: Menambahkan 'lg:overflow-visible' agar sticky bekerja di Desktop --}}
+                <aside class="w-full sm:w-72 sm:max-w-xs bg-white lg:bg-transparent shadow-2xl lg:shadow-none h-full lg:h-auto fixed lg:relative left-0 top-0 z-50 lg:z-auto px-6 pb-6 pt-24 lg:p-0 flex-shrink-0 transition-transform duration-300 transform lg:transform-none overflow-y-auto lg:overflow-visible"
                        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
                     
-                    <div class="bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-3xl p-6 sticky top-24">
+                    {{-- Inner Div dengan Sticky Top --}}
+                    <div class="bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-3xl p-6 sticky top-28">
                         
                         {{-- Judul Sidebar di Mobile --}}
                         <div class="lg:hidden mb-6 flex items-center justify-between">
