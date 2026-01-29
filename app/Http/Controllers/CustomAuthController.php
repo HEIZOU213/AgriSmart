@@ -6,8 +6,14 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule; // <-- Penting untuk validasi unik saat update
-use Illuminate\Validation\Rules\Password; // <-- Penting untuk validasi password
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
+
+// --- TAMBAHAN BARU (Wajib untuk fitur OTP Register) ---
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpLoginMail;
+use Carbon\Carbon;
+// ------------------------------------------------------
 
 class CustomAuthController extends Controller
 {
@@ -25,6 +31,7 @@ class CustomAuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
+        // 1. Buat User Baru
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -32,65 +39,85 @@ class CustomAuthController extends Controller
             'role' => 'konsumen', // Default role konsumen
         ]);
 
-        Auth::login($user);
-        // Setelah daftar, arahkan ke Marketplace (Produk) sesuai permintaan awal Anda
-        return redirect()->route('produk.index');
+        // --- PERUBAHAN: LANGSUNG KIRIM OTP (Jangan Login Otomatis) ---
+
+        // 2. Generate OTP
+        $otp = rand(100000, 999999);
+
+        // 3. Simpan OTP ke User
+        $user->update([
+            'otp' => $otp,
+            'otp_expires_at' => Carbon::now()->addMinutes(2)
+        ]);
+
+        // 4. Kirim Email (Pakai Try-Catch agar aman)
+        try {
+            Mail::to($user->email)->send(new OtpLoginMail($otp));
+        } catch (\Exception $e) {
+            // Jika gagal kirim email, biarkan lanjut (user bisa minta ulang nanti)
+        }
+
+        // 5. Simpan email di session agar halaman verifikasi tahu siapa ini
+        session(['otp_email' => $user->email]);
+
+        // 6. Redirect ke Halaman Masukkan OTP
+        return redirect()->route('otp.verify')->with('success', 'Registrasi berhasil! Kode OTP telah dikirim ke email Anda.');
     }
 
-    // --- LOGIN ---
+    // --- LOGIN (TIDAK DIUBAH, SESUAI KODE ASLI) ---
     public function showLogin()
     {
         return view('auth.custom-login');
     }
 
     public function processLogin(Request $request)
-{
-    // 1. Validasi Input
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+    {
+        // 1. Validasi Input
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    // 2. Coba Login (Cek Email & Password di Database)
-    $credentials = $request->only('email', 'password');
-    $remember = $request->has('remember'); // Ambil status checkbox "Ingat Saya"
+        // 2. Coba Login (Cek Email & Password di Database)
+        $credentials = $request->only('email', 'password');
+        $remember = $request->has('remember'); // Ambil status checkbox "Ingat Saya"
 
-    if (Auth::attempt($credentials, $remember)) {
-        
-        // --- 🛡️ SATPAM (LOGIKA KEAMANAN TAMBAHAN) ---
-        
-        // Cek Role User yang baru saja login
-        $user = Auth::user();
-
-        // Jika ternyata dia adalah ADMIN
-        if ($user->role === 'admin') {
+        if (Auth::attempt($credentials, $remember)) {
             
-            // TENDANG KELUAR (Logout Paksa)
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+            // --- 🛡️ SATPAM (LOGIKA KEAMANAN TAMBAHAN) ---
+            
+            // Cek Role User yang baru saja login
+            $user = Auth::user();
 
-            // Kembalikan ke form login dengan pesan error
-            return back()->withErrors([
-                'email' => 'Akun Admin DILARANG masuk lewat sini! Gunakan jalur khusus.',
-            ])->withInput(); // Biar emailnya tidak hilang
+            // Jika ternyata dia adalah ADMIN
+            if ($user->role === 'admin') {
+                
+                // TENDANG KELUAR (Logout Paksa)
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                // Kembalikan ke form login dengan pesan error
+                return back()->withErrors([
+                    'email' => 'Akun Admin DILARANG masuk lewat sini! Gunakan jalur khusus.',
+                ])->withInput(); // Biar emailnya tidak hilang
+            }
+
+            // --- 🛡️ AKHIR LOGIKA SATPAM ---
+
+
+            // 3. Jika bukan Admin (Berarti Petani/Konsumen), izinkan lanjut
+            $request->session()->regenerate();
+            return redirect()->intended('/dashboard');
         }
 
-        // --- 🛡️ AKHIR LOGIKA SATPAM ---
-
-
-        // 3. Jika bukan Admin (Berarti Petani/Konsumen), izinkan lanjut
-        $request->session()->regenerate();
-        return redirect()->intended('/dashboard');
+        // 4. Jika Email/Password Salah
+        return back()->withErrors([
+            'email' => 'Email atau password salah.',
+        ])->withInput();
     }
 
-    // 4. Jika Email/Password Salah
-    return back()->withErrors([
-        'email' => 'Email atau password salah.',
-    ])->withInput();
-}
-
-    // --- LOGOUT ---
+    // --- LOGOUT (TIDAK DIUBAH) ---
     public function logout(Request $request)
     {
         Auth::logout();
@@ -99,7 +126,7 @@ class CustomAuthController extends Controller
         return redirect('/');
     }
 
-    // --- [PROFIL MANAJEMEN] ---
+    // --- [PROFIL MANAJEMEN] (TIDAK DIUBAH) ---
     
     // 1. Tampilkan Halaman Edit Profil
     public function showProfile()
