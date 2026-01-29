@@ -11,6 +11,7 @@ use App\Models\User;
 
 // --- Impor Controller ---
 use App\Http\Controllers\CustomAuthController;
+use App\Http\Controllers\AuthOtpController; // <--- IMPOR CONTROLLER OTP (BARU)
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\EdukasiController;
@@ -28,7 +29,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\IotController;
 
 // --- [PERBAIKAN 1] IMPOR MIDDLEWARE ACTIVITY ---
-use App\Http\Middleware\UserActivity; 
+use App\Http\Middleware\UserActivity;
 
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
@@ -72,6 +73,14 @@ Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store')
 
 // --- AUTHENTICATION (GUEST ONLY) ---
 Route::middleware('guest')->group(function () {
+    
+    // --- LOGIN OTP ROUTES (BARU) ---
+    Route::get('/login-otp', [AuthOtpController::class, 'showLoginForm'])->name('login.otp');
+    Route::post('/login-otp', [AuthOtpController::class, 'loginWithPassword'])->name('login.otp.step1');
+    Route::get('/verify-otp', [AuthOtpController::class, 'showVerifyForm'])->name('otp.verify');
+    Route::post('/verify-otp', [AuthOtpController::class, 'verifyOtp'])->name('otp.verify.submit');
+    // -------------------------------
+
     Route::get('/register', [CustomAuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [CustomAuthController::class, 'processRegister']);
 

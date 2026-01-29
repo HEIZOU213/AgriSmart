@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // PERUBAHAN DI SINI:
         // Gunakan 'components.navbar' karena file ada di folder components
-        View::composer('components.navbar', function ($view) {
+        View::composer('*', function ($view) {
             $cartCount = 0;
             
             if (Auth::check()) {

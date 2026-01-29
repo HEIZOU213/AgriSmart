@@ -119,11 +119,13 @@
                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
 
-                        {{-- Badge Keranjang Desktop --}}
-                        <span id="badge-cart-desktop"
-                            class="hidden absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-md ring-2 ring-white transform transition-transform group-hover:scale-110">
-                            0
-                        </span>
+                        {{-- PERBAIKAN: Badge Keranjang Desktop Menggunakan Logic Navbar --}}
+                        @if(isset($cartCount) && $cartCount > 0)
+                            <span id="badge-cart-desktop"
+                                class="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-md ring-2 ring-white transform transition-transform group-hover:scale-110">
+                                {{ $cartCount }}
+                            </span>
+                        @endif
                     </a>
 
                     {{-- AREA USER (Auth Only) --}}
@@ -282,10 +284,12 @@
                         </svg>
                         <span class="group-hover:translate-x-1 transition-transform">Keranjang</span>
                     </div>
-                    {{-- Badge Keranjang Mobile --}}
-                    <span id="badge-cart-mobile" class="hidden inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
-                        0
-                    </span>
+                    {{-- PERBAIKAN: Badge Keranjang Mobile Menggunakan Logic Navbar --}}
+                    @if(isset($cartCount) && $cartCount > 0)
+                        <span id="badge-cart-mobile" class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 bg-red-600 rounded-full">
+                            {{ $cartCount }}
+                        </span>
+                    @endif
                 </a>
 
                 {{-- Area User Mobile --}}
