@@ -237,7 +237,7 @@
 
         // --- LOGIC AJAX RESEND & TIMER ---
         
-        // Ambil sisa waktu dari Controller (Server)
+        // Ambil sisa waktu dari Controller (Default 0 karena cooldown dihapus di server)
         let timeLeft = {{ $waitTime ?? 0 }};
         const btn = document.getElementById('resend-btn');
         const btnText = document.getElementById('resend-text');
@@ -308,8 +308,8 @@
                             ${data.message}
                         </div>`;
                     
-                    // [RESET WAKTU JADI 60 DETIK]
-                    timeLeft = 60; 
+                    // [UBAH DISINI]: Set timer hanya 5 detik (hanya visual delay)
+                    timeLeft = 5; 
                     startTimer();
                 } else {
                     // GAGAL / ERROR
