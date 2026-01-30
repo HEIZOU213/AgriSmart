@@ -82,8 +82,10 @@ class AuthOtpController extends Controller
 
         if ($lastSent) {
             $diff = now()->diffInSeconds($lastSent); // Selisih detik
+            
+            // Perbaikan: Gunakan ceil dan int agar angka bulat dan rapi
             if ($diff < 60) {
-                $waitTime = 60 - $diff; // Hitung sisa detiknya
+                $waitTime = (int) ceil(60 - $diff); 
             }
         }
 
@@ -140,7 +142,8 @@ class AuthOtpController extends Controller
         // 1. CEK COOLDOWN (Logika 1 Menit)
         $lastSent = session('otp_last_sent');
         if ($lastSent && now()->diffInSeconds($lastSent) < 60) {
-            $secondsRemaining = 60 - now()->diffInSeconds($lastSent);
+            // Perbaikan: Gunakan ceil dan int agar angka bulat
+            $secondsRemaining = (int) ceil(60 - now()->diffInSeconds($lastSent));
             return response()->json([
                 'status' => 'error', 
                 'message' => "Mohon tunggu $secondsRemaining detik lagi."
@@ -151,12 +154,13 @@ class AuthOtpController extends Controller
         $user = User::where('email', $email)->first();
         $otp = rand(100000, 999999);
         
+        // Kode lama otomatis tertimpa (hangus) saat kita update kolom 'otp'
         $user->update([
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(5)
         ]);
 
-        // 3. Update Session
+        // 3. Update Session (Penting: Reset timer resend jadi 60 detik lagi)
         session(['otp_last_sent' => now()]);
 
         // 4. Kirim Email

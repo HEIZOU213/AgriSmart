@@ -253,7 +253,12 @@
             btn.classList.remove('bg-green-50', 'text-green-700', 'hover:bg-green-100', 'border-green-100');
             btn.classList.add('bg-slate-100', 'text-slate-400');
             
+            // --- [PERBAIKAN] Update teks pertama kali (gunakan Math.ceil biar aman) ---
+            btnText.innerText = `Mohon tunggu ${Math.ceil(timeLeft)} detik`;
+
             const interval = setInterval(() => {
+                timeLeft--; // Kurangi 1 detik
+                
                 if (timeLeft <= 0) {
                     clearInterval(interval);
                     // Timer Selesai: Hidupkan tombol
@@ -265,9 +270,8 @@
                     btn.classList.add('bg-green-50', 'text-green-700', 'hover:bg-green-100', 'border-green-100');
                     btn.classList.remove('bg-slate-100', 'text-slate-400');
                 } else {
-                    // Timer Jalan
-                    btnText.innerText = `Mohon tunggu ${timeLeft} detik`;
-                    timeLeft--;
+                    // Timer Jalan: Update teks (gunakan Math.ceil)
+                    btnText.innerText = `Mohon tunggu ${Math.ceil(timeLeft)} detik`;
                 }
             }, 1000);
         }
