@@ -43,13 +43,13 @@ class AuthOtpController extends Controller
         // Generate OTP
         $otp = rand(100000, 999999);
 
-        // Simpan OTP ke database (Valid 5 menit agar sesuai resend)
+        // Simpan OTP ke database (Valid 5 menit) [PERBAIKAN: 1 -> 5 Menit]
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(1)
+            'otp_expires_at' => Carbon::now()->addMinutes(5)
         ]);
 
-        // Catat waktu pengiriman untuk timer Resend
+        // Catat waktu pengiriman (untuk data sesi saja)
         session(['otp_last_sent' => now()]);
 
         // Kirim Email
@@ -76,22 +76,12 @@ class AuthOtpController extends Controller
 
         $user = User::where('email', $email)->first();
 
-        // --- LOGIKA HITUNGAN MUNDUR UNTUK RESEND ---
-        $lastSent = session('otp_last_sent'); // Ambil waktu terakhir kirim
-        $waitTime = 0; // Default: Tidak perlu menunggu
-
-        if ($lastSent) {
-            $diff = now()->diffInSeconds($lastSent); // Selisih detik
-            
-            // Perbaikan: Gunakan ceil dan int agar angka bulat dan rapi
-            if ($diff < 60) {
-                $waitTime = (int) ceil(60 - $diff); 
-            }
-        }
+        // [PERBAIKAN] Set waitTime jadi 0 agar tombol resend SELALU AKTIF (tidak perlu menunggu)
+        $waitTime = 0; 
 
         return view('auth.verify-otp', [
             'expires_at' => $user->otp_expires_at,
-            'waitTime' => $waitTime // <-- Kirim variabel ini ke View
+            'waitTime' => $waitTime
         ]);
     }
 
@@ -131,7 +121,7 @@ class AuthOtpController extends Controller
         return back()->withErrors(['otp' => 'Kode salah atau sudah kedaluwarsa.']);
     }
 
-    // 5. [BARU] Logika Resend OTP via AJAX
+    // 5. [PERBAIKAN] Logika Resend OTP via AJAX (LANGSUNG KIRIM)
     public function resendOtp()
     {
         $email = session('otp_email');
@@ -139,38 +129,31 @@ class AuthOtpController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Sesi habis, silakan login ulang.'], 401);
         }
 
-        // 1. CEK COOLDOWN (Logika 1 Menit)
-        $lastSent = session('otp_last_sent');
-        if ($lastSent && now()->diffInSeconds($lastSent) < 60) {
-            // Perbaikan: Gunakan ceil dan int agar angka bulat
-            $secondsRemaining = (int) ceil(60 - now()->diffInSeconds($lastSent));
-            return response()->json([
-                'status' => 'error', 
-                'message' => "Mohon tunggu $secondsRemaining detik lagi."
-            ], 429);
-        }
+        // [PERBAIKAN] Saya MENGHAPUS blok pengecekan Cooldown di sini.
+        // Permintaan resend akan langsung diproses tanpa batasan waktu.
 
-        // 2. Generate & Update OTP
+        // 1. Generate & Update OTP
         $user = User::where('email', $email)->first();
         $otp = rand(100000, 999999);
         
         // Kode lama otomatis tertimpa (hangus) saat kita update kolom 'otp'
+        // [PERBAIKAN: Validasi jadi 5 Menit]
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(1)
+            'otp_expires_at' => Carbon::now()->addMinutes(5)
         ]);
 
-        // 3. Update Session (Penting: Reset timer resend jadi 60 detik lagi)
+        // 2. Update Session
         session(['otp_last_sent' => now()]);
 
-        // 4. Kirim Email
+        // 3. Kirim Email
         try {
             Mail::to($user->email)->send(new OtpLoginMail($otp));
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal mengirim email.'], 500);
         }
 
-        // 5. BERHASIL (Kirim respon JSON sukses)
+        // 4. BERHASIL (Kirim respon JSON sukses)
         return response()->json([
             'status' => 'success', 
             'message' => 'Kode OTP baru berhasil dikirim!'

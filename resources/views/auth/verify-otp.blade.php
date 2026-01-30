@@ -237,7 +237,7 @@
 
         // --- LOGIC AJAX RESEND & TIMER ---
         
-        // Ambil sisa waktu dari Controller (Default 0 jika tidak ada)
+        // Ambil sisa waktu dari Controller (Default 0 karena cooldown dihapus di server)
         let timeLeft = {{ $waitTime ?? 0 }};
         const btn = document.getElementById('resend-btn');
         const btnText = document.getElementById('resend-text');
@@ -253,15 +253,15 @@
             btn.classList.remove('bg-green-50', 'text-green-700', 'hover:bg-green-100', 'border-green-100');
             btn.classList.add('bg-slate-100', 'text-slate-400');
             
-            // --- [PERBAIKAN] Update teks pertama kali (gunakan Math.ceil biar aman) ---
+            // Update teks awal dengan pembulatan
             btnText.innerText = `Mohon tunggu ${Math.ceil(timeLeft)} detik`;
 
             const interval = setInterval(() => {
-                timeLeft--; // Kurangi 1 detik
+                timeLeft--; 
                 
                 if (timeLeft <= 0) {
                     clearInterval(interval);
-                    // Timer Selesai: Hidupkan tombol
+                    // Timer Selesai: Hidupkan tombol kembali
                     btn.disabled = false;
                     icon.classList.add('hidden');
                     btnText.innerText = "Kirim Ulang Kode";
@@ -270,7 +270,7 @@
                     btn.classList.add('bg-green-50', 'text-green-700', 'hover:bg-green-100', 'border-green-100');
                     btn.classList.remove('bg-slate-100', 'text-slate-400');
                 } else {
-                    // Timer Jalan: Update teks (gunakan Math.ceil)
+                    // Timer Jalan: Update teks
                     btnText.innerText = `Mohon tunggu ${Math.ceil(timeLeft)} detik`;
                 }
             }, 1000);
@@ -308,8 +308,8 @@
                             ${data.message}
                         </div>`;
                     
-                    // Reset waktu jadi 60 detik & mulai timer lagi
-                    timeLeft = 60;
+                    // [UBAH DISINI]: Set timer hanya 5 detik (hanya visual delay)
+                    timeLeft = 5; 
                     startTimer();
                 } else {
                     // GAGAL / ERROR
@@ -320,9 +320,6 @@
                     if(response.status !== 429) {
                         btn.disabled = false;
                         btnText.innerText = "Kirim Ulang Kode";
-                    } else {
-                        // Jika kena limit (429), parse pesan "tunggu X detik" jika server mengirim sisa waktu
-                        // Tapi logic timer kita di atas sudah menangani ini via timeLeft awal
                     }
                 }
 
