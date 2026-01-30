@@ -46,7 +46,7 @@ class AuthOtpController extends Controller
         // Simpan OTP ke database (Valid 5 menit agar sesuai resend)
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(5)
+            'otp_expires_at' => Carbon::now()->addMinutes(1)
         ]);
 
         // Catat waktu pengiriman untuk timer Resend
@@ -157,7 +157,7 @@ class AuthOtpController extends Controller
         // Kode lama otomatis tertimpa (hangus) saat kita update kolom 'otp'
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(5)
+            'otp_expires_at' => Carbon::now()->addMinutes(1)
         ]);
 
         // 3. Update Session (Penting: Reset timer resend jadi 60 detik lagi)
