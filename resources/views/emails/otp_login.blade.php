@@ -15,7 +15,7 @@
     <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
 
         <div style="padding-bottom: 30px; border-bottom: 1px solid #f1f5f9; margin-bottom: 30px;">
-            <img src="https://agrismart.my.id/images/nav-logo.png" alt="AgriSmart" height="40" style="display: block; border: 0;" />
+            <img src="https://agrismart.my.id/images/nav-logo.png" alt="AgriSmart" height="60" style="display: block; border: 0;" />
         </div>
 
         <div style="padding-bottom: 20px;">
@@ -32,7 +32,7 @@
             </h1>
 
             <p style="font-size: 14px; color: #64748b; margin-top: 30px;">
-                Kode ini valid hingga <strong>{{ \Carbon\Carbon::now()->addMinutes(2)->format('d F Y, H:i') }} WIB</strong> dan hanya bisa digunakan sekali.
+                Kode ini valid hingga <strong>{{ \Carbon\Carbon::now()->addMinutes(5)->format('d F Y, H:i') }} WIB</strong> dan hanya bisa digunakan sekali.
             </p>
 
             <p style="font-size: 14px; color: #64748b; margin-top: 10px;">

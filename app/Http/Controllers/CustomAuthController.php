@@ -47,7 +47,7 @@ class CustomAuthController extends Controller
         // 3. Simpan OTP ke User
         $user->update([
             'otp' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(2)
+            'otp_expires_at' => Carbon::now()->addMinutes(5)
         ]);
 
         // 4. Kirim Email (Pakai Try-Catch agar aman)
