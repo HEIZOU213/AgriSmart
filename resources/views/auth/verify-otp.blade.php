@@ -130,7 +130,20 @@
                     </p>
                 </div>
 
-                {{-- Error Message --}}
+                {{-- Pesan Sukses (Dari Register atau Resend) --}}
+                @if (session('success'))
+                    <div id="success-alert" class="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 text-green-700 rounded-lg sm:rounded-xl flex items-start gap-2 sm:gap-3 text-xs sm:text-sm border border-green-100">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span class="font-medium">{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                {{-- AREA PESAN ALERT AJAX (Akan muncul tanpa refresh) --}}
+                <div id="alert-container" class="hidden mb-4 p-3 rounded-lg text-sm text-center"></div>
+
+                {{-- Error Message (Laravel Validation) --}}
                 @if ($errors->any())
                     <div class="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 text-red-700 rounded-lg sm:rounded-xl flex items-start gap-2 sm:gap-3 text-xs sm:text-sm border border-red-100">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,14 +172,6 @@
                         <p class="text-xs text-center text-slate-400 mt-2">Periksa folder Inbox atau Spam email Anda</p>
                     </div>
 
-                    {{-- Countdown Timer Badge --}}
-                    <div class="flex justify-center">
-                        <div id="timer-badge" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-full text-slate-600 text-sm font-semibold border border-slate-200">
-                            <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            <span id="countdown">--:--</span>
-                        </div>
-                    </div>
-
                     {{-- Tombol Verifikasi --}}
                     <div>
                         <button type="submit" id="submitBtn"
@@ -179,26 +184,27 @@
                     </div>
                 </form>
 
-                {{-- Kirim Ulang (Hidden by default) --}}
-                <div id="resendContainer" class="mt-6 sm:mt-8 text-center pt-4 sm:pt-6 border-t border-slate-100 hidden">
-                    <p class="text-slate-500 text-xs sm:text-sm font-medium mb-2">Waktu habis? Jangan khawatir.</p>
-                    {{-- Form tersembunyi untuk trigger kirim ulang --}}
-                    <form action="{{ route('login.otp.step1') }}" method="POST">
-                        @csrf
-                        {{-- Kirim ulang email yang ada di session --}}
-                        <input type="hidden" name="email" value="{{ session('otp_email') }}">
-                        {{-- Password di-bypass/dikosongkan karena di controller bisa kita sesuaikan, atau user login ulang --}}
-                        {{-- Catatan: Idealnya buat route khusus resend tanpa password jika session valid.
-                             Tapi untuk simpel, kita arahkan user login ulang jika expired. --}}
-                        <a href="{{ route('login.otp') }}" class="inline-flex items-center gap-2 text-green-600 font-bold hover:text-green-800 transition-colors hover:underline text-sm sm:text-base cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                            Kirim Kode Baru
-                        </a>
-                    </form>
+                {{-- TOMBOL RESEND AJAX --}}
+                <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+                    <p class="text-slate-500 text-sm mb-3 font-medium">Belum menerima kode?</p>
+                    
+                    <button type="button" id="resend-btn" onclick="kirimUlangOtp()"
+                        class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 flex items-center justify-center mx-auto gap-2 shadow-sm w-full sm:w-auto
+                        disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed
+                        bg-green-50 text-green-700 hover:bg-green-100 hover:shadow-md border border-green-100">
+                        
+                        {{-- Ikon Jam --}}
+                        <svg id="timer-icon" class="w-4 h-4 animate-pulse hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+
+                        {{-- Teks Tombol --}}
+                        <span id="resend-text">Kirim Ulang Kode</span>
+                    </button>
                 </div>
 
                 {{-- Ganti Email --}}
-                <div id="changeEmailContainer" class="mt-6 text-center">
+                <div class="mt-4 text-center">
                     <a href="{{ route('login.otp') }}" class="text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors">
                         Bukan email Anda? <span class="underline">Ganti Email</span>
                     </a>
@@ -206,7 +212,7 @@
             </div>
         </div>
 
-        {{-- BAGIAN KANAN: DEKORASI (SAMA PERSIS DENGAN CUSTOM LOGIN) --}}
+        {{-- BAGIAN KANAN: DEKORASI --}}
         <div class="hidden lg:flex fixed top-0 right-0 w-1/2 h-screen relative bg-white items-center justify-center overflow-hidden z-20">
             <div class="absolute inset-0 bg-gradient-to-tr from-green-50/50 to-white"></div>
             <div class="absolute inset-0 opacity-10">
@@ -224,55 +230,110 @@
 
     </div>
 
-    {{-- Script AOS & Countdown --}}
+    {{-- Script AOS & Logic AJAX --}}
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({ once: true, disable: 'mobile' });
 
-        // --- COUNTDOWN LOGIC ---
-        // Mengambil waktu kedaluwarsa dari controller
-        var countDownDate = new Date("{{ $expires_at }}").getTime();
-        var timerBadge = document.getElementById("timer-badge");
-        var timerDisplay = document.getElementById("countdown");
-        var submitBtn = document.getElementById("submitBtn");
-        var resendContainer = document.getElementById("resendContainer");
-        var changeEmailContainer = document.getElementById("changeEmailContainer");
+        // --- LOGIC AJAX RESEND & TIMER ---
+        
+        // Ambil sisa waktu dari Controller (Default 0 jika tidak ada)
+        let timeLeft = {{ $waitTime ?? 0 }};
+        const btn = document.getElementById('resend-btn');
+        const btnText = document.getElementById('resend-text');
+        const icon = document.getElementById('timer-icon');
+        const alertBox = document.getElementById('alert-container');
+        const successAlert = document.getElementById('success-alert');
 
-        var x = setInterval(function() {
-            var now = new Date().getTime();
-            var distance = countDownDate - now;
+        // Fungsi Timer Mundur
+        function startTimer() {
+            // Matikan tombol
+            btn.disabled = true;
+            icon.classList.remove('hidden');
+            btn.classList.remove('bg-green-50', 'text-green-700', 'hover:bg-green-100', 'border-green-100');
+            btn.classList.add('bg-slate-100', 'text-slate-400');
+            
+            const interval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    // Timer Selesai: Hidupkan tombol
+                    btn.disabled = false;
+                    icon.classList.add('hidden');
+                    btnText.innerText = "Kirim Ulang Kode";
+                    
+                    // Style tombol aktif
+                    btn.classList.add('bg-green-50', 'text-green-700', 'hover:bg-green-100', 'border-green-100');
+                    btn.classList.remove('bg-slate-100', 'text-slate-400');
+                } else {
+                    // Timer Jalan
+                    btnText.innerText = `Mohon tunggu ${timeLeft} detik`;
+                    timeLeft--;
+                }
+            }, 1000);
+        }
 
-            // Hitung menit dan detik
-            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        // Fungsi AJAX Kirim Ulang (Tanpa Refresh)
+        async function kirimUlangOtp() {
+            // 1. Ubah tampilan jadi loading
+            btn.disabled = true;
+            btnText.innerText = "Mengirim...";
+            alertBox.className = "hidden"; // Sembunyikan alert AJAX lama
+            if(successAlert) successAlert.style.display = 'none'; // Sembunyikan alert session sukses lama
 
-            // Format 2 digit (01:05)
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
+            try {
+                // 2. Request ke Server
+                const response = await fetch("{{ route('otp.resend') }}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                });
 
-            timerDisplay.innerHTML = minutes + ":" + seconds;
+                const data = await response.json();
 
-            // Efek visual jika waktu kurang dari 10 detik
-            if (distance < 10000) {
-                timerBadge.classList.remove('bg-slate-100', 'text-slate-600', 'border-slate-200');
-                timerBadge.classList.add('bg-red-50', 'text-red-600', 'border-red-100');
+                // 3. Cek Hasil
+                alertBox.classList.remove('hidden');
+                if (response.ok && data.status === 'success') {
+                    // SUKSES
+                    alertBox.className = "mb-4 p-3 rounded-lg text-sm text-center bg-green-100 text-green-700 border border-green-200 font-medium";
+                    alertBox.innerHTML = `
+                        <div class="flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            ${data.message}
+                        </div>`;
+                    
+                    // Reset waktu jadi 60 detik & mulai timer lagi
+                    timeLeft = 60;
+                    startTimer();
+                } else {
+                    // GAGAL / ERROR
+                    alertBox.className = "mb-4 p-3 rounded-lg text-sm text-center bg-red-100 text-red-700 border border-red-200";
+                    alertBox.innerText = data.message || "Terjadi kesalahan.";
+                    
+                    // Kembalikan tombol agar bisa diklik lagi (kecuali kena limit)
+                    if(response.status !== 429) {
+                        btn.disabled = false;
+                        btnText.innerText = "Kirim Ulang Kode";
+                    } else {
+                        // Jika kena limit (429), parse pesan "tunggu X detik" jika server mengirim sisa waktu
+                        // Tapi logic timer kita di atas sudah menangani ini via timeLeft awal
+                    }
+                }
+
+            } catch (error) {
+                console.error(error);
+                btn.disabled = false;
+                btnText.innerText = "Kirim Ulang Kode";
+                alert("Gagal koneksi internet. Silakan coba lagi.");
             }
+        }
 
-            // Jika waktu habis
-            if (distance < 0) {
-                clearInterval(x);
-                timerDisplay.innerHTML = "WAKTU HABIS";
-                
-                // Matikan Tombol Submit
-                submitBtn.disabled = true;
-                submitBtn.classList.add("bg-slate-300", "cursor-not-allowed", "shadow-none");
-                submitBtn.classList.remove("bg-green-600", "hover:bg-green-700", "hover:shadow-green-600/30", "active:scale-[0.98]");
-                
-                // Tampilkan Opsi Kirim Ulang
-                resendContainer.classList.remove("hidden");
-                changeEmailContainer.classList.add("hidden");
-            }
-        }, 1000);
+        // Jalankan timer otomatis jika saat halaman dibuka waktu masih tersisa (dari server)
+        if (timeLeft > 0) {
+            startTimer();
+        }
     </script>
 </body>
 </html>

@@ -79,6 +79,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/login-otp', [AuthOtpController::class, 'loginWithPassword'])->name('login.otp.step1');
     Route::get('/verify-otp', [AuthOtpController::class, 'showVerifyForm'])->name('otp.verify');
     Route::post('/verify-otp', [AuthOtpController::class, 'verifyOtp'])->name('otp.verify.submit');
+    
+    // [TAMBAHAN] Rute Kirim Ulang OTP via AJAX (POST)
+    Route::post('/otp/resend', [AuthOtpController::class, 'resendOtp'])->name('otp.resend');
     // -------------------------------
 
     Route::get('/register', [CustomAuthController::class, 'showRegister'])->name('register');
