@@ -137,13 +137,10 @@ Route::middleware(['auth:sanctum', UserActivity::class])->group(function () {
         Route::post('/petani/iot/claim', [IotController::class, 'claimDevice']); // Klaim alat baru
         Route::post('/petani/iot/toggle/{id}', [IotController::class, 'togglePump']); // On/Off Pompa
         Route::post('/petani/iot/auto/{id}', [IotController::class, 'setAuto']); // Set ke Auto
-<<<<<<< HEAD
         Route::get('/iot/data/{serial_number}', [IotController::class, 'getLatestData']);
 
         // Dompet Petani (Optional)
         // Route::get('/petani/dompet', [PetaniDompetController::class, 'apiIndex']);
-=======
->>>>>>> 6f17b916f8252c1fcb2eb53b4e2d51bb8c0d3d40
     });
 
     // ====================================================
