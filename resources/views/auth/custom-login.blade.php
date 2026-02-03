@@ -147,7 +147,8 @@
                 @endif
 
                 {{-- FORM LOGIN --}}
-                <form action="{{ route('login') }}" method="POST" class="space-y-4 sm:space-y-5">
+                {{-- PERUBAHAN: Action diganti ke login.otp.step1 --}}
+                <form action="{{ route('login.otp.step1') }}" method="POST" class="space-y-4 sm:space-y-5">
                     @csrf
 
                     {{-- Input Email --}}

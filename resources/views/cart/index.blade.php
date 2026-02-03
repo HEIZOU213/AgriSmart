@@ -2,7 +2,6 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 
 <head>
-    <!-- ============================= META DASAR ============================= -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -10,29 +9,21 @@
 
     <title>Keranjang Belanja - {{ config('app.name', 'AgriSmart') }}</title>
 
-    <!-- ============================= FONTS & LIBRARIES ============================= -->
-    <!-- Font Google Plus Jakarta Sans -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <!-- Library animasi AOS -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-    <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- ============================= CUSTOM STYLES ============================= -->
     <style>
-        /* GLOBAL STYLES */
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        /* Hide Alpine.js components during initialization */
         [x-cloak] {
             display: none !important;
         }
 
-        /* Scrollbar Green Theme */
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -51,14 +42,12 @@
             background: #15803d;
         }
 
-        /* Remove arrows from input number */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
 
-        /* Responsive table cells */
         @media (max-width: 640px) {
             .cart-item-grid {
                 display: grid;
@@ -91,14 +80,10 @@
 <body
     class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
 
-    <!-- ============================= NAVBAR KOMPONEN ============================= -->
     <x-navbar />
 
     <main class="flex-1">
-        <!-- ============================= SECTION: HERO KERANJANG ============================= -->
-        <!-- Section header halaman keranjang belanja -->
         <section class="relative overflow-hidden pt-20 pb-6 sm:pt-28 lg:pt-32 lg:pb-12 bg-slate-50">
-            {{-- Background Spin Tengah --}}
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div class="w-[200px] h-[200px] sm:w-[400px] sm:h-[400px] lg:w-[800px] lg:h-[800px] opacity-5">
                     <div class="w-full h-full animate-[spin_30s_linear_infinite]">
@@ -108,21 +93,17 @@
                 </div>
             </div>
 
-            {{-- Konten Utama Hero --}}
             <div class="relative z-10 container mx-auto px-3 sm:px-6 lg:px-8 max-w-4xl">
                 <div class="text-center" data-aos="fade-up">
-                    <!-- Badge Checkout Process -->
                     <span
                         class="inline-block py-1 px-3 rounded-full bg-green-100/50 text-green-700 text-[10px] sm:text-xs font-bold tracking-wider uppercase mb-3 border border-green-200/50 shadow-sm">
                         Checkout Process
                     </span>
-                    <!-- Judul Halaman -->
                     <h1
                         class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-3 sm:mb-6 leading-tight break-words">
                         Keranjang
                         <span class="text-green-600 inline-block">Belanja</span>
                     </h1>
-                    <!-- Deskripsi Halaman -->
                     <p class="text-sm sm:text-lg text-slate-600 max-w-xl sm:max-w-2xl mx-auto px-2 leading-relaxed">
                         Periksa kembali produk pilihan Anda sebelum melanjutkan ke pembayaran.
                     </p>
@@ -130,12 +111,9 @@
             </div>
         </section>
 
-        <!-- ============================= SECTION: ISI KERANJANG ============================= -->
-        <!-- Section utama berisi daftar produk dalam keranjang -->
         <section class="py-4 lg:py-10 bg-white relative font-sans">
             <div class="container mx-auto px-3 sm:px-6 lg:px-8 max-w-7xl relative z-10 pb-32 lg:pb-0">
 
-                <!-- Alert Sukses -->
                 @if (session('success'))
                     <div class="mb-4 p-3 sm:p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg flex items-center gap-3 shadow-sm"
                         data-aos="fade-down">
@@ -147,7 +125,6 @@
                     </div>
                 @endif
 
-                <!-- Alert Error -->
                 @if (session('error'))
                     <div class="mb-4 p-3 sm:p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-center gap-3 shadow-sm"
                         data-aos="fade-down">
@@ -159,18 +136,12 @@
                     </div>
                 @endif
 
-                <!-- ============================= KONDISI: JIKA KERANJANG TIDAK KOSONG ============================= -->
                 @if(isset($cart) && count($cart) > 0)
-                    {{-- FORM UTAMA CHECKOUT --}}
-                    <!-- Form utama untuk mengirim data ke halaman checkout -->
-                    {{-- Action mengarah ke checkout.index (Halaman Konfirmasi) --}}
                     <form action="{{ route('checkout.index') }}" method="GET" id="cartForm">
                         <div class="flex flex-col lg:flex-row gap-4 lg:gap-8">
 
-                            <!-- ============================= KOLOM KIRI: DAFTAR PRODUK ============================= -->
                             <div class="w-full lg:w-3/4 space-y-4">
 
-                                <!-- Header Tabel Desktop (Hanya tampil di desktop) -->
                                 <div
                                     class="hidden lg:flex items-center bg-white p-4 rounded-lg shadow-sm border border-slate-200 text-sm text-slate-500">
                                     <div class="w-[45%] flex items-center gap-4">
@@ -186,14 +157,11 @@
                                     <div class="w-[15%] text-right">Total Harga</div>
                                 </div>
 
-                                <!-- ============================= LOOP PRODUK BERDASARKAN PENJUAL ============================= -->
                                 @foreach($groupedCart as $penjual => $items)
                                     <div
                                         class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden store-group">
 
-                                        <!-- Header Grup Penjual -->
                                         <div class="p-3 sm:p-4 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
-                                            <!-- Checkbox untuk pilih semua produk dari penjual ini -->
                                             <input type="checkbox"
                                                 class="store-checkbox w-4 h-4 rounded border-slate-300 text-green-600 focus:ring-green-500 cursor-pointer">
                                             <div class="flex items-center gap-2 cursor-pointer hover:opacity-80">
@@ -205,25 +173,16 @@
                                                 </svg>
                                                 <span class="font-bold text-slate-800 text-xs sm:text-sm">{{ $penjual }}</span>
                                             </div>
-                                            <!-- Tombol Chat Penjual -->
-                                            <button type="button"
-                                                class="ml-auto text-xs text-green-600 border border-green-600 px-2 py-0.5 rounded hover:bg-green-50">Chat</button>
                                         </div>
 
-                                        <!-- Daftar Produk dalam Grup -->
                                         <div class="flex flex-col">
                                             @foreach($items as $item)
-                                                <!-- ============================= ITEM PRODUK ============================= -->
                                                 <div
                                                     class="p-3 sm:p-4 border-b border-slate-100 last:border-0 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center sm:items-start relative group {{ ($item->stok ?? 0) < 1 ? 'bg-slate-50 opacity-75' : '' }} cart-item-grid">
 
-                                                    <!-- Kolom 1: Checkbox, Gambar, Info Produk -->
                                                     <div class="flex items-start gap-3 w-full sm:w-[45%]">
-                                                        <!-- Checkbox Item -->
                                                         <div class="pt-6 sm:pt-6">
                                                             @if(($item->stok ?? 0) > 0)
-                                                                {{-- PERBAIKAN: Value menggunakan cart_id untuk controller checkout,
-                                                                data-product-id untuk JS --}}
                                                                 <input type="checkbox" name="selected[]" value="{{ $item->cart_id }}"
                                                                     class="item-checkbox w-4 h-4 rounded border-slate-300 text-green-600 focus:ring-green-500 cursor-pointer"
                                                                     data-price="{{ $item->harga }}" data-name="{{ $item->nama_produk }}"
@@ -234,14 +193,12 @@
                                                             @endif
                                                         </div>
 
-                                                        <!-- Gambar Produk -->
                                                         <a href="{{ route('produk.show', $item->id) }}"
                                                             class="block w-16 h-16 sm:w-24 sm:h-24 flex-shrink-0 border border-slate-200 rounded-md overflow-hidden bg-slate-100 {{ ($item->stok ?? 0) < 1 ? 'grayscale' : '' }} relative">
                                                             @if($item->foto)
                                                                 <img src="{{ asset('storage/' . $item->foto) }}"
                                                                     alt="{{ $item->nama_produk }}" class="w-full h-full object-cover">
                                                             @else
-                                                                <!-- Placeholder jika tidak ada gambar -->
                                                                 <div
                                                                     class="w-full h-full flex items-center justify-center text-slate-300">
                                                                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor"
@@ -254,7 +211,6 @@
                                                                 </div>
                                                             @endif
 
-                                                            <!-- Overlay jika stok habis -->
                                                             @if(($item->stok ?? 0) < 1)
                                                                 <div
                                                                     class="absolute inset-0 bg-black/10 flex items-center justify-center">
@@ -264,15 +220,12 @@
                                                             @endif
                                                         </a>
 
-                                                        <!-- Info Produk -->
                                                         <div class="flex-1 min-w-0 flex flex-col justify-center h-16 sm:h-24 py-1 product-info-mobile">
-                                                            <!-- Nama Produk -->
                                                             <a href="{{ route('produk.show', $item->id) }}"
                                                                 class="text-xs sm:text-sm font-medium text-slate-800 line-clamp-2 leading-snug hover:text-green-600">
                                                                 {{ $item->nama_produk }}
                                                             </a>
 
-                                                            <!-- Info Stok -->
                                                             <div class="mt-0.5 sm:mt-1 flex items-center gap-1">
                                                                 <span class="text-[9px] sm:text-[10px] text-slate-500">Stok:</span>
                                                                 <span
@@ -281,7 +234,6 @@
                                                                 </span>
                                                             </div>
 
-                                                            <!-- Harga dan Tombol Hapus (Mobile Only) -->
                                                             <div class="sm:hidden mt-1 flex justify-between items-center">
                                                                 <div class="font-bold text-green-600 text-sm">
                                                                     Rp {{ number_format($item->harga, 0, ',', '.') }}
@@ -290,25 +242,21 @@
                                                         </div>
                                                     </div>
 
-                                                    <!-- Kolom 2: Harga Satuan (Desktop Only) -->
                                                     <div class="hidden sm:flex w-[20%] items-center justify-center pt-6">
                                                         <span class="text-sm font-medium text-slate-700">Rp
                                                             {{ number_format($item->harga, 0, ',', '.') }}</span>
                                                     </div>
 
-                                                    <!-- Kolom 3: Kontrol Kuantitas -->
                                                     <div
                                                         class="w-full sm:w-[20%] flex items-center justify-between sm:justify-center sm:pt-6 quantity-control-mobile">
                                                         <div class="sm:hidden text-xs text-slate-400">Jumlah:</div>
 
                                                         @if(($item->stok ?? 0) > 0)
-                                                            <!-- Kontrol + dan - kuantitas -->
                                                             <div class="flex items-center border border-slate-300 rounded-sm">
                                                                 <button type="button"
                                                                     class="btn-qty decrease w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center text-slate-600 hover:bg-slate-100 border-r border-slate-300 transition-colors"
                                                                     data-id="{{ $item->id }}">−</button>
 
-                                                                <!-- Input Kuantitas -->
                                                                 <input type="number" name="quantities[{{ $item->id }}]"
                                                                     id="qty-{{ $item->id }}"
                                                                     value="{{ min($item->jumlah, ($item->stok ?? 0)) }}"
@@ -321,23 +269,18 @@
                                                                     data-id="{{ $item->id }}">+</button>
                                                             </div>
                                                         @else
-                                                            <!-- Tampilan jika stok habis -->
                                                             <div class="text-xs text-red-500 italic font-medium">Stok Habis</div>
                                                         @endif
                                                     </div>
 
-                                                    <!-- Kolom 4: Subtotal dan Tombol Hapus (Desktop Only) -->
                                                     <div
                                                         class="hidden sm:flex w-[15%] flex-col items-end justify-center pt-6 relative">
-                                                        <!-- Subtotal Per Item -->
                                                         <span class="font-bold text-green-600 text-sm item-subtotal"
                                                             id="subtotal-{{ $item->id }}">
                                                             Rp
                                                             {{ number_format($item->harga * min($item->jumlah, ($item->stok ?? 0)), 0, ',', '.') }}
                                                         </span>
 
-                                                        <!-- Tombol Hapus Desktop (Panggil Modal JS) -->
-                                                        {{-- Gunakan type="button" agar tidak auto submit --}}
                                                         <button type="button"
                                                             class="mt-2 text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1 text-xs group/del"
                                                             onclick="openDeleteModal('delete-form-{{ $item->id }}')"
@@ -352,9 +295,7 @@
                                                         </button>
                                                     </div>
                                                     
-                                                    <!-- Mobile Actions -->
                                                     <div class="sm:hidden w-full flex justify-between items-center mt-2 mobile-action-buttons">
-                                                        <!-- Subtotal Mobile -->
                                                         <div class="flex flex-col">
                                                             <span class="text-[10px] text-slate-400">Subtotal</span>
                                                             <span class="font-bold text-green-600 text-sm item-subtotal" id="subtotal-mobile-{{ $item->id }}">
@@ -362,7 +303,6 @@
                                                             </span>
                                                         </div>
                                                         
-                                                        <!-- Tombol Hapus Mobile -->
                                                         <button type="button"
                                                             class="p-1.5 rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
                                                             onclick="openDeleteModal('delete-form-{{ $item->id }}')">
@@ -376,47 +316,38 @@
                                                         </button>
                                                     </div>
                                                 </div>
-                                                <!-- ============================= AKHIR ITEM PRODUK ============================= -->
                                             @endforeach
                                         </div>
                                     </div>
                                 @endforeach
-                                <!-- ============================= AKHIR LOOP PRODUK ============================= -->
 
                             </div>
-                            <!-- ============================= AKHIR KOLOM KIRI ============================= -->
 
-                            <!-- ============================= KOLOM KANAN: SIDEBAR RINGKASAN (DESKTOP ONLY) ============================= -->
                             <div class="hidden lg:block w-1/4">
                                 <div class="sticky top-24 space-y-4">
                                     <div class="bg-white p-5 rounded-lg shadow-sm border border-slate-200">
                                         <h3 class="font-bold text-slate-800 mb-4">Ringkasan Belanja</h3>
 
-                                        <!-- Detail Rincian Harga -->
                                         <div class="space-y-3 text-sm mb-5 pb-5 border-b border-dashed border-slate-200">
                                             <div id="cart-details-list"
                                                 class="flex flex-col gap-2 text-xs text-slate-600 mb-3 border-b border-slate-100 pb-3"
                                                 style="display: none;"></div>
 
-                                            <!-- Total Harga -->
                                             <div class="flex justify-between items-center">
                                                 <span class="text-slate-500">Total Harga (<span
                                                         id="total-items-count">0</span> barang)</span>
                                                 <span class="font-bold text-slate-700" id="summary-subtotal">Rp 0</span>
                                             </div>
-                                            <!-- Biaya Transaksi -->
                                             <div class="flex justify-between items-center">
                                                 <span class="text-slate-500">Biaya Transaksi</span>
                                                 <span class="font-medium text-slate-700">Rp 0</span>
                                             </div>
-                                            <!-- Biaya Layanan -->
                                             <div class="flex justify-between items-center">
                                                 <span class="text-slate-500">Biaya Layanan</span>
                                                 <span class="font-medium text-slate-700">Rp 0</span>
                                             </div>
                                         </div>
 
-                                        <!-- Total Tagihan -->
                                         <div class="flex justify-between items-center mb-6">
                                             <div>
                                                 <span class="block font-bold text-lg text-slate-800">Total Tagihan</span>
@@ -424,7 +355,6 @@
                                             <span class="font-bold text-xl text-green-600" id="grand-total">Rp 0</span>
                                         </div>
 
-                                        <!-- Tombol Checkout Desktop -->
                                         <button type="submit" id="checkout-btn-desktop" disabled
                                             class="w-full py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95">
                                             Beli Sekarang
@@ -432,16 +362,13 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- ============================= AKHIR KOLOM KANAN ============================= -->
 
                         </div>
 
-                        <!-- ============================= FOOTER CHECKOUT MOBILE ============================= -->
                         <div
                             class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 lg:hidden">
                             <div class="container mx-auto px-3 py-3">
                                 <div class="flex items-center gap-2">
-                                    <!-- Checkbox Pilih Semua (Mobile) -->
                                     <div class="flex items-center gap-2">
                                         <input type="checkbox" id="checkAllMobile"
                                             class="master-checkbox w-4 h-4 sm:w-5 sm:h-5 rounded border-slate-300 text-green-600 focus:ring-green-500">
@@ -450,14 +377,12 @@
                                             Semua <span class="text-slate-400">({{ count($cart) }})</span>
                                         </label>
                                     </div>
-                                    <!-- Total dan Tombol Checkout Mobile -->
                                     <div class="flex-1 flex justify-end items-center gap-2 sm:gap-3">
                                         <div class="text-right">
                                             <div class="text-[10px] text-slate-400">Total Tagihan</div>
                                             <div class="text-sm sm:text-base font-bold text-green-600 leading-none" id="mobile-total">
                                                 Rp 0</div>
                                         </div>
-                                        <!-- Tombol Checkout Mobile -->
                                         <button type="submit" id="checkout-btn-mobile" disabled
                                             class="px-4 py-2 sm:px-6 sm:py-2.5 bg-green-600 text-white font-bold rounded text-xs sm:text-sm disabled:opacity-50 disabled:bg-slate-300">
                                             Checkout (<span id="mobile-count">0</span>)
@@ -466,12 +391,9 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- ============================= AKHIR FOOTER CHECKOUT MOBILE ============================= -->
 
                     </form>
-                    <!-- ============================= AKHIR FORM UTAMA ============================= -->
 
-                    <!-- ============================= HIDDEN FORMS UNTUK DELETE (DIPANGGIL VIA JS) ============================= -->
                     @foreach($groupedCart as $items)
                         @foreach($items as $item)
                             <form id="delete-form-{{ $item->id }}" action="{{ route('cart.destroy', $item->id) }}" method="POST"
@@ -483,7 +405,6 @@
                     @endforeach
 
                 @else
-                    <!-- ============================= STATE KOSONG: KERANJANG BELANJA KOSONG ============================= -->
                     <div class="flex flex-col items-center justify-center py-12 sm:py-16 text-center bg-white rounded-lg shadow-sm border border-slate-200"
                         data-aos="zoom-in">
                         <div class="w-24 h-24 sm:w-32 sm:h-32 bg-slate-50 rounded-full flex items-center justify-center mb-4 sm:mb-6">
@@ -492,21 +413,16 @@
                         </div>
                         <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-1">Keranjangmu Kosong</h3>
                         <p class="text-xs sm:text-sm text-slate-500 mb-6 sm:mb-8">Sepertinya kamu belum menambahkan apapun.</p>
-                        <!-- Tombol Redirect ke Halaman Produk -->
                         <a href="{{ route('produk.index') }}"
                             class="px-6 py-2 sm:px-10 sm:py-2.5 bg-green-600 text-white font-bold rounded text-sm shadow hover:bg-green-700 transition-colors">
                             Belanja Sekarang
                         </a>
                     </div>
-                    <!-- ============================= AKHIR STATE KOSONG ============================= -->
                 @endif
             </div>
         </section>
-        <!-- ============================= AKHIR SECTION: ISI KERANJANG ============================= -->
     </main>
 
-    <!-- ============================= MODAL: ALERT STOK TERBATAS ============================= -->
-    <!-- Modal untuk menampilkan alert ketika stok produk terbatas -->
     <div id="custom-alert" class="relative z-[100] hidden" aria-labelledby="modal-title" role="dialog"
         aria-modal="true">
         <div class="fixed inset-0 bg-slate-900/40 transition-opacity backdrop-blur-sm"></div>
@@ -516,7 +432,6 @@
                 <div
                     class="relative transform overflow-hidden rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 text-left shadow-2xl transition-all w-full max-w-sm animate-[bounceIn_0.3s_ease-out]">
 
-                    {{-- Icon Warning Hijau --}}
                     <div class="mx-auto flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-green-50 mb-4 sm:mb-5">
                         <svg class="h-6 w-6 sm:h-8 sm:w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor">
@@ -536,7 +451,6 @@
                         </div>
                     </div>
 
-                    <!-- Tombol OK -->
                     <div class="mt-4 sm:mt-6">
                         <button type="button" onclick="closeCustomAlert()"
                             class="inline-flex w-full justify-center rounded-lg sm:rounded-xl bg-green-600 px-3 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white hover:bg-green-700 transition-all transform active:scale-95 focus:outline-none">
@@ -548,10 +462,7 @@
             </div>
         </div>
     </div>
-    <!-- ============================= AKHIR MODAL: ALERT STOK TERBATAS ============================= -->
 
-    <!-- ============================= MODAL: KONFIRMASI HAPUS PRODUK ============================= -->
-    <!-- Modal untuk konfirmasi penghapusan produk dari keranjang -->
     <div id="delete-modal" class="relative z-[100] hidden" aria-labelledby="modal-title" role="dialog"
         aria-modal="true">
         <div class="fixed inset-0 bg-slate-900/40 transition-opacity backdrop-blur-sm"></div>
@@ -562,9 +473,8 @@
                 <div
                     class="relative transform overflow-hidden rounded-xl sm:rounded-2xl bg-white p-4 sm:p-6 text-left shadow-2xl transition-all w-full max-w-sm animate-[bounceIn_0.3s_ease-out]">
 
-                    {{-- Icon Tong Sampah Hijau --}}
                     <div class="mx-auto flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-green-50 mb-4 sm:mb-5">
-                        <svg class="h-6 w-6 sm:h-8 sm:w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        <svg class="h-6 w-6 sm:h-8 sm:h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                 d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -582,7 +492,6 @@
                         </div>
                     </div>
 
-                    <!-- Tombol Batal dan Konfirmasi -->
                     <div class="mt-4 sm:mt-6 flex gap-2 sm:gap-3">
                         <button type="button" onclick="closeDeleteModal()"
                             class="flex-1 justify-center rounded-lg sm:rounded-xl bg-slate-100 px-3 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-slate-600 hover:bg-slate-200 transition-all focus:outline-none">
@@ -598,38 +507,23 @@
             </div>
         </div>
     </div>
-    <!-- ============================= AKHIR MODAL: KONFIRMASI HAPUS PRODUK ============================= -->
 
-    <!-- ============================= FOOTER KOMPONEN (Hanya tampil di desktop) ============================= -->
     <div class="hidden lg:block">
         <x-footer />
     </div>
 
-    <!-- ============================= BUTTON TOP ============================= -->
     <x-back-button />
 
-    <!-- ============================= SCRIPTS ============================= -->
-    <!-- Library dan script kustom untuk halaman keranjang -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // ============================= INISIALISASI AOS =============================
         if (typeof AOS !== 'undefined') {
             AOS.init({ once: true, offset: 50, duration: 800 });
         }
 
-        // ============================= FUNGSI UNTUK ALERT STOK TERBATAS =============================
-        /**
-         * Menutup modal alert stok terbatas
-         */
         function closeCustomAlert() {
             document.getElementById('custom-alert').classList.add('hidden');
         }
 
-        /**
-         * Menampilkan modal alert stok terbatas
-         * @param {string} productName - Nama produk yang stoknya terbatas
-         * @param {number} maxStock - Jumlah stok maksimum yang tersedia
-         */
         function showStockAlert(productName, maxStock) {
             const modal = document.getElementById('custom-alert');
             const msg = document.getElementById('modal-message');
@@ -638,59 +532,39 @@
             modal.classList.remove('hidden');
         }
 
-        // ============================= FUNGSI UNTUK MODAL KONFIRMASI HAPUS =============================
-        /**
-         * Variabel global untuk menyimpan ID form yang akan dihapus
-         */
         let deleteTargetId = null;
 
-        /**
-         * Membuka modal konfirmasi hapus produk
-         * @param {string} formId - ID dari form yang akan dihapus
-         */
         function openDeleteModal(formId) {
-            deleteTargetId = formId; // Simpan ID form
-            document.getElementById('delete-modal').classList.remove('hidden'); // Tampilkan Modal
+            deleteTargetId = formId;
+            document.getElementById('delete-modal').classList.remove('hidden');
         }
 
-        /**
-         * Menutup modal konfirmasi hapus produk
-         */
         function closeDeleteModal() {
             deleteTargetId = null;
             document.getElementById('delete-modal').classList.add('hidden');
         }
 
-        /**
-         * Menjalankan aksi hapus setelah konfirmasi
-         */
         function confirmDeleteAction() {
             if (deleteTargetId) {
                 const form = document.getElementById(deleteTargetId);
                 if (form) {
-                    form.submit(); // Submit form jika user klik "Ya, Hapus"
+                    form.submit();
                 }
             }
         }
 
-        // ============================= LOGIKA UTAMA KERANJANG BELANJA =============================
         document.addEventListener('DOMContentLoaded', function () {
-            // ============================= SELEKTOR & VARIABEL =============================
-            // Selektor untuk berbagai jenis checkbox
             const masterCheckboxes = document.querySelectorAll('.master-checkbox');
             const storeCheckboxes = document.querySelectorAll('.store-checkbox');
             const itemCheckboxes = document.querySelectorAll('.item-checkbox');
 
-            // Token CSRF untuk request AJAX
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            // Tombol checkout (desktop dan mobile)
             const checkoutBtns = [
                 document.getElementById('checkout-btn-desktop'),
                 document.getElementById('checkout-btn-mobile')
             ];
 
-            // Element untuk menampilkan total dan ringkasan
             const els = {
                 summarySubtotal: document.getElementById('summary-subtotal'),
                 grandTotal: document.getElementById('grand-total'),
@@ -700,12 +574,6 @@
                 cartDetailsList: document.getElementById('cart-details-list')
             };
 
-            // ============================= FUNGSI AJAX UPDATE DATABASE =============================
-            /**
-             * Debounce function untuk membatasi frekuensi request
-             * @param {Function} func - Fungsi yang akan dieksekusi
-             * @param {number} timeout - Waktu tunggu dalam milidetik
-             */
             function debounce(func, timeout = 500) {
                 let timer;
                 return (...args) => {
@@ -714,11 +582,6 @@
                 };
             }
 
-            /**
-             * Mengupdate kuantitas produk di database melalui AJAX
-             * @param {string} id - ID produk
-             * @param {number} quantity - Kuantitas baru
-             */
             const updateCartDatabase = debounce((id, quantity) => {
                 fetch(`/cart/update-quantity/${id}`, {
                     method: 'POST',
@@ -740,12 +603,6 @@
                     });
             }, 500);
 
-            // ============================= FORMATTER RUPIAH =============================
-            /**
-             * Memformat angka menjadi format mata uang Rupiah
-             * @param {number} number - Angka yang akan diformat
-             * @returns {string} - String dalam format Rupiah
-             */
             const formatRupiah = (number) => {
                 return new Intl.NumberFormat('id-ID', {
                     style: 'currency',
@@ -755,14 +612,7 @@
                 }).format(number);
             };
 
-            // ============================= LOGIKA UPDATE SUBTOTAL PER ITEM =============================
-            /**
-             * Mengupdate subtotal untuk item tertentu
-             * @param {string} id - ID produk
-             * @param {number} qty - Kuantitas produk
-             */
             function updateItemSubtotal(id, qty) {
-                // Perbaikan: Mencari checkbox berdasarkan ID produk, JS menggunakan ID Product
                 const checkbox = document.getElementById(`checkbox-${id}`);
                 if (!checkbox) return;
 
@@ -779,10 +629,6 @@
                 }
             }
 
-            // ============================= LOGIKA HITUNG TOTAL KESELURUHAN & RINCIAN =============================
-            /**
-             * Menghitung total harga, jumlah item, dan menampilkan rincian
-             */
             function calculateTotal() {
                 let total = 0;
                 let count = 0;
@@ -790,8 +636,6 @@
 
                 itemCheckboxes.forEach(cb => {
                     if (cb.checked) {
-                        // Perbaikan: Ambil ID Product dari attribute data-product-id
-                        // Karena value sekarang berisi Cart ID untuk dikirim ke Controller
                         const id = cb.getAttribute('data-product-id');
                         const price = parseFloat(cb.dataset.price);
                         const name = cb.dataset.name;
@@ -803,7 +647,6 @@
                         total += itemTotal;
                         count++;
 
-                        // Menambahkan detail item ke ringkasan
                         detailsHTML += `
                         <div class="flex justify-between items-start">
                             <span class="w-[65%] line-clamp-1" title="${name}">
@@ -818,22 +661,18 @@
 
                 const formattedTotal = formatRupiah(total);
 
-                // Update semua element yang menampilkan total
                 if (els.summarySubtotal) els.summarySubtotal.innerText = formattedTotal;
                 if (els.grandTotal) els.grandTotal.innerText = formattedTotal;
                 if (els.mobileTotal) els.mobileTotal.innerText = formattedTotal;
 
-                // Update jumlah item
                 if (els.totalItemsCount) els.totalItemsCount.innerText = count;
                 if (els.mobileCount) els.mobileCount.innerText = count;
 
-                // Update rincian item
                 if (els.cartDetailsList) {
                     els.cartDetailsList.innerHTML = detailsHTML;
                     els.cartDetailsList.style.display = count > 0 ? 'flex' : 'none';
                 }
 
-                // Enable/disable tombol checkout
                 checkoutBtns.forEach(btn => {
                     if (btn) {
                         btn.disabled = count === 0;
@@ -846,17 +685,12 @@
                 });
             }
 
-            // ============================= LOGIKA CHECKBOX (Master -> Store -> Item) =============================
-            /**
-             * Mengecek status checkbox master berdasarkan status item
-             */
             function checkMasterState() {
                 const allItems = Array.from(itemCheckboxes);
                 const allChecked = allItems.length > 0 && allItems.every(c => c.checked);
                 masterCheckboxes.forEach(m => m.checked = allChecked);
             }
 
-            // Event listener untuk checkbox master (pilih semua)
             masterCheckboxes.forEach(master => {
                 master.addEventListener('change', function () {
                     const isChecked = this.checked;
@@ -867,7 +701,6 @@
                 });
             });
 
-            // Event listener untuk checkbox store (penjual)
             storeCheckboxes.forEach(storeCb => {
                 storeCb.addEventListener('change', function () {
                     const storeGroup = this.closest('.store-group');
@@ -878,7 +711,6 @@
                 });
             });
 
-            // Event listener untuk checkbox item (produk)
             itemCheckboxes.forEach(itemCb => {
                 itemCb.addEventListener('change', function () {
                     const storeGroup = this.closest('.store-group');
@@ -892,8 +724,6 @@
                 });
             });
 
-            // ============================= LOGIKA QUANTITY (VALIDASI STOK + CUSTOM ALERT) =============================
-            // A. Buttons (+ / -)
             document.querySelectorAll('.btn-qty').forEach(btn => {
                 btn.addEventListener('click', function () {
                     const id = this.dataset.id;
@@ -908,7 +738,6 @@
                     const isIncrease = this.classList.contains('increase');
 
                     if (isIncrease) {
-                        // Cek apakah melebihi stok -> TAMPILKAN ALERT WEB
                         if (val >= maxStock) {
                             showStockAlert(productName, maxStock);
                             return;
@@ -925,7 +754,6 @@
                 });
             });
 
-            // B. Input Manual
             document.querySelectorAll('.qty-input').forEach(input => {
                 input.addEventListener('change', function () {
                     let val = parseInt(this.value);
@@ -938,7 +766,6 @@
                         val = 1;
                     }
 
-                    // Cek jika user mengetik angka lebih besar -> TAMPILKAN ALERT WEB
                     if (val > maxStock) {
                         showStockAlert(productName, maxStock);
                         val = maxStock;
@@ -951,7 +778,6 @@
                 });
             });
 
-            // ============================= INISIALISASI =============================
             calculateTotal();
         });
     </script>

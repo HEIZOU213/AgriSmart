@@ -30,7 +30,12 @@ class User extends Authenticatable
         // --- PENAMBAHAN UNTUK LARAVEL SOCIALITE ---
         'provider',
         'provider_id',
-        // ------------------------------------------
+
+        // --- PENAMBAHAN UNTUK STATUS ONLINE ---
+        'last_seen', // <--- WAJIB ADA AGAR BISA DI-UPDATE
+
+        'otp',             // <-- Tambahan baru
+        'otp_expires_at',  // <-- Tambahan baru
     ];
 
     /**
@@ -53,6 +58,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+
+            // --- WAJIB ADA AGAR BISA DIHITUNG WAKTU ---
+            'last_seen' => 'datetime',
         ];
     }
 

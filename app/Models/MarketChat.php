@@ -17,6 +17,11 @@ class MarketChat extends Model
         'receiver_id',
         'message',
         'is_read',
+        'reply_to_id', // [BARU] Wajib ada agar bisa di-save controller
+    ];
+
+    protected $casts = [
+        'is_read' => 'boolean',
     ];
 
     public function sender()
@@ -27,5 +32,11 @@ class MarketChat extends Model
     public function receiver()
     {
         return $this->belongsTo(User::class, 'receiver_id');
+    }
+
+    // [BARU] Relasi untuk mengambil pesan yang dibalas
+    public function replyTo()
+    {
+        return $this->belongsTo(MarketChat::class, 'reply_to_id');
     }
 }
