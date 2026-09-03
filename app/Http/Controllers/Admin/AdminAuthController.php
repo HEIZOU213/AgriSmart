@@ -31,7 +31,7 @@ class AdminAuthController extends Controller
                 $request->session()->regenerate();
                 return redirect()->route('admin.dashboard');
             } else {
-                // Kalau login berhasil tapi dia cuma Petani, tendang keluar
+                // Kalau login berhasil tapi dia cuma Pekebun, tendang keluar
                 Auth::logout();
                 return back()->withErrors([
                     'email' => 'Anda tidak memiliki akses ke area ini.',
@@ -45,3 +45,4 @@ class AdminAuthController extends Controller
         ]);
     }
 }
+

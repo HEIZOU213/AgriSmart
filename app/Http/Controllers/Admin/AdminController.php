@@ -22,3 +22,4 @@ class AdminController extends Controller
         return view('admin.dashboard'); // Sesuaikan dengan nama view Anda
     }
 }
+

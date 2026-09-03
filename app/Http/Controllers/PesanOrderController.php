@@ -21,7 +21,7 @@ class PesanOrderController extends Controller
         // 1. Temukan pesanan
         $pesanan = Pesanan::findOrFail($id);
 
-        // 2. Cek Keamanan: Pastikan user yang login adalah Konsumen atau Petani dari pesanan ini
+        // 2. Cek Keamanan: Pastikan user yang login adalah Konsumen atau Pekebun dari pesanan ini
         $isKonsumen = $pesanan->user_id == Auth::id();
 
         $isPetani = $pesanan->detailPesanan()
@@ -43,3 +43,4 @@ class PesanOrderController extends Controller
         return redirect()->back()->with('success', 'Pesan Anda telah terkirim.');
     }
 }
+

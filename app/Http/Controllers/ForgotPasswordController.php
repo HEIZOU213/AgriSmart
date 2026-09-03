@@ -151,3 +151,5 @@ class ForgotPasswordController extends Controller
         return redirect()->route('login')->with('success', 'Kata sandi berhasil direset! Silakan masuk dengan kata sandi baru.');
     }
 }
+
+

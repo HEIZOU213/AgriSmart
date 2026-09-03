@@ -9,17 +9,17 @@
 
     <!-- ========== SEO META TAGS ========== -->
     <meta name="description"
-        content="Tentang AgriSmart - Platform pertanian cerdas Indonesia. Pelajari visi, misi, dan tujuan kami dalam membangun ekosistem pertanian berkelanjutan.">
+        content="Tentang AgriSmart - Platform perkebunan durian cerdas Indonesia. Pelajari visi, misi, dan tujuan kami dalam membangun ekosistem perkebunan durian berkelanjutan.">
     <meta name="keywords"
-        content="Tentang AgriSmart, Visi Misi Pertanian, Sejarah AgriSmart, Platform Pertanian Indonesia">
-    <meta property="og:title" content="Tentang Kami - {{ config('app.name', 'AgriSmart') }}">
+        content="Tentang AgriSmart, Visi Misi Perkebunan Durian, Sejarah AgriSmart, Platform Perkebunan Durian Indonesia">
+    <meta property="og:title" content="Tentang AgriSmart - Platform Perkebunan Durian Cerdas">
     <meta property="og:description"
-        content="Mengenal lebih dekat AgriSmart dan komitmen kami untuk pertanian Indonesia.">
+        content="Mengenal lebih dekat AgriSmart dan komitmen kami untuk perkebunan durian Indonesia.">
     <meta property="og:image" content="{{ asset('images/hero1.png') }}">
 
     <!-- ========== FAVICON DAN TITLE ========== -->
     <link rel="icon" href="{{ asset('favicon.ico') }}">
-    <title>Tentang Kami - {{ config('app.name', 'AgriSmart') }}</title>
+    <title>Tentang AgriSmart - Platform Perkebunan Durian Cerdas</title>
 
     <!-- ========== FONT MODERN: Plus Jakarta Sans ========== -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
@@ -209,7 +209,7 @@
                         <h2
                             class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-4 lg:mb-6 leading-tight">
                             Membangun Masa Depan <span class="text-green-600 relative inline-block">
-                                Pertanian
+                                Perkebunan Durian
                                 <svg class="absolute -bottom-1 lg:-bottom-2 left-0 w-full h-2 lg:h-3"
                                     viewBox="0 0 100 10" preserveAspectRatio="none">
                                     <path d="M0 8 Q 50 0, 100 8" stroke="#10b981" stroke-width="2" fill="none"
@@ -220,8 +220,8 @@
 
                         <!-- Description -->
                         <p class="text-sm sm:text-base lg:text-lg text-slate-600 leading-relaxed mb-6 lg:mb-8">
-                            AgriSmart hadir untuk menjembatani kesenjangan teknologi bagi petani Indonesia. Kami percaya
-                            bahwa dengan akses yang tepat terhadap teknologi IoT dan pasar digital, kesejahteraan petani
+                            AgriSmart hadir untuk menjembatani kesenjangan teknologi bagi pekebun durian Indonesia. Kami percaya
+                            bahwa dengan akses yang tepat terhadap teknologi IoT dan pasar digital, kesejahteraan pekebun durian
                             dapat meningkat pesat. Platform kami dirancang untuk memberikan solusi terintegrasi dari
                             hulu hingga hilir.
                         </p>
@@ -244,7 +244,7 @@
                                     <h4 class="font-bold text-slate-900 text-sm sm:text-base lg:text-lg">Transparansi
                                         Harga</h4>
                                     <p class="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">Jaminan harga adil
-                                        untuk petani dan konsumen dengan sistem yang terbuka dan terpercaya.</p>
+                                        untuk pekebun durian dan konsumen dengan sistem yang terbuka dan terpercaya.</p>
                                 </div>
                             </li>
 
@@ -268,7 +268,7 @@
                                         Berkelanjutan
                                     </h4>
                                     <p class="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">Solusi ramah
-                                        lingkungan untuk jangka panjang demi masa depan pertanian yang lebih baik dan
+                                        lingkungan untuk jangka panjang demi masa depan perkebunan durian yang lebih baik dan
                                         berkelanjutan.</p>
                                 </div>
                             </li>
@@ -321,9 +321,9 @@
 
                             <!-- Visi Content -->
                             <p class="text-base sm:text-lg text-slate-600 leading-relaxed font-medium flex-grow">
-                                Menjadi platform pertanian digital terdepan di Indonesia yang mendorong transformasi
-                                pertanian tradisional menuju <span class="text-green-600 font-bold">pertanian 4.0
-                                    berkelanjutan</span>, meningkatkan kesejahteraan petani,
+                                Menjadi platform perkebunan durian digital terdepan di Indonesia yang mendorong transformasi
+                                perkebunan durian tradisional menuju <span class="text-green-600 font-bold">perkebunan durian pintar
+                                    berkelanjutan</span>, meningkatkan kesejahteraan pekebun durian,
                                 dan menjamin ketahanan pangan nasional.
                             </p>
                         </div>
@@ -356,14 +356,14 @@
                                         class="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-100 text-green-600 text-[10px] sm:text-xs font-bold flex items-center justify-center mt-0.5">1</span>
                                     <p class="text-sm sm:text-base text-slate-600">Mengintegrasikan teknologi IoT dan
                                         data analytics untuk
-                                        optimalisasi produksi pertanian.</p>
+                                        optimalisasi produksi perkebunan durian.</p>
                                 </li>
                                 <li class="flex items-start gap-3 sm:gap-4">
                                     <span
                                         class="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-100 text-green-600 text-[10px] sm:text-xs font-bold flex items-center justify-center mt-0.5">2</span>
                                     <p class="text-sm sm:text-base text-slate-600">Membangun ekosistem marketplace yang
                                         adil dan transparan
-                                        bagi petani dan konsumen.</p>
+                                        bagi pekebun durian dan konsumen.</p>
                                 </li>
                                 <li class="flex items-start gap-3 sm:gap-4">
                                     <span
@@ -375,7 +375,7 @@
                                 <li class="flex items-start gap-3 sm:gap-4">
                                     <span
                                         class="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-green-100 text-green-600 text-[10px] sm:text-xs font-bold flex items-center justify-center mt-0.5">4</span>
-                                    <p class="text-sm sm:text-base text-slate-600">Mendorong praktik pertanian
+                                    <p class="text-sm sm:text-base text-slate-600">Mendorong praktik perkebunan durian
                                         berkelanjutan dan ramah
                                         lingkungan.</p>
                                 </li>
@@ -425,7 +425,7 @@
                             <!-- Title & Description -->
                             <h3 class="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">Berkelanjutan</h3>
                             <p class="text-slate-600 leading-relaxed font-medium text-xs sm:text-sm">
-                                Menjaga keseimbangan ekosistem alam demi masa depan pertanian yang lestari.
+                                Menjaga keseimbangan ekosistem alam demi masa depan perkebunan durian yang lestari.
                             </p>
                         </div>
                     </div>
@@ -472,7 +472,7 @@
                             <!-- Title & Description -->
                             <h3 class="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">Inovasi</h3>
                             <p class="text-slate-600 leading-relaxed font-medium text-xs sm:text-sm">
-                                Terus beradaptasi dan menciptakan solusi teknologi terbaru untuk petani modern.
+                                Terus beradaptasi dan menciptakan solusi teknologi terbaru untuk pekebun durian modern.
                             </p>
                         </div>
                     </div>
@@ -496,7 +496,7 @@
                             <!-- Title & Description -->
                             <h3 class="text-lg sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3">Empati</h3>
                             <p class="text-slate-600 leading-relaxed font-medium text-xs sm:text-sm">
-                                Mendengar dan memahami kebutuhan petani adalah inti dari setiap langkah kami.
+                                Mendengar dan memahami kebutuhan pekebun durian adalah inti dari setiap langkah kami.
                             </p>
                         </div>
                     </div>
@@ -524,3 +524,4 @@
 </body>
 
 </html>
+

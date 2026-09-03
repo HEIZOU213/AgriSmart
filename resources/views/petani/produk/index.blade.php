@@ -3,7 +3,7 @@
         {{-- [INI ADALAH TEMPAT TOMBOL SEHARUSNYA BERADA] --}}
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Daftar Produk Panen Saya') }}
+                {{ __('Daftar Produk Panen Durian Saya') }}
             </h2>
             {{-- Tombol Utama di Header --}}
             <a href="{{ route('petani.produk.create') }}" 
@@ -60,7 +60,7 @@
                         <tr>
                             {{-- Pesan Empty List --}}
                             <td colspan="6" class="px-6 py-4 whitespace-nowrap text-center text-gray-500">
-                                Anda belum memiliki produk panen untuk dijual.
+                                Anda belum memiliki produk Panen Durian untuk dijual.
                                 <a href="{{ route('petani.produk.create') }}" class="text-indigo-600 hover:text-indigo-900 ml-2 font-medium">
                                     Klik di sini untuk menambahkannya.
                                 </a>
@@ -80,7 +80,7 @@
         @else
              {{-- Tampilan jika $produk kosong (Jika ada data, ini tidak akan muncul) --}}
              <div class="p-4 border border-gray-200 rounded-lg text-center text-gray-500">
-                 <p class="mb-3">Anda belum memiliki produk panen untuk dijual.</p>
+                 <p class="mb-3">Anda belum memiliki produk Panen Durian untuk dijual.</p>
                  <a href="{{ route('petani.produk.create') }}" class="px-4 py-2 bg-green-600 text-white rounded-md font-medium hover:bg-green-700">
                      + Tambah Produk Baru
                  </a>
@@ -89,3 +89,4 @@
         
     </div>
 </x-petani-layout>
+

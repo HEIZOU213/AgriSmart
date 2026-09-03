@@ -206,3 +206,4 @@ class IotController extends Controller
         ]);
     }
 }
+

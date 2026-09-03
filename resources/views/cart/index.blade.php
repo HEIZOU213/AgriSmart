@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="Keranjang Belanja AgriSmart - Kelola produk pertanian segar pilihan Anda.">
+    <meta name="description" content="Keranjang Belanja - Durian premium pilihan Anda dari kebun langsung.">
 
     <title>Keranjang Belanja - {{ config('app.name', 'AgriSmart') }}</title>
 
@@ -784,3 +784,4 @@
 </body>
 
 </html>
+

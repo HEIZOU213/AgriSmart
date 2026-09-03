@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Edit Produk Panen') }}
+                {{ __('Edit Produk Panen Durian') }}
             </h2>
             <a href="{{ route('petani.produk.index') }}" 
                class="text-sm text-gray-600 hover:text-gray-900">
@@ -88,3 +88,4 @@
         </form>
     </div>
 </x-petani-layout>
+

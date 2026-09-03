@@ -47,3 +47,4 @@ class NotifikasiController extends Controller
         ]);
     }
 }
+

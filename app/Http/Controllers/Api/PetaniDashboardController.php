@@ -16,7 +16,7 @@ class PetaniDashboardController extends Controller
     {
         $user = $request->user();
 
-        // 1. Ambil ID semua produk milik petani yang sedang login
+        // 1. Ambil ID semua produk milik pekebun durian yang sedang login
         $produkIds = Produk::where('user_id', $user->id)->pluck('id');
 
         // ==================================================================
@@ -59,3 +59,4 @@ class PetaniDashboardController extends Controller
         ]);
     }
 }
+

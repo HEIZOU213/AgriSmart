@@ -28,7 +28,7 @@
     // ── Label role (untuk badge tengah & dropdown) ───────────────────
     $roleLabel = match(true) {
         $isAdmin  => 'Administrator',
-        $isPetani => 'Petani',
+        $isPetani => 'Pekebun',
         default   => 'Konsumen',
     };
 
@@ -48,7 +48,7 @@
     }
 @endphp
 
-{{-- Init Alpine store untuk sidebar (admin / petani) --}}
+{{-- Init Alpine store untuk sidebar (admin / pekebun durian) --}}
 @if($hasSidebar)
 <script>
     document.addEventListener('alpine:init', () => {
@@ -98,7 +98,7 @@
                     <span class="block w-0.5 h-7 rounded-full bg-gradient-to-b from-green-400 to-green-600"></span>
                     <div class="flex flex-col leading-none gap-0.5">
                         <span class="text-[10px] font-semibold text-green-600 uppercase tracking-[0.18em]">Panel</span>
-                        <span class="text-lg font-bold text-slate-800 leading-none">{{ $isAdmin ? 'Admin' : 'Petani' }}</span>
+                        <span class="text-lg font-bold text-slate-800 leading-none">{{ $isAdmin ? 'Admin' : 'Pekebun' }}</span>
                     </div>
                 </div>
                 @endif
@@ -383,3 +383,5 @@
     @endif
 
 </nav>
+
+

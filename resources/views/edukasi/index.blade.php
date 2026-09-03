@@ -8,8 +8,8 @@
 
     <!-- SEO Meta Tags -->
     <meta name="description"
-        content="Pusat Edukasi Pertanian AgriSmart. Pelajari teknik pertanian modern, tips budidaya, dan inovasi teknologi pertanian terkini.">
-    <meta name="keywords" content="Edukasi Pertanian, Tips Budidaya, Teknologi Pertanian, AgriSmart, Petani Digital">
+        content="Pusat Edukasi Perkebunan Durian AgriSmart. Pelajari teknik perkebunan durian modern, tips budidaya, dan inovasi teknologi perkebunan durian terkini.">
+    <meta name="keywords" content="Edukasi Perkebunan Durian, Tips Budidaya, Teknologi Perkebunan Durian, AgriSmart, Pekebun Digital">
     <meta property="og:title" content="Edukasi - {{ config('app.name', 'AgriSmart') }}">
     <meta property="og:description" content="Tingkatkan pengetahuan bertani dengan panduan dari ahli.">
     <meta property="og:image" content="{{ asset('images/hero1.png') }}">
@@ -149,13 +149,13 @@
                     <span
                         class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-white/80 backdrop-blur-md text-green-700 text-xs sm:text-sm font-bold tracking-widest uppercase mb-6 border border-green-200/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
                         <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        Edukasi Pertanian Modern
+                        Pusat Edukasi Budidaya Durian
                     </span>
                     <h2 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight">
-                        Edukasi <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500 block sm:inline">Pertanian Modern</span>
+                        Edukasi <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500 block sm:inline">Perkebunan Durian Modern</span>
                     </h2>
                     <p class="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto px-2 leading-relaxed">
-                        Mengoptimalkan potensi pertanian dengan teknologi, riset, dan metode terkini untuk masa depan yang berkelanjutan.
+                        Pelajari cara budidaya durian premium: mulai dari pemilihan bibit unggul, perawatan pohon, hingga panen optimal.
                     </p>
                 </div>
             </div>
@@ -273,7 +273,7 @@
                                 </svg>
                             </div>
                             <h3 class="text-lg lg:text-xl font-bold text-slate-900 mb-2">Konten Segera Hadir!</h3>
-                            <p class="text-slate-500 text-sm max-w-md mx-auto px-4">Kami sedang menyiapkan artikel edukatif berkualitas tinggi untuk meningkatkan pengetahuan pertanian Anda. Nantikan segera!</p>
+                            <p class="text-slate-500 text-sm max-w-md mx-auto px-4">Kami sedang menyiapkan artikel edukatif berkualitas tinggi untuk meningkatkan pengetahuan perkebunan durian Anda. Nantikan segera!</p>
                         </div>
                     </div>
                 @endif
@@ -300,3 +300,4 @@
 </body>
 
 </html>
+

@@ -87,7 +87,7 @@ class MarketChatController extends Controller
         // 1. Cari Produk berdasarkan ID
         $produk = Produk::findOrFail($id);
         
-        // 2. Ambil ID Pemilik Produk (Petani)
+        // 2. Ambil ID Pemilik Produk (Pekebun)
         $sellerId = $produk->user_id;
 
         // 3. Cek agar tidak chat diri sendiri
@@ -166,8 +166,8 @@ class MarketChatController extends Controller
         $statusText = "Offline";
 
         if ($receiver && $receiver->last_seen) {
-            // A. Cek Status Online Standar (Toleransi 2 menit)
-            if ($receiver->last_seen->gt(Carbon::now()->subMinutes(2))) {
+            // A. Cek Status Online Standar (Toleransi 10 detik agar benar-benar realtime)
+            if ($receiver->last_seen->gt(Carbon::now()->subSeconds(10))) {
                 $isOnline = true;
                 $statusText = "Online";
             } 
@@ -213,3 +213,4 @@ class MarketChatController extends Controller
         return response()->json(['success' => true, 'status' => 'offline']);
     }
 }
+

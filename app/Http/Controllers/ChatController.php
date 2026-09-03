@@ -134,13 +134,13 @@ class ChatController extends Controller
         return $this->sendMessage($request, $request->pesanan_id);
     }
 
-    // 6. API untuk cek notifikasi realtime (Support Petani & Konsumen)
+    // 6. API untuk cek notifikasi realtime (Support Pekebun & Konsumen)
     public function checkNotifications()
     {
         $user = Auth::user();
         $data = [
             'chat' => 0,
-            'pesanan' => 0,   // Khusus Petani
+            'pesanan' => 0,   // Khusus Pekebun
             'keranjang' => 0  // Khusus Konsumen
         ];
 
@@ -156,7 +156,7 @@ class ChatController extends Controller
                     })->where('status', 'pending')->where('is_seen', false)->count();
                 } catch (\Exception $e) {}
 
-                // 2. Chat Masuk (Produk Petani)
+                // 2. Chat Masuk (Produk Pekebun)
                 try {
                     $produkIds = \App\Models\Produk::where('user_id', $petaniId)->pluck('id');
                     $pesananIds = \App\Models\DetailPesanan::whereIn('produk_id', $produkIds)->pluck('pesanan_id');
@@ -176,12 +176,12 @@ class ChatController extends Controller
                     $data['keranjang'] = \App\Models\Keranjang::where('user_id', $konsumenId)->count();
                 } catch (\Exception $e) {}
 
-                // 2. Hitung Chat Masuk (Balasan dari Petani)
+                // 2. Hitung Chat Masuk (Balasan dari Pekebun)
                 try {
                     // Cari pesanan milik konsumen ini
                     $pesananIds = \App\Models\Pesanan::where('user_id', $konsumenId)->pluck('id');
                     
-                    // Hitung pesan di order tersebut yang BUKAN dari konsumen ini (artinya dari petani)
+                    // Hitung pesan di order tersebut yang BUKAN dari konsumen ini (artinya dari pekebun durian)
                     $data['chat'] = \App\Models\PesanOrder::whereIn('pesanan_id', $pesananIds)
                                     ->where('user_id', '!=', $konsumenId)
                                     ->where('is_read', false)->count();
@@ -192,3 +192,4 @@ class ChatController extends Controller
         return response()->json($data);
     }
 }
+

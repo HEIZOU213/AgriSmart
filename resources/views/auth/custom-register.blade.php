@@ -292,7 +292,7 @@ PERUBAHAN 1:
                     Bergabunglah dengan <span class="text-green-600">AgriSmart</span>
                 </h2>
                 <p class="text-slate-500 text-base lg:text-lg leading-relaxed font-medium opacity-95">
-                    "Mulai perjalanan pertanian cerdas Anda bersama ribuan petani dan pembeli terpercaya."
+                    "Bergabunglah dengan komunitas pekebun durian cerdas Indonesia. Daftarkan kebun Anda sekarang!"
                 </p>
             </div>
         </div>
@@ -379,3 +379,4 @@ PERUBAHAN 1:
 </body>
 
 </html>
+

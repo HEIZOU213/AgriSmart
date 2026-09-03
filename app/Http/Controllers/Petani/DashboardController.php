@@ -16,7 +16,7 @@ class DashboardController extends Controller
     {
         $petaniId = Auth::id();
 
-        // 1. Dapatkan ID produk petani
+        // 1. Dapatkan ID produk pekebun durian
         $produkIds = Produk::where('user_id', $petaniId)->pluck('id');
 
         // 2. Hitung statistik
@@ -44,3 +44,5 @@ class DashboardController extends Controller
         return view('petani.dashboard', compact('stats'));
     }
 }
+
+

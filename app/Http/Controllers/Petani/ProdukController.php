@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 class ProdukController extends Controller
 {
     /**
-     * Menampilkan daftar produk milik petani yang sedang login.
+     * Menampilkan daftar produk milik pekebun durian yang sedang login.
      */
     public function index()
     {
@@ -71,11 +71,11 @@ class ProdukController extends Controller
         $produk->save();
 
         return redirect()->route('petani.produk.index')
-                         ->with('success', 'Produk panen berhasil ditambahkan.');
+                         ->with('success', 'Produk panen durian durian berhasil ditambahkan.');
     }
 
     /**
-     * Menampilkan detail produk (opsional untuk petani).
+     * Menampilkan detail produk (opsional untuk pekebun durian).
      */
     public function show(string $id)
     {
@@ -131,7 +131,7 @@ class ProdukController extends Controller
         $produk->save();
 
         return redirect()->route('petani.produk.index')
-                         ->with('success', 'Produk panen berhasil diperbarui.');
+                         ->with('success', 'Produk panen durian durian berhasil diperbarui.');
     }
 
     /**
@@ -150,11 +150,11 @@ class ProdukController extends Controller
         $produk->delete();
 
         return redirect()->route('petani.produk.index')
-                         ->with('success', 'Produk panen berhasil dihapus.');
+                         ->with('success', 'Produk panen durian durian berhasil dihapus.');
     }
 
     /**
-     * API: Menampilkan List Produk milik Petani yang sedang login
+     * API: Menampilkan List Produk milik Pekebun yang sedang login
      */
     public function apiIndex(Request $request)
     {
@@ -176,7 +176,7 @@ class ProdukController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'List Produk Petani',
+            'message' => 'List Produk Pekebun',
             'data' => $produk
         ]);
     }
@@ -314,3 +314,5 @@ class ProdukController extends Controller
         ]);
     }   
 }
+
+

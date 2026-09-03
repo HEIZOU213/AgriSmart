@@ -257,7 +257,7 @@
                     Selamat Datang di <br> <span class="text-green-600">AgriSmart</span>
                 </h2>
                 <p class="text-slate-500 text-base lg:text-lg leading-relaxed font-medium opacity-95">
-                    "Konektivitas, Data, dan Produktivitas. Solusi pertanian cerdas terintegrasi dari hulu ke hilir."
+                    "Satu platform untuk pantau kebun, jual durian, dan belajar dari para ahli."
                 </p>
             </div>
         </div>
@@ -311,3 +311,4 @@
 </body>
 
 </html>
+

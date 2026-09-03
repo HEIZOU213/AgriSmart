@@ -7,10 +7,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- ========== SEO META TAGS ========== -->
-    <meta name="description" content="Marketplace Pertanian AgriSmart. Temukan hasil panen segar langsung dari petani dengan harga terbaik.">
-    <meta name="keywords" content="Marketplace Tani, Jual Sayur, AgriSmart, Petani Digital, Panen Segar">
+    <meta name="description" content="Marketplace Perkebunan Durian AgriSmart. Temukan hasil Panen Durian segar langsung dari pekebun durian dengan harga terbaik.">
+    <meta name="keywords" content="Marketplace Durian, Jual Durian, AgriSmart, Pekebun Digital, Panen Durian Segar">
     <meta property="og:title" content="Marketplace - {{ config('app.name', 'AgriSmart') }}">
-    <meta property="og:description" content="Belanja hasil tani segar langsung dari sumbernya.">
+    <meta property="og:description" content="Belanja hasil durian segar langsung dari sumbernya.">
     <meta property="og:image" content="{{ asset('images/hero1.png') }}">
 
     <!-- ========== FAVICON & TITLE ========== -->
@@ -112,10 +112,10 @@
                         Marketplace Terpercaya
                     </span>
                     <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-3">
-                        Marketplace <span class="text-green-600">Pertanian Terbaik</span>
+                        Marketplace <span class="text-green-600">Perkebunan Durian Terbaik</span>
                     </h2>
                     <p class="text-base text-slate-600 max-w-xl mx-auto mb-6">
-                        Temukan hasil panen segar langsung dari petani dengan harga terbaik
+                        Temukan hasil Panen Durian segar langsung dari pekebun durian dengan harga terbaik
                     </p>
                 </div>
 
@@ -128,7 +128,7 @@
                             <div class="flex items-center bg-white rounded-xl border border-gray-200 shadow-sm transition-all duration-200 overflow-hidden p-1">
                                 
                                 <input type="search" name="q" x-model="search" value="{{ request('q') }}"
-                                    placeholder="Cari produk pertanian..."
+                                    placeholder="Cari varietas durian......"
                                     class="flex-1 pl-4 pr-4 py-2.5 bg-transparent text-slate-700 outline-none border-none focus:border-none focus:ring-0 shadow-none hover:border-none text-sm font-medium placeholder:text-slate-400 [&::-webkit-search-cancel-button]:appearance-none">
 
                                 <!-- Clear Search Button -->
@@ -505,3 +505,4 @@
 </body>
 
 </html>
+

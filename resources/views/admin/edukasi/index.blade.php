@@ -12,7 +12,7 @@
                     </div>
                     {{ __('Manajemen Edukasi') }}
                 </h2>
-                <p class="text-sm text-gray-500 mt-1 ml-12">Kelola artikel dan video edukasi pertanian.</p>
+                <p class="text-sm text-gray-500 mt-1 ml-12">Kelola artikel, tips budidaya, dan video tutorial perkebunan durian.</p>
             </div>
 
             {{-- Tombol Tambah (Gradient Hijau) --}}
@@ -193,3 +193,4 @@
         </div>
     </div>
 </x-admin-layout>
+

@@ -143,7 +143,7 @@
                     Satu Langkah <br> <span class="text-green-600">Terakhir</span>
                 </h2>
                 <p class="text-slate-500 text-base lg:text-lg leading-relaxed font-medium opacity-95">
-                    "Buat kata sandi baru yang kuat agar keamanan data panen dan akun Anda tetap terjaga."
+                    "Buat kata sandi baru yang kuat agar keamanan data Panen Durian dan akun Anda tetap terjaga."
                 </p>
             </div>
         </div>
@@ -191,3 +191,5 @@
     </script>
 </body>
 </html>
+
+

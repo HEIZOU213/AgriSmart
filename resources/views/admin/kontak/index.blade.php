@@ -1,7 +1,7 @@
 <x-admin-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Inbox / Request Akun Petani') }}
+            {{ __('Inbox / Request Akun Pekebun') }}
         </h2>
     </x-slot>
 
@@ -32,7 +32,7 @@
                                 {{ $p->pesan }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                {{-- Tombol WA untuk Admin menghubungi Petani --}}
+                                {{-- Tombol WA untuk Admin menghubungi Pekebun --}}
                                 <a href="https://wa.me/{{ preg_replace('/^0/', '62', $p->no_hp) }}" target="_blank" class="text-green-600 hover:text-green-900 mr-3">
                                     Hubungi WA
                                 </a>
@@ -56,3 +56,4 @@
         </div>
     </div>
 </x-admin-layout>
+

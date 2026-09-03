@@ -23,12 +23,12 @@ class UserController extends Controller
     }
 
     /**
-     * Halaman Khusus Daftar Petani
+     * Halaman Khusus Daftar Pekebun
      */
     public function listPetani()
     {
         $users = User::where('role', 'petani')->orderBy('created_at', 'desc')->paginate(12);
-        $title = 'Daftar Mitra Petani';
+        $title = 'Daftar Mitra Pekebun';
         $roleType = 'petani'; // Untuk styling warna hijau
         
         return view('admin.users.list', compact('users', 'title', 'roleType'));
@@ -59,7 +59,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,petani,konsumen',
+            'role' => 'required|in:admin,pekebun durian,konsumen',
         ]);
 
         User::create([
@@ -70,7 +70,7 @@ class UserController extends Controller
         ]);
 
         // Redirect kembali ke halaman list yang sesuai
-        if($request->role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Akun Petani berhasil dibuat.');
+        if($request->role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Akun Pekebun berhasil dibuat.');
         if($request->role == 'konsumen') return redirect()->route('admin.users.konsumen')->with('success', 'Akun Konsumen berhasil dibuat.');
         
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil dibuat.');
@@ -98,7 +98,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:8',
-            'role' => 'required|in:admin,petani,konsumen',
+            'role' => 'required|in:admin,pekebun durian,konsumen',
         ]);
 
         $user->name = $request->name;
@@ -111,7 +111,7 @@ class UserController extends Controller
         $user->save();
 
         // Redirect cerdas kembali ke list yang sesuai
-        if($user->role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Data Petani diperbarui.');
+        if($user->role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Data Pekebun diperbarui.');
         if($user->role == 'konsumen') return redirect()->route('admin.users.konsumen')->with('success', 'Data Konsumen diperbarui.');
 
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil diperbarui.');
@@ -128,9 +128,10 @@ class UserController extends Controller
         $role = $user->role; // Simpan role sebelum dihapus untuk redirect
         $user->delete();
 
-        if($role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Akun Petani dihapus.');
+        if($role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Akun Pekebun dihapus.');
         if($role == 'konsumen') return redirect()->route('admin.users.konsumen')->with('success', 'Akun Konsumen dihapus.');
 
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil dihapus.');
     }
 }
+

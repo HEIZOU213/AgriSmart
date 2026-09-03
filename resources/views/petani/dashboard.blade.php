@@ -10,7 +10,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-extrabold text-2xl text-slate-800 leading-tight">
-                {{ __('Dashboard Petani') }}
+                {{ __('Dashboard Kebun Durian') }}
             </h2>
             <span class="text-sm font-medium text-slate-500">{{ now()->format('d F Y') }}</span>
         </div>
@@ -23,13 +23,13 @@
             <h3 class="text-3xl font-extrabold text-slate-900">
                 Ringkasan <span class="text-green-600">Penjualan</span>
             </h3>
-            <p class="text-slate-500 mt-2 text-lg">Pantau performa produk dan pesanan panen secara realtime.</p>
+            <p class="text-slate-500 mt-2 text-lg">Pantau performa produk dan pesanan Panen Durian secara realtime.</p>
         </div>
 
         {{-- GRID STATISTIK (Diubah jadi 3 Kolom) --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
 
-            {{-- Card 1: Total Produk (Hijau) --}}
+            {{-- Card 1: Varietas Durian (Hijau) --}}
             <div class="group bg-white rounded-3xl p-6 shadow-lg shadow-green-900/5 border border-white hover:border-green-200 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden" data-aos="fade-up" data-aos-delay="0">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-green-50 rounded-full mix-blend-multiply filter blur-2xl opacity-50 -mr-10 -mt-10 transition-all group-hover:bg-green-100"></div>
                 
@@ -90,3 +90,4 @@
 
     </div>
 </x-petani-layout>
+

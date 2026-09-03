@@ -69,7 +69,7 @@
                 </div>
                 <h3 class="text-2xl font-bold text-white mb-2">Sistem Terpusat</h3>
                 <p class="text-slate-400 text-sm leading-relaxed">
-                    Pantau aktivitas user, kelola basis data pertanian, <br>dan keamanan sistem dari satu panel.
+                    Pantau aktivitas pekebun & pembeli, kelola data kebun durian, dan keamanan sistem dari satu panel.
                 </p>
             </div>
         </div>
@@ -77,3 +77,4 @@
 
 </body>
 </html>
+

@@ -81,3 +81,4 @@ class KontakController extends Controller
         ], 201);
     }
 }
+

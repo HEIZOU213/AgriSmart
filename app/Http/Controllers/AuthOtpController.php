@@ -149,3 +149,4 @@ class AuthOtpController extends Controller
         };
     }
 }
+

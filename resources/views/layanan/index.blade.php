@@ -8,8 +8,8 @@
 
     {{-- SEO META TAGS --}}
     <meta name="description"
-        content="AgriSmart IoT Services - Pantau kebun Anda secara real-time dengan teknologi pertanian cerdas.">
-    <title>Layanan IoT - {{ config('app.name', 'AgriSmart') }}</title>
+        content="AgriSmart IoT Services - Pantau Kebun Durian Anda secara real-time dengan teknologi perkebunan durian cerdas.">
+    <title>Sensor Kebun Durian - {{ config('app.name', 'AgriSmart') }}</title>
 
     {{-- FONT: Plus Jakarta Sans --}}
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
@@ -105,15 +105,15 @@
                 <div class="text-center" data-aos="fade-up">
                     <span
                         class="inline-block py-1 px-3 rounded-full bg-green-100/50 text-green-700 text-[10px] sm:text-xs font-bold tracking-wider uppercase mb-3 border border-green-200/50 shadow-sm">
-                        Smart Farming System
+                        Smart Durian Farming
                     </span>
                     <h2
                         class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4 sm:mb-6 leading-tight break-words">
-                        Pantau Kebun
+                        Pantau Kebun Durian
                         <span class="text-green-600 inline-block">Real-time</span>
                     </h2>
                     <p class="text-base sm:text-lg text-slate-600 max-w-xl sm:max-w-2xl mx-auto px-2 leading-relaxed">
-                        Integrasikan teknologi sensor tanah dan cuaca untuk hasil panen yang lebih optimal dan efisien.
+                        Integrasikan teknologi sensor tanah dan cuaca untuk hasil Panen Durian yang lebih optimal dan efisien.
                     </p>
                 </div>
             </div>
@@ -173,8 +173,8 @@
 
                                     {{-- Form Header --}}
                                     <div class="mb-5 sm:mb-6">
-                                        <h3 class="font-bold text-lg text-slate-900">Tambah Alat Baru</h3>
-                                        <p class="text-sm text-slate-500">Masukkan identitas sensor IoT Anda.</p>
+                                        <h3 class="font-bold text-lg text-slate-900">Tambah Sensor Kebun</h3>
+                                        <p class="text-sm text-slate-500">Daftarkan sensor IoT kebun durian Anda.</p>
                                     </div>
 
                                     {{-- Form Claim Device --}}
@@ -324,7 +324,7 @@
                                 {{-- Content Pesan Restriksi --}}
                                 <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mb-2">Akses Terbatas</h3>
                                 <p class="text-slate-500 text-sm mb-8 px-2 leading-relaxed">
-                                    Fitur Smart Farming ini dikhususkan untuk akun Petani.
+                                    Fitur Smart Farming ini dikhususkan untuk akun Pekebun.
                                 </p>
 
                             </div>
@@ -343,7 +343,7 @@
                     <div class="max-w-md mx-auto px-4" data-aos="zoom-in">
                         <div class="bg-white rounded-3xl p-6 sm:p-8 text-center border border-slate-100 shadow-xl">
                             <h3 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">Login Diperlukan</h3>
-                            <p class="text-slate-500 text-sm mb-6">Masuk ke akun Petani Anda untuk mengakses dashboard.</p>
+                            <p class="text-slate-500 text-sm mb-6">Masuk ke akun Pekebun Anda untuk mengakses dashboard.</p>
 
                             {{-- Tombol Login --}}
                             <a href="{{ route('login') }}"
@@ -372,3 +372,4 @@
 </body>
 
 </html>
+

@@ -131,3 +131,4 @@ class EdukasiController extends Controller
         ], 404);
     }
 }
+

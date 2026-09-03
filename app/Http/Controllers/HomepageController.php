@@ -38,7 +38,7 @@ class HomepageController extends Controller
         // ===================== STATS REAL UNTUK HERO SECTION =====================
         $heroStats = Cache::remember('homepage_hero_stats', 600, function () {
             return [
-                // Jumlah user dengan role petani yang terdaftar
+                // Jumlah user dengan role pekebun durian yang terdaftar
                 'jumlah_petani'  => User::where('role', 'petani')->count(),
                 // Jumlah total produk yang tersedia
                 'jumlah_produk'  => Produk::count(),
@@ -55,3 +55,4 @@ class HomepageController extends Controller
         ]);
     }
 }
+

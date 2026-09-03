@@ -193,7 +193,7 @@ class PesananController extends Controller
                 }
             }
 
-            // 2. LOGIKA REFUND (Potong Saldo Petani jika sudah lunas tapi dibatalkan)
+            // 2. LOGIKA REFUND (Potong Saldo Pekebun jika sudah lunas tapi dibatalkan)
             if ($oldStatus == 'paid' && $newStatus == 'cancelled') {
                 $pendapatan = $pesanan->seller_income ?? 0;
                 
@@ -210,13 +210,13 @@ class PesananController extends Controller
             $type = "info";
 
             if ($newStatus == 'paid') {
-                $pesan = "Pesanan Anda telah DITERIMA oleh petani dan sedang diproses.";
+                $pesan = "Pesanan Anda telah DITERIMA oleh pekebun durian dan sedang diproses.";
                 $type = "success";
             } elseif ($newStatus == 'shipping') {
                 $pesan = "Pesanan Anda sedang DALAM PENGIRIMAN menuju alamat Anda.";
                 $type = "info";
             } elseif ($newStatus == 'cancelled') {
-                $pesan = "Mohon maaf, pesanan Anda DIBATALKAN oleh petani. Stok akan dikembalikan.";
+                $pesan = "Mohon maaf, pesanan Anda DIBATALKAN oleh pekebun durian. Stok akan dikembalikan.";
                 $type = "danger";
             } elseif ($newStatus == 'done') {
                 $pesan = "Pesanan selesai. Terima kasih telah berbelanja!";
@@ -246,3 +246,5 @@ class PesananController extends Controller
         });
     }
 }
+
+

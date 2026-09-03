@@ -10,11 +10,11 @@
                 </h2>
             </div>
             
-            {{-- Tombol Tambah (Hanya untuk Petani) --}}
+            {{-- Tombol Tambah (Hanya untuk Pekebun) --}}
             @if($roleType === 'petani')
                 <a href="{{ route('admin.users.create') }}" class="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 shadow-md transition transform hover:-translate-y-0.5">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Tambah Petani Baru
+                    Tambah Pekebun Baru
                 </a>
             @endif
         </div>
@@ -129,3 +129,4 @@
         </div>
     </div>
 </x-admin-layout>
+

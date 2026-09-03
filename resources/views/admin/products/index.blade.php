@@ -1,7 +1,7 @@
 <x-admin-layout>
     <x-slot name="header">
         <h2 class="font-bold text-2xl text-gray-800 leading-tight">
-            {{ __('Kelola Produk Petani') }}
+            {{ __('Kelola Produk Pekebun') }}
         </h2>
     </x-slot>
 
@@ -27,11 +27,11 @@
                     </div>
                 </div>
 
-                {{-- Filter Petani --}}
+                {{-- Filter Pekebun --}}
                 <div class="w-full md:w-1/4">
-                    <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Filter Petani</label>
+                    <label class="text-xs font-bold text-gray-500 uppercase mb-1 block">Filter Pekebun</label>
                     <select name="petani_id" class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="">Semua Petani</option>
+                        <option value="">Semua Pekebun</option>
                         @foreach($petani as $p)
                             <option value="{{ $p->id }}" {{ request('petani_id') == $p->id ? 'selected' : '' }}>
                                 {{ $p->name }}
@@ -75,7 +75,7 @@
                     <thead class="bg-indigo-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Produk</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Petani (Penjual)</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Pekebun (Penjual)</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Harga & Stok</th>
                             <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Aksi</th>
                         </tr>
@@ -143,3 +143,4 @@
         </div>
     </div>
 </x-admin-layout>
+

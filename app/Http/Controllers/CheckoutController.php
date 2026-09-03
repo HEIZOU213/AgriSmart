@@ -268,7 +268,7 @@ class CheckoutController extends Controller
         $userId = Auth::id();
 
         // 2. Ambil Data Keranjang
-        // PENTING: Load relasi 'produk.user' untuk grouping berdasarkan petani
+        // PENTING: Load relasi 'produk.user' untuk grouping berdasarkan pekebun durian
         // Untuk Mobile App, saat ini kita anggap Checkout All (semua cart)
         $cartItems = Keranjang::where('user_id', $userId)->with('produk.user')->get();
 
@@ -276,8 +276,8 @@ class CheckoutController extends Controller
             return response()->json(['success' => false, 'message' => 'Keranjang kosong'], 400);
         }
 
-        // 3. GROUPING: Pisahkan item berdasarkan ID Petani (User ID pemilik produk)
-        // Ini agar jika beli dari 2 petani, jadi 2 Pesanan berbeda.
+        // 3. GROUPING: Pisahkan item berdasarkan ID Pekebun (User ID pemilik produk)
+        // Ini agar jika beli dari 2 pekebun durian, jadi 2 Pesanan berbeda.
         $groupedItems = $cartItems->groupBy(function ($item) {
             return $item->produk->user_id;
         });
@@ -293,10 +293,10 @@ class CheckoutController extends Controller
             Config::$isSanitized = true;
             Config::$is3ds = true;
 
-            // Loop setiap kelompok petani
+            // Loop setiap kelompok pekebun durian
             foreach ($groupedItems as $petaniId => $items) {
                 
-                // A. Hitung Total per Petani & Cek Stok
+                // A. Hitung Total per Pekebun & Cek Stok
                 $totalPerPetani = 0;
                 foreach ($items as $item) {
                     // Cek Stok
@@ -317,7 +317,7 @@ class CheckoutController extends Controller
                 $adminFee = $totalPerPetani * 0.10; // 10% Fee
                 $sellerIncome = $totalPerPetani - $adminFee;
 
-                // B. Buat Order Baru (Satu Order per Petani)
+                // B. Buat Order Baru (Satu Order per Pekebun)
                 $pesanan = Pesanan::create([
                     'user_id' => $userId,
                     'kode_pesanan' => 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
@@ -325,7 +325,7 @@ class CheckoutController extends Controller
                     'status' => 'pending',
                     'total_harga' => $grandTotal,
                     'admin_fee' => $adminFee,       // Simpan fee
-                    'seller_income' => $sellerIncome, // Simpan pendapatan bersih petani
+                    'seller_income' => $sellerIncome, // Simpan pendapatan bersih pekebun durian
                     'is_seen' => 0,
                     'konsumen_arsip' => 0
                 ]);
@@ -387,3 +387,4 @@ class CheckoutController extends Controller
         }
     }
 }
+

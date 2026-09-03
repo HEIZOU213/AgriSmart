@@ -23,7 +23,7 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tanggal</th>
-                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Petani</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Pekebun</th>
                                     <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Info Bank</th>
                                     <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Jumlah</th>
                                     <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
@@ -64,7 +64,7 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         @if($wd->status == 'pending')
-                                            <form action="{{ route('admin.withdraw.approve', $wd->id) }}" method="POST" onsubmit="return confirm('Pastikan Anda SUDAH MENTRANSFER uang ke rekening petani secara manual. Lanjutkan?');">
+                                            <form action="{{ route('admin.withdraw.approve', $wd->id) }}" method="POST" onsubmit="return confirm('Pastikan Anda SUDAH MENTRANSFER uang ke rekening pekebun durian secara manual. Lanjutkan?');">
                                                 @csrf
                                                 @method('PATCH')
                                                 <button type="submit" class="text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded-md text-xs font-bold shadow transition">
@@ -90,3 +90,4 @@
         </div>
     </div>
 </x-admin-layout>
+

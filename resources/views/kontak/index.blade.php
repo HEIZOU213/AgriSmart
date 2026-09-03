@@ -8,10 +8,10 @@
 
     {{-- SEO META TAGS --}}
     <meta name="description"
-        content="Hubungi AgriSmart untuk konsultasi, dukungan, dan kolaborasi pertanian cerdas. Kami siap membantu Anda.">
-    <meta name="keywords" content="Kontak AgriSmart, Hubungi Kami, Support Pertanian, Konsultasi Tani">
+        content="Hubungi tim AgriSmart untuk konsultasi budidaya durian, dukungan teknis IoT, dan kemitraan kebun.">
+    <meta name="keywords" content="Kontak AgriSmart, Hubungi Kami, Support Perkebunan Durian, Konsultasi Durian">
     <meta property="og:title" content="Kontak - {{ config('app.name', 'AgriSmart') }}">
-    <meta property="og:description" content="Hubungi tim AgriSmart untuk solusi pertanian terbaik.">
+    <meta property="og:description" content="Hubungi tim AgriSmart untuk solusi perkebunan durian terbaik.">
     <meta property="og:image" content="{{ asset('images/hero1.png') }}">
 
     <link rel="icon" href="{{ asset('favicon.ico') }}">
@@ -159,7 +159,7 @@
                         </span>
                     </h2>
                     <p class="text-base sm:text-lg text-slate-600 max-w-xl sm:max-w-2xl mx-auto px-2">
-                        Kami siap membantu Anda dalam perjalanan pertanian cerdas. Hubungi tim AgriSmart untuk solusi
+                        Tim AgriSmart siap membantu perjalanan kebun durian Anda. Konsultasi gratis untuk
                         terbaik.
                     </p>
                 </div>
@@ -212,10 +212,10 @@
                             </span>
                             <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 mb-4 leading-tight">
                                 Mari Berbicara Tentang
-                                <span class="text-green-600 block sm:inline">Pertanian Masa Depan</span>
+                                <span class="text-green-600 block sm:inline">Durian Cerdas Masa Depan</span>
                             </h2>
                             <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
-                                Tim AgriSmart siap mendukung Anda dalam setiap langkah menuju pertanian modern yang
+                                Tim AgriSmart siap mendukung Anda dalam setiap langkah menuju perkebunan durian modern yang
                                 lebih efisien dan berkelanjutan.
                             </p>
                         </div>
@@ -577,3 +577,4 @@
 </body>
 
 </html>
+

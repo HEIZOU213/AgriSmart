@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Produk;
 use App\Models\KategoriProduk;
-use App\Models\User; // [BARU] Import Model User untuk list petani
+use App\Models\User; // [BARU] Import Model User untuk list pekebun durian
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,7 +21,7 @@ class ProductController extends Controller
             $query->where('nama_produk', 'like', '%' . $request->search . '%');
         }
 
-        // [FITUR BARU] Filter Berdasarkan Petani
+        // [FITUR BARU] Filter Berdasarkan Pekebun
         if ($request->filled('petani_id')) {
             $query->where('user_id', $request->petani_id);
         }
@@ -90,3 +90,4 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'Produk telah dihapus.');
     }
 }
+

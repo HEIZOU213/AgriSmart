@@ -202,3 +202,4 @@ class CartController extends Controller
         return response()->json(['success' => false, 'message' => 'Item tidak ditemukan'], 404);
     }
 }
+

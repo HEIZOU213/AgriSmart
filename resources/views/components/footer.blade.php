@@ -11,7 +11,7 @@
                 </a>
                 <!-- Deskripsi Singkat -->
                 <p class="text-slate-500 leading-relaxed mb-8 pr-0 lg:pr-12">
-                    Platform digital terintegrasi untuk pertanian cerdas. Solusi IoT inovatif untuk masa depan
+                    Platform digital perkebunan durian cerdas terintegrasi — dari monitoring kebun hingga marketplace durian premium.
                     pangan Indonesia yang berkelanjutan.
                 </p>
                 <!-- Media Sosial -->
@@ -60,7 +60,7 @@
             <div class="lg:col-span-2">
                 <h5 class="font-bold text-slate-900 mb-6">Layanan</h5>
                 <ul class="space-y-4">
-                    @foreach(['Konsultasi Tani' => '#', 'Marketplace Panen' => '#', 'Monitoring IoT' => '#', 'Edukasi & Pelatihan' => route('edukasi.index')] as $label => $link)
+                    @foreach(['Konsultasi Durian' => '#', 'Marketplace Panen Durian' => '#', 'Monitoring IoT' => '#', 'Edukasi & Pelatihan' => route('edukasi.index')] as $label => $link)
                         <li>
                             <a href="{{ $link }}"
                                 class="text-slate-500 text-sm font-medium hover:text-green-600 transition-all duration-200 block hover:translate-x-1">
@@ -85,7 +85,7 @@
                                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                         <p class="text-sm text-slate-500 leading-snug">
-                            Jl. Pertanian Modern No. 88,<br>Jakarta Selatan, Indonesia
+                            Jl. Kebun Durian No. 88,<br>Jakarta Selatan, Indonesia
                         </p>
                     </div>
 
@@ -123,3 +123,4 @@
         </div>
     </div>
 </footer>
+

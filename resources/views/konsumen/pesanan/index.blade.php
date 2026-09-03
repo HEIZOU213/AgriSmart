@@ -147,7 +147,7 @@
                         <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2">Belum ada riwayat pesanan</h3>
-                    <p class="text-gray-500 mb-8 max-w-sm mx-auto">Sepertinya Anda belum melakukan transaksi apapun. Yuk, mulai penuhi kebutuhan pertanian Anda!</p>
+                    <p class="text-gray-500 mb-8 max-w-sm mx-auto">Sepertinya Anda belum melakukan transaksi apapun. Yuk, mulai belanja durian segar dari kebun langsung!</p>
                     <a href="{{ route('produk.index') }}" class="inline-flex items-center px-8 py-3 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 transition shadow-lg hover:shadow-green-600/30 transform hover:-translate-y-1">
                         Mulai Belanja Sekarang
                     </a>
@@ -166,3 +166,4 @@
     <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
 
 </x-konsumen-layout>
+

@@ -4,7 +4,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Tambah Produk Panen Baru') }}
+                {{ __('Tambah Produk Panen Durian Baru') }}
             </h2>
             <a href="{{ route('petani.produk.index') }}" 
                class="text-sm text-gray-600 hover:text-gray-900">
@@ -81,7 +81,7 @@
                 <div>
                     <label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi Produk</label>
                     <textarea name="deskripsi" id="deskripsi" rows="5" 
-                              placeholder="Jelaskan tentang produk panen Anda..." 
+                              placeholder="Jelaskan tentang produk Panen Durian Anda..." 
                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('deskripsi') }}</textarea>
                     @error('deskripsi')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -107,3 +107,4 @@
         </form>
     </div>
 </x-petani-layout>
+

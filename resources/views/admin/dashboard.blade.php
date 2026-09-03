@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            {{-- Card 2: Mitra Petani (Emerald) --}}
+            {{-- Card 2: Mitra Pekebun (Emerald) --}}
             <div class="group bg-white rounded-3xl p-6 shadow-lg shadow-green-900/5 border border-white hover:border-emerald-200 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden" data-aos="fade-up" data-aos-delay="100">
                 <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-full mix-blend-multiply filter blur-xl opacity-70 -mr-6 -mt-6 transition-all group-hover:scale-110"></div>
                 
@@ -69,7 +69,7 @@
                     </div>
                     
                     <h3 class="text-3xl font-black text-slate-800 mb-1">{{ $stats['total_petani'] }}</h3>
-                    <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Mitra Petani</p>
+                    <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Mitra Pekebun</p>
                 </div>
             </div>
 
@@ -126,11 +126,11 @@
 
     <div class="p-6 bg-blue-600 rounded-2xl shadow-lg text-white flex items-center justify-between">
         <div>
-            <h3 class="text-sm font-medium opacity-80 uppercase tracking-wider">Dana Mengendap (Milik Petani)</h3>
+            <h3 class="text-sm font-medium opacity-80 uppercase tracking-wider">Dana Mengendap (Milik Pekebun)</h3>
             <p class="text-3xl font-black mt-1">
                 Rp {{ number_format($stats['uang_titipan'], 0, ',', '.') }}
             </p>
-            <p class="text-xs mt-2 opacity-70">Uang yang siap ditarik (Withdraw) oleh petani</p>
+            <p class="text-xs mt-2 opacity-70">Uang yang siap ditarik (Withdraw) oleh pekebun durian</p>
         </div>
         <div class="p-3 bg-white/20 rounded-xl">
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -145,3 +145,4 @@
 
     </div>
 </x-admin-layout>
+

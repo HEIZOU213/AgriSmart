@@ -157,7 +157,7 @@
                 {{-- FOOTER ARTIKEL --}}
                 <div class="bg-slate-50 px-6 py-6 md:px-12 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p class="text-sm text-slate-500 font-medium italic">
-                        Semoga konten ini bermanfaat untuk pertanian Anda.
+                        Semoga artikel ini bermanfaat untuk kebun durian Anda. Selamat berkebun!
                     </p>
                     <div class="flex space-x-2">
                         <button class="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-600 transition-colors">
@@ -185,3 +185,4 @@
 
 </body>
 </html>
+

@@ -27,8 +27,8 @@ class DashboardController extends Controller
         $keuntunganAdmin = Pesanan::whereIn('status', ['paid', 'shipping', 'done'])
                                   ->sum('admin_fee');
 
-        // B. Hitung Dana Mengendap (Total saldo milik semua petani)
-        // Ini adalah uang fisik yang ada di rekening Admin, tapi milik Petani
+        // B. Hitung Dana Mengendap (Total saldo milik semua pekebun durian)
+        // Ini adalah uang fisik yang ada di rekening Admin, tapi milik Pekebun
         $danaPetani = User::where('role', 'petani')->sum('saldo');
 
         // Masukkan semua ke array $stats
@@ -46,3 +46,4 @@ class DashboardController extends Controller
         return view('admin.dashboard', compact('stats'));
     }
 }
+

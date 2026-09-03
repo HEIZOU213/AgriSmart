@@ -9,10 +9,10 @@
 
     <!-- SEO Meta Tags -->
     <meta name="description"
-        content="Platform Pertanian Cerdas Masa Depan. Tingkatkan hasil panen dengan teknologi IoT dan akses pasar langsung.">
-    <meta name="keywords" content="Pertanian, IoT, AgriSmart, Petani Digital, Marketplace Tani">
-    <meta property="og:title" content="{{ config('app.name', 'AgriSmart') }} - Pertanian Cerdas">
-    <meta property="og:description" content="Solusi IoT pertanian terintegrasi dari hulu ke hilir.">
+        content="Platform Perkebunan Durian Cerdas Masa Depan. Dapatkan durian premium dengan teknologi IoT dan akses kebun langsung.">
+    <meta name="keywords" content="Durian, Perkebunan Durian, IoT, AgriSmart, Pekebun Durian, Marketplace Durian">
+    <meta property="og:title" content="{{ config('app.name', 'AgriSmart') }} - Perkebunan Durian Cerdas">
+    <meta property="og:description" content="Solusi IoT perkebunan durian terintegrasi dari hulu ke hilir.">
     <meta property="og:image" content="{{ asset('images/hero1.png') }}">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:type" content="website">
@@ -338,7 +338,7 @@
     <main class="flex-1">
 
         <!-- ============================= SECTION: HERO ============================= -->
-        <section id="hero" class="hero-white-bg overflow-hidden pt-24 pb-12 lg:pt-40 lg:pb-24">
+        <section id="hero" class="hero-white-bg overflow-hidden min-h-[90vh] flex flex-col justify-center pt-24 pb-4 lg:pt-28 lg:pb-6">
 
             <!-- Particle Field -->
             <div id="hero-particles" aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden z-0"></div>
@@ -346,22 +346,22 @@
             <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
 
                 <!-- Grid: Konten vs Gambar -->
-                <div class="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center mb-12 lg:mb-20">
+                <div class="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center mb-0">
 
                     <!-- ===================== KOLOM KIRI: KONTEN TEKS ===================== -->
                     <div class="text-center lg:text-left order-1">
 
                         <!-- Judul Utama dengan Typewriter -->
-                        <h1 class="hero-anim-title text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-slate-900 leading-tight mb-4 lg:mb-6 tracking-tight">
-                            Pertanian <br class="hidden sm:block">
+                        <h1 class="hero-anim-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight mb-4 lg:mb-6 tracking-tight">
+                            Perkebunan Durian <br class="hidden sm:block">
                             <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500">
-                                <span id="hero-typewriter">Cerdas</span><span class="typewriter-cursor"></span>
+                                <span id="hero-typewriter">Cerdas Terintegrasi</span><span class="typewriter-cursor"></span>
                             </span>
                         </h1>
 
                         <!-- Deskripsi -->
                         <p class="hero-anim-desc text-base sm:text-lg text-slate-600 mb-8 lg:mb-10 leading-relaxed max-w-xl font-medium mx-auto lg:mx-0">
-                            Tingkatkan hasil panen dengan teknologi <strong class="text-green-700">IoT</strong>, akses pasar langsung tanpa perantara, dan edukasi dari para ahli. Semua dalam satu genggaman.
+                            Platform <strong class="text-green-700">Perkebunan Cerdas Masa Depan</strong> — pantau kebun via sensor <strong class="text-green-700">IoT</strong>, jual durian premium langsung ke pembeli, dan tingkatkan ilmu budidaya dari para ahli agronomi.
                         </p>
 
                         <!-- Container Tombol Aksi -->
@@ -392,15 +392,15 @@
                         <!-- Mini Stats Row (Data Real dari Database) -->
                         <div class="hero-anim-stats flex flex-wrap gap-4 justify-center lg:justify-start">
                             <div class="flex items-center gap-2 text-sm font-semibold text-slate-600">
-                                <span class="text-2xl font-extrabold text-green-600">{{ $heroStats['jumlah_petani'] }}</span> Petani Aktif
+                                <span class="text-2xl font-extrabold text-green-600">{{ $heroStats['jumlah_petani'] }}</span> Mitra Kebun
                             </div>
                             <span class="text-slate-300">|</span>
                             <div class="flex items-center gap-2 text-sm font-semibold text-slate-600">
-                                <span class="text-2xl font-extrabold text-green-600">{{ $heroStats['jumlah_produk'] }}</span> Produk Segar
+                                <span class="text-2xl font-extrabold text-green-600">{{ $heroStats['jumlah_produk'] }}</span> Varian Durian
                             </div>
                             <span class="text-slate-300">|</span>
                             <div class="flex items-center gap-2 text-sm font-semibold text-slate-600">
-                                <span class="text-2xl font-extrabold text-green-600">{{ $heroStats['pesanan_selesai'] }}</span> Transaksi Selesai
+                                <span class="text-2xl font-extrabold text-green-600">{{ $heroStats['pesanan_selesai'] }}</span> Durian Terkirim
                             </div>
                         </div>
                     </div>
@@ -426,7 +426,7 @@
                                 <!-- Gambar Utama -->
                                 <div class="animate-float">
                                     <div class="relative w-full h-full [mask-image:radial-gradient(ellipse_at_center,black_65%,transparent_100%)] [-webkit-mask-image:radial-gradient(ellipse_at_center,black_65%,transparent_100%)]">
-                                        <img src="{{ asset('images/hero4.png') }}" alt="Dashboard Pertanian" width="500" height="500"
+                                        <img src="{{ asset('images/hero4.png') }}" alt="Dashboard Perkebunan Durian" width="500" height="500"
                                             class="w-full h-auto object-cover">
                                     </div>
                                 </div>
@@ -442,7 +442,7 @@
         <script>
         (function() {
             // ---- TYPEWRITER ----
-            const words = ['Cerdas', 'Digital', 'Masa Depan', 'Inovatif', 'Berkelanjutan'];
+            const words = ['Cerdas Terintegrasi', 'Cerdas Masa Depan'];
             let wi = 0, ci = 0, deleting = false;
             const el = document.getElementById('hero-typewriter');
             function type() {
@@ -599,7 +599,7 @@
                         </div>
                     </div>
 
-                    <!-- Kartu 2: Marketplace Tani -->
+                    <!-- Kartu 2: Marketplace Durian -->
                     <div data-aos="fade-up" data-aos-delay="200"
                         class="group relative bg-white rounded-3xl p-6 sm:p-8 shadow-lg border border-green-100 hover:border-green-500 hover:shadow-xl hover:shadow-green-500/10 transition-all duration-500 hover:-translate-y-2 overflow-hidden">
                         <div class="relative z-10 text-center">
@@ -620,10 +620,10 @@
                             <!-- Judul Fitur -->
                             <h3
                                 class="text-xl sm:text-2xl font-bold text-slate-900 mb-2 group-hover:text-green-700 transition-colors duration-300">
-                                Marketplace Tani</h3>
+                                Marketplace Durian</h3>
                             <!-- Deskripsi Fitur -->
                             <p class="text-slate-600 leading-relaxed mb-6 text-sm sm:text-base">
-                                Jual beli hasil panen berkualitas langsung dari petani lokal dengan harga transparan dan
+                                Jual beli durian kualitas premium langsung dari pekebun lokal dengan harga transparan dan
                                 adil.
                             </p>
                             <!-- Tombol Aksi -->
@@ -633,7 +633,7 @@
                         </div>
                     </div>
 
-                    <!-- Kartu 3: Edukasi Tani -->
+                    <!-- Kartu 3: Edukasi Durian -->
                     <div data-aos="fade-up" data-aos-delay="300"
                         class="group relative bg-white rounded-3xl p-6 sm:p-8 shadow-lg border border-green-100 hover:border-green-500 hover:shadow-xl hover:shadow-green-500/10 transition-all duration-500 hover:-translate-y-2 overflow-hidden md:col-span-2 lg:col-span-1">
                         <div class="relative z-10 text-center">
@@ -654,10 +654,10 @@
                             <!-- Judul Fitur -->
                             <h3
                                 class="text-xl sm:text-2xl font-bold text-slate-900 mb-2 group-hover:text-green-700 transition-colors duration-300">
-                                Edukasi Tani</h3>
+                                Edukasi Durian</h3>
                             <!-- Deskripsi Fitur -->
                             <p class="text-slate-600 leading-relaxed mb-6 text-sm sm:text-base">
-                                Tingkatkan wawasan bertani melalui artikel, video tutorial, dan modul lengkap dari ahli
+                                Tingkatkan wawasan budidaya durian melalui artikel, video tutorial, dan modul lengkap dari ahli
                                 agronomi.
                             </p>
                             <!-- Tombol Aksi -->
@@ -676,19 +676,19 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <!-- Header Section -->
                 <div class="text-center max-w-3xl mx-auto mb-10 md:mb-12 lg:mb-16" data-aos="fade-up">
-                    <!-- Badge Pasar Segar -->
+                    <!-- Badge panen durian -->
                     <span
                         class="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-emerald-50 text-green-700 text-[10px] md:text-[11px] font-bold uppercase tracking-widest border border-green-100 mb-3 md:mb-5 shadow-sm hover:shadow-md transition-shadow">
                         <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                        Pasar Segar
+                        panen durian
                     </span>
                     <!-- Judul Section -->
                     <h2
                         class="text-2xl md:text-3xl lg:text-5xl font-extrabold text-slate-900 leading-tight mb-3 lg:mb-4">
-                        Panen <span class="text-green-600 relative inline-block">
+                        Panen Durian <span class="text-green-600 relative inline-block">
                             Terbaik
                             <svg class="absolute -bottom-1 left-0 w-full h-1.5 md:h-2" viewBox="0 0 100 10"
                                 preserveAspectRatio="none">
@@ -699,7 +699,7 @@
                     </h2>
                     <!-- Deskripsi Section -->
                     <p class="text-slate-600 text-sm md:text-base lg:text-lg leading-relaxed px-2 md:px-0">
-                        Hasil pertanian berkualitas langsung dari petani lokal untuk kebutuhan dapur Anda sehari-hari.
+                        Durian premium matang pohon langsung dari kebun lokal untuk kepuasan Anda.
                     </p>
                 </div>
 
@@ -850,7 +850,7 @@
                     <!-- Deskripsi Section -->
                     <p
                         class="text-base md:text-lg lg:text-xl text-slate-600 mb-8 lg:mb-10 max-w-2xl mx-auto leading-relaxed font-medium px-4 sm:px-0">
-                        Perluas wawasan pertanian Anda dengan artikel pilihan, tips budidaya, dan inovasi teknologi
+                        Perluas wawasan budidaya durian Anda dengan artikel pilihan, tips perawatan, dan inovasi perkebunan
                         terbaru.
                     </p>
                 </div>
@@ -959,7 +959,7 @@
                             </svg>
                         </div>
                         <h3 class="text-lg lg:text-xl font-bold text-slate-900 mb-2">Konten Segera Hadir!</h3>
-                        <p class="text-slate-500 text-sm max-w-md mx-auto px-4">Kami sedang menyiapkan artikel edukatif berkualitas tinggi untuk meningkatkan pengetahuan pertanian Anda. Nantikan konten menarik dari kami segera!</p>
+                        <p class="text-slate-500 text-sm max-w-md mx-auto px-4">Kami sedang menyiapkan artikel edukatif berkualitas tinggi untuk meningkatkan pengetahuan budidaya durian Anda. Nantikan konten menarik dari kami segera!</p>
                     </div>
                 @endif
             </div>
@@ -1003,7 +1003,7 @@
                         <h2
                             class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-4 lg:mb-6 leading-tight">
                             Membangun Masa Depan <span class="text-green-600 relative inline-block">
-                                Pertanian
+                                Perkebunan
                                 <svg class="absolute -bottom-1 lg:-bottom-2 left-0 w-full h-2 lg:h-3"
                                     viewBox="0 0 100 10" preserveAspectRatio="none">
                                     <path d="M0 8 Q 50 0, 100 8" stroke="#10b981" stroke-width="2" fill="none"
@@ -1015,8 +1015,8 @@
                         <!-- Deskripsi Section -->
                         <p
                             class="text-sm sm:text-base lg:text-lg text-slate-600 leading-relaxed mb-6 lg:mb-8 max-w-2xl mx-auto lg:mx-0">
-                            AgriSmart hadir untuk menjembatani kesenjangan teknologi bagi petani Indonesia. Kami percaya
-                            bahwa dengan akses yang tepat terhadap teknologi IoT dan pasar digital, kesejahteraan petani
+                            AgriSmart hadir untuk menjembatani kesenjangan teknologi bagi pekebun durian Indonesia. Kami percaya
+                            bahwa dengan akses yang tepat terhadap teknologi IoT dan pasar digital, kesejahteraan pekebun
                             dapat meningkat pesat.
                         </p>
 
@@ -1037,7 +1037,7 @@
                                     <h4 class="font-bold text-slate-900 text-sm sm:text-base lg:text-lg">Transparansi
                                         Harga</h4>
                                     <p class="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">Jaminan harga adil
-                                        untuk petani dan konsumen dengan sistem yang terbuka.</p>
+                                        untuk pekebun dan konsumen dengan sistem yang terbuka.</p>
                                 </div>
                             </li>
 
@@ -1090,7 +1090,7 @@
                     </h2>
                     <!-- Deskripsi Section -->
                     <p class="text-slate-600 text-base lg:text-lg leading-relaxed font-medium px-4 sm:px-0">
-                        Ayo bergabung bersama kami dan menjadi bagian dari Petani Masa Depan. Cukup dengan mengisi
+                        Ayo bergabung bersama kami dan menjadi bagian dari Pekebun Durian Masa Depan. Cukup dengan mengisi
                         formulir untuk memulai langkah besar Anda.
                     </p>
                 </div>
@@ -1302,3 +1302,8 @@
 </body>
 
 </html>
+
+
+
+
+

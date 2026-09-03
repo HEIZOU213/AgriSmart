@@ -35,7 +35,7 @@ class DompetController extends Controller
             return back()->with('error', 'Saldo tidak mencukupi!');
         }
 
-        // 2. Kurangi Saldo Petani (Biar gak ditarik dobel)
+        // 2. Kurangi Saldo Pekebun (Biar gak ditarik dobel)
         $petani->saldo -= $request->jumlah;
         $petani->save();
 
@@ -51,3 +51,5 @@ class DompetController extends Controller
         return back()->with('success', 'Permintaan penarikan berhasil dikirim. Tunggu Admin transfer ya!');
     }
 }
+
+

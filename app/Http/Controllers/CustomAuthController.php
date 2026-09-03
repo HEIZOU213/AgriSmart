@@ -106,7 +106,7 @@ class CustomAuthController extends Controller
             // --- 🛡️ AKHIR LOGIKA SATPAM ---
 
 
-            // 3. Jika bukan Admin (Berarti Petani/Konsumen), izinkan lanjut
+            // 3. Jika bukan Admin (Berarti Pekebun/Konsumen), izinkan lanjut
             $request->session()->regenerate();
             return redirect()->intended('/dashboard');
         }
@@ -191,3 +191,4 @@ class CustomAuthController extends Controller
         return back()->with('status', 'password-updated');
     }
 }
+
