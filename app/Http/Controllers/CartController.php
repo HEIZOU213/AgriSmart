@@ -171,6 +171,27 @@ class CartController extends Controller
         return response()->json(['success' => true, 'message' => 'Produk masuk keranjang']);
     }
 
+    public function apiUpdate(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'qty' => 'required|integer|min:1'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        $cart = Keranjang::where('user_id', Auth::id())->where('id', $id)->first();
+        if (!$cart) {
+            return response()->json(['success' => false, 'message' => 'Item tidak ditemukan'], 404);
+        }
+
+        $cart->jumlah = $request->qty;
+        $cart->save();
+
+        return response()->json(['success' => true, 'message' => 'Jumlah berhasil diperbarui', 'data' => $cart]);
+    }
+
     public function apiDestroy($id)
     {
         $cart = Keranjang::where('user_id', Auth::id())->where('id', $id)->first();

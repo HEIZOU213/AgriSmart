@@ -61,7 +61,7 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
             1. LOGO SECTION (KIRI)
             ================================================ --}}
             <div class="flex-1 flex justify-start items-center py-2">
-                <a href="/" class="flex items-center gap-2 group relative shrink-0">
+                <a href="/" aria-label="Beranda AgriSmart" class="flex items-center gap-2 group relative shrink-0">
                     <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
                         class="h-12 sm:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
                 </a>
@@ -97,7 +97,7 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
             <div class="flex-1 flex justify-end items-center gap-2 sm:gap-4">
 
                 {{-- Ikon Keranjang (Desktop) --}}
-                <a href="{{ Auth::check() ? route('cart.index') : route('login') }}"
+                <a href="{{ Auth::check() ? route('cart.index') : route('login') }}" aria-label="Lihat Keranjang"
                     class="group relative p-2 text-slate-600 hover:text-green-700 transition-colors hidden sm:block mr-1">
 
                     <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor"
@@ -123,7 +123,7 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                     <div class="hidden lg:block relative" x-data="{ dropdownOpen: false }">
 
                         {{-- Tombol Profil Utama --}}
-                        <button @click="dropdownOpen = !dropdownOpen"
+                        <button @click="dropdownOpen = !dropdownOpen" aria-label="Menu Profil" aria-expanded="false" :aria-expanded="dropdownOpen.toString()"
                             class="relative flex items-center justify-center w-10 h-10 rounded-full text-white font-bold text-lg hover:shadow-lg hover:shadow-green-100 border-2 border-transparent hover:border-green-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 overflow-hidden">
 
                             {{-- Foto Profil atau Inisial --}}
@@ -253,7 +253,7 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                 MOBILE TOGGLE BUTTON
                 Tombol hamburger untuk membuka menu mobile
                 ================================================ --}}
-                <button @click="mobileOpen = !mobileOpen"
+                <button @click="mobileOpen = !mobileOpen" aria-label="Buka Menu Navigasi" aria-expanded="false" :aria-expanded="mobileOpen.toString()"
                     class="lg:hidden p-2 text-slate-700 hover:text-green-700 transition-colors">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path x-show="!mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"

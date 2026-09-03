@@ -78,4 +78,24 @@ class OrderController extends Controller
             'data' => $orders
         ]);
     }
+
+    // API: Detail Pesanan Berdasarkan ID
+    public function show($id)
+    {
+        $order = Pesanan::where('user_id', Auth::id())
+                    ->with('detailPesanan.produk')
+                    ->find($id);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $order
+        ]);
+    }
 }

@@ -319,7 +319,7 @@
                                     <div class="flex-shrink-0">
                                         @if(isset($produk->user->foto_profil) && $produk->user->foto_profil)
                                             <img class="h-12 w-12 md:h-14 md:w-14 rounded-full object-cover border-2 border-green-100"
-                                                src="{{ asset('storage/' . $produk->user->foto_profil) }}"
+                                                src="{{ $produk->user->foto_profil_url }}"
                                                 alt="{{ $produk->user->name }}">
                                         @else
                                             <div

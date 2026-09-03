@@ -24,80 +24,31 @@
         }
 
         /* Animasi Blob */
-        .animate-blob {
-            animation: blob 7s infinite;
-        }
-
-        .animation-delay-2000 {
-            animation-delay: 2s;
-        }
-
-        .animation-delay-4000 {
-            animation-delay: 4s;
-        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
 
         /* Scrollbar Custom */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f0fdf4;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #16a34a;
-            border-radius: 5px;
-            border: 2px solid #f0fdf4;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #15803d;
-        }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f0fdf4; }
+        ::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 5px; border: 2px solid #f0fdf4; }
+        ::-webkit-scrollbar-thumb:hover { background: #15803d; }
 
         @keyframes blob {
-            0% {
-                transform: translate(0px, 0px) scale(1);
-            }
-
-            33% {
-                transform: translate(30px, -50px) scale(1.1);
-            }
-
-            66% {
-                transform: translate(-20px, 20px) scale(0.9);
-            }
-
-            100% {
-                transform: translate(0px, 0px) scale(1);
-            }
+            0%   { transform: translate(0px, 0px) scale(1); }
+            33%  { transform: translate(30px, -50px) scale(1.1); }
+            66%  { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
         }
 
-        /* Password match indicator - Hanya hijau ketika cocok */
-        .password-match {
-            border-color: #10b981 !important;
-            background-color: #f0fdf4 !important;
-        }
-
-        /* Toggle password icon styling */
-        .toggle-password {
-            transition: color 0.2s ease;
-        }
-
-        .toggle-password:hover {
-            color: #059669;
-        }
+        /* Password match indicator */
+        .password-match { border-color: #10b981 !important; background-color: #f0fdf4 !important; }
+        .toggle-password { transition: color 0.2s ease; }
+        .toggle-password:hover { color: #059669; }
 
         @media (max-width: 640px) {
-            .touch-target {
-                min-height: 44px;
-                min-width: 44px;
-            }
-
-            .register-container {
-                padding-top: 1.5rem;
-                padding-bottom: 1.5rem;
-            }
+            .touch-target { min-height: 44px; min-width: 44px; }
+            .register-container { padding-top: 1.5rem; padding-bottom: 1.5rem; }
         }
     </style>
 </head>
@@ -108,14 +59,14 @@ PERUBAHAN 1:
 - Kita pindahkan struktur flex ke dalam wrapper div baru agar layout fixed bekerja benar.
 --}}
 
-<body class="bg-white min-h-screen selection:bg-green-500 selection:text-white antialiased">
+<body class="bg-white h-screen overflow-hidden selection:bg-green-500 selection:text-white antialiased">
 
     {{-- WRAPPER UTAMA --}}
     <div class="flex flex-col lg:flex-row w-full relative">
 
         {{-- BAGIAN KIRI: FORM REGISTER (Flow Normal, Scrollbar Browser) --}}
         <div
-            class="w-full lg:w-1/2 flex flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-4 sm:py-6 md:py-8 lg:py-10 register-container relative z-10 bg-white min-h-screen">
+            class="w-full lg:w-1/2 flex flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-4 sm:py-6 md:py-8 lg:py-10 register-container relative z-10 bg-white h-screen overflow-y-auto">
 
             {{-- Dekorasi Blob Background --}}
             <div
@@ -134,15 +85,14 @@ PERUBAHAN 1:
             {{-- Konten Formulir --}}
             <div class="relative w-full max-w-md mx-auto form-content" data-aos="fade-right" data-aos-duration="1000">
 
-                {{-- Logo & Header --}}
-                <div class="text-center mb-4 sm:mb-6 md:mb-8">
-                    <h1
-                        class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mb-2 sm:mb-3 tracking-tight leading-tight">
-                        Daftar ke <span class="text-green-600">AgriSmart</span>
-                    </h1>
-                    <p class="text-slate-500 text-sm sm:text-base font-medium max-w-xs mx-auto px-2 sm:px-0">
-                        Kelola pertanian cerdas Anda dalam satu genggaman.
-                    </p>
+                {{-- Logo (Bisa di-klik ke beranda) --}}
+                <div class="text-center mb-2">
+                    <a href="{{ route('homepage') }}" class="inline-block hover:scale-105 transition-transform duration-300">
+                        <div class="relative z-10 w-32 mx-auto flex items-center justify-center drop-shadow-md">
+                            <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart" class="w-full h-auto object-contain">
+                        </div>
+                    </a>
+                    <p class="text-xs sm:text-sm font-semibold text-slate-400 tracking-widest uppercase mt-1">Buat Akun Baru</p>
                 </div>
 
                 {{-- Error Message --}}

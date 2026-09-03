@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => CheckRole::class,
         ]);
 
+        // 1.5 Global Security Middleware
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+        $middleware->append(\App\Http\Middleware\XssSanitization::class);
+
         // 2. Middleware Aktivitas User (Last Seen)
         
         // A. Untuk Website (Browser)

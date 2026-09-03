@@ -53,7 +53,7 @@
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
                                             @if($user->foto_profil)
-                                                <img class="h-10 w-10 rounded-full object-cover ring-2 ring-{{ $themeClass }}-100" src="{{ asset('storage/' . $user->foto_profil) }}">
+                                                <img class="h-10 w-10 rounded-full object-cover ring-2 ring-{{ $themeClass }}-100" src="{{ $user->foto_profil_url }}">
                                             @else
                                                 <div class="h-10 w-10 rounded-full bg-{{ $themeClass }}-100 flex items-center justify-center text-{{ $themeClass }}-600 font-bold text-lg border border-{{ $themeClass }}-200">
                                                     {{ substr($user->name, 0, 1) }}

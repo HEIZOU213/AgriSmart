@@ -94,6 +94,46 @@ class ChatController extends Controller
         return redirect()->route('chat.index')->with('success', 'Percakapan berhasil dihapus.');
     }
 
+    // --- METODE API ALIAS (Untuk mobile app Flutter) ---
+    public function apiIndex()
+    {
+        $userId = Auth::id();
+        $role = Auth::user()->role ?? 'konsumen';
+        $pesananIds = [];
+
+        if ($role === 'konsumen') {
+            $pesananIds = Pesanan::where('user_id', $userId)->pluck('id');
+        } elseif ($role === 'petani') {
+            $produkIds = Produk::where('user_id', $userId)->pluck('id');
+            $pesananIds = DetailPesanan::whereIn('produk_id', $produkIds)->pluck('pesanan_id');
+        } else {
+            $pesananIds = Pesanan::pluck('id');
+        }
+
+        $chats = Pesanan::whereIn('id', $pesananIds)
+                        ->whereHas('pesanOrders')
+                        ->with(['user', 'detailPesanan.produk.user'])
+                        ->orderBy('updated_at', 'desc')
+                        ->get();
+
+        return response()->json(['success' => true, 'data' => $chats]);
+    }
+
+    public function apiGetMessages($id)
+    {
+        return $this->getMessages($id);
+    }
+
+    public function apiSendMessage(Request $request)
+    {
+        $request->validate([
+            'pesanan_id' => 'required',
+            'body' => 'required|string'
+        ]);
+
+        return $this->sendMessage($request, $request->pesanan_id);
+    }
+
     // 6. API untuk cek notifikasi realtime (Support Petani & Konsumen)
     public function checkNotifications()
     {

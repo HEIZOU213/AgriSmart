@@ -131,86 +131,62 @@
     <main class="flex-1">
 
         <!-- ========== HERO SECTION ========== -->
-        <section class="relative overflow-hidden pt-20 pb-12 lg:pt-28 lg:pb-16 bg-slate-50">
-            <!-- Background Decoration -->
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div class="w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-5">
-                    <div class="w-full h-full animate-[spin_30s_linear_infinite]">
+        <section class="relative overflow-hidden pt-20 pb-12 lg:pt-32 lg:pb-24 bg-gradient-to-b from-green-50/50 to-white">
+            <!-- Background Decoration (Gaya Lama yang Diperbarui) -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(22,163,74,0.03)_0,transparent_50%)]"></div>
+                <div class="w-[800px] h-[800px] lg:w-[1200px] lg:h-[1200px] opacity-[0.03] text-green-900 mix-blend-multiply">
+                    <div class="w-full h-full animate-[spin_40s_linear_infinite] flex items-center justify-center">
                         <img src="{{ asset('images/nav-logo.png') }}" alt="Background Decorative"
-                            class="w-full h-full object-contain">
+                            class="w-3/4 h-3/4 object-contain scale-150">
                     </div>
                 </div>
             </div>
 
             <!-- Hero Content -->
-            <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-                <div class="text-center" data-aos="fade-up">
+            <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+                <div class="text-center" data-aos="fade-up" data-aos-duration="1000">
                     <span
-                        class="inline-block py-1 px-3 rounded-full bg-green-100/50 text-green-700 text-xs font-bold tracking-wider uppercase mb-4 border border-green-200/50 shadow-sm">
+                        class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-white/80 backdrop-blur-md text-green-700 text-xs sm:text-sm font-bold tracking-widest uppercase mb-6 border border-green-200/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                         Edukasi Pertanian Modern
                     </span>
-                    <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-4 sm:mb-6">
-                        Edukasi <span class="text-green-600 block sm:inline">Pertanian Modern</span>
+                    <h2 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight">
+                        Edukasi <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500 block sm:inline">Pertanian Modern</span>
                     </h2>
-                    <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto px-2">
-                        Mengoptimalkan potensi pertanian dengan teknologi dan metode terkini
+                    <p class="text-base sm:text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto px-2 leading-relaxed">
+                        Mengoptimalkan potensi pertanian dengan teknologi, riset, dan metode terkini untuk masa depan yang berkelanjutan.
                     </p>
                 </div>
             </div>
         </section>
 
         <!-- ========== ARTIKEL EDUKASI SECTION ========== -->
-        <section class="py-12 sm:py-16 lg:py-24 relative bg-white overflow-hidden">
-
-            <!-- Background Decoration -->
-            <div class="absolute inset-0 pointer-events-none overflow-hidden">
-                <div
-                    class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-br from-gray-50/20 via-gray-50/10 to-transparent rounded-full blur-3xl">
-                </div>
-                <div
-                    class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-gradient-to-tl from-gray-50/15 to-transparent rounded-full blur-3xl translate-x-1/3 translate-y-1/3">
-                </div>
-
-                <!-- Decorative Circles -->
-                <div
-                    class="hidden sm:block absolute top-20 right-[10%] w-32 h-32 border border-gray-100/20 rounded-full">
-                </div>
-                <div
-                    class="hidden sm:block absolute bottom-32 left-[8%] w-24 h-24 border border-gray-100/20 rounded-full">
-                </div>
-
-                <!-- Dot Grid Background -->
-                <div class="absolute inset-0 opacity-[0.015]"
-                    style="background-image: radial-gradient(circle at 1px 1px, rgb(209 213 219) 1px, transparent 0); background-size: 40px 40px;">
-                </div>
-            </div>
-
+        <section class="py-12 sm:py-16 lg:py-20 relative bg-white overflow-hidden">
+            
             <!-- Artikel Container -->
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 <!-- Cek apakah ada artikel edukasi -->
                 @if(isset($daftarEdukasi) && !$daftarEdukasi->isEmpty())
-                    <!-- Grid Artikel -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                    <!-- Grid Artikel (Gaya Lama: Horizontal Cards) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10">
                         @foreach($daftarEdukasi as $index => $item)
                             <!-- Single Artikel Card -->
-                            <article class="group" data-aos="fade-up" data-aos-delay="{{ $index * 50 }}">
+                            <article class="group" data-aos="fade-up" data-aos-delay="{{ ($index % 4) * 50 }}">
                                 <a href="{{ route('edukasi.show', $item->slug) }}"
-                                    class="block h-full bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-500 border border-green-100 hover:border-green-300 hover:-translate-y-1 flex flex-col md:flex-row">
+                                    class="block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-slate-200 hover:border-green-300 hover:-translate-y-1 flex flex-col md:flex-row h-full">
 
                                     <!-- Gambar Sampul -->
-                                    <div
-                                        class="relative w-full md:w-2/5 h-48 sm:h-40 md:h-auto overflow-hidden bg-green-50 flex-shrink-0">
+                                    <div class="relative w-full md:w-5/12 aspect-video overflow-hidden bg-slate-50 flex-shrink-0">
                                         @if($item->foto_sampul)
                                             <img src="{{ asset('storage/' . $item->foto_sampul) }}" alt="{{ $item->judul }}"
                                                 loading="lazy"
-                                                class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105">
+                                                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                                         @else
                                             <!-- Placeholder jika tidak ada gambar -->
-                                            <div
-                                                class="w-full h-full bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center min-h-[192px] sm:min-h-[160px] md:min-h-[250px]">
-                                                <svg class="w-12 h-12 md:w-16 md:h-16 text-green-200" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
+                                                <svg class="w-12 h-12 text-green-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
                                                     </path>
@@ -219,66 +195,56 @@
                                         @endif
 
                                         <!-- Overlay Gradient -->
-                                        <div
-                                            class="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                        </div>
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
 
-                                        <!-- Tanggal Update -->
-                                        <div class="absolute top-3 left-3 md:top-4 md:left-4">
-                                            <div
-                                                class="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm">
-                                                <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                                <span class="text-[10px] sm:text-xs font-medium text-green-600">
-                                                    {{ $item->updated_at->format('d M Y') }}
-                                                </span>
-                                            </div>
+                                        <!-- Kategori Badge Overlay -->
+                                        <div class="absolute top-4 left-4 z-20">
+                                            <span class="inline-flex items-center px-2.5 py-1 bg-white/95 backdrop-blur-sm text-green-700 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-md border border-green-100">
+                                                {{ $item->kategoriEdukasi->nama_kategori ?? 'Tips' }}
+                                            </span>
                                         </div>
                                     </div>
 
                                     <!-- Konten Artikel -->
-                                    <div class="flex-1 p-4 sm:p-5 md:p-6 flex flex-col">
-                                        <!-- Kategori -->
-                                        <div class="mb-2 sm:mb-3">
-                                            <span
-                                                class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider rounded-md sm:rounded-lg border border-green-200">
-                                                {{ $item->kategoriEdukasi->nama_kategori ?? 'Tips' }}
-                                            </span>
+                                    <div class="flex-1 p-5 sm:p-6 md:p-7 flex flex-col justify-between bg-white">
+                                        
+                                        <div>
+                                            <!-- Tanggal -->
+                                            <div class="flex items-center gap-2 mb-3">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                                <span class="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                                    {{ $item->updated_at->format('d M Y') }}
+                                                </span>
+                                            </div>
+
+                                            <!-- Judul Artikel -->
+                                            <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-3 sm:mb-4 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-snug">
+                                                {{ $item->judul }}
+                                            </h3>
+
+                                            <!-- Preview Konten -->
+                                            <p class="hidden sm:block text-slate-500 text-sm leading-relaxed mb-6 flex-grow line-clamp-2 lg:line-clamp-3 font-medium">
+                                                {{ Str::limit(strip_tags($item->isi_konten), 130) }}
+                                            </p>
                                         </div>
 
-                                        <!-- Judul Artikel -->
-                                        <h3
-                                            class="text-base sm:text-lg md:text-xl font-bold text-slate-900 mb-2 sm:mb-3 line-clamp-2 group-hover:text-green-600 transition-colors duration-300 leading-snug">
-                                            {{ $item->judul }}
-                                        </h3>
-
-                                        <!-- Preview Konten -->
-                                        <p
-                                            class="hidden md:block text-slate-600 text-sm leading-relaxed mb-4 flex-grow line-clamp-2 lg:line-clamp-3">
-                                            {{ Str::limit(strip_tags($item->isi_konten), 140) }}
-                                        </p>
-
                                         <!-- Footer Artikel (Author & Link) -->
-                                        <div
-                                            class="flex items-center justify-between pt-3 sm:pt-4 border-t border-green-50 sm:border-green-100 mt-auto">
-                                            <div class="flex items-center gap-2">
-                                                <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd"
-                                                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                                                        clip-rule="evenodd" />
-                                                </svg>
-                                                <span class="text-xs text-green-600 font-medium">Admin</span>
+                                        <div class="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center border border-green-100">
+                                                    <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                                <span class="text-xs sm:text-sm font-semibold text-slate-700">Admin</span>
                                             </div>
-                                            <div
-                                                class="flex items-center gap-1 text-green-600 font-medium text-xs sm:text-sm ml-auto">
-                                                <span>Selengkapnya</span>
-                                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-1"
-                                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                            <div class="flex items-center gap-2 text-green-600 font-bold text-xs sm:text-sm">
+                                                <span class="relative overflow-hidden">
+                                                    <span class="block transition-transform duration-300 group-hover:-translate-y-full">Baca</span>
+                                                    <span class="absolute inset-0 transition-transform duration-300 translate-y-full group-hover:translate-y-0 text-green-500">Baca</span>
+                                                </span>
+                                                <svg class="w-4 h-4 transition-all duration-300 group-hover:translate-x-1 group-hover:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                                 </svg>
                                             </div>
                                         </div>
@@ -298,23 +264,16 @@
                 @else
                     <!-- State Kosong: Tidak ada artikel -->
                     <div class="max-w-2xl mx-auto px-4" data-aos="fade-up">
-                        <div class="text-center py-12 sm:py-16 px-6 bg-white rounded-3xl border border-green-200">
-                            <div class="relative inline-flex mb-6">
-                                <div
-                                    class="w-20 h-20 sm:w-24 sm:h-24 bg-green-50 rounded-2xl flex items-center justify-center">
-                                    <svg class="w-10 h-10 sm:w-12 sm:h-12 text-green-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-                                        </path>
-                                    </svg>
-                                </div>
+                        <div class="text-center py-12 lg:py-20 bg-white/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-green-200">
+                            <div class="w-20 h-20 lg:w-24 lg:h-24 mx-auto mb-6 bg-white rounded-full flex items-center justify-center shadow-md">
+                                <svg class="w-10 h-10 lg:w-12 lg:h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                    </path>
+                                </svg>
                             </div>
-                            <h3 class="text-xl sm:text-2xl font-bold text-slate-900 mb-3">Konten Segera Hadir!</h3>
-                            <p class="text-slate-600 leading-relaxed max-w-md mx-auto mb-6 text-sm sm:text-base">
-                                Kami sedang menyiapkan artikel edukatif berkualitas tinggi untuk meningkatkan pengetahuan
-                                pertanian Anda. Nantikan konten menarik dari kami segera!
-                            </p>
+                            <h3 class="text-lg lg:text-xl font-bold text-slate-900 mb-2">Konten Segera Hadir!</h3>
+                            <p class="text-slate-500 text-sm max-w-md mx-auto px-4">Kami sedang menyiapkan artikel edukatif berkualitas tinggi untuk meningkatkan pengetahuan pertanian Anda. Nantikan segera!</p>
                         </div>
                     </div>
                 @endif

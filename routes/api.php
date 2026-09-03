@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Route;
 
 // Controller Khusus API
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\PaymentCallbackController;
 use App\Http\Controllers\Api\PetaniDashboardController; 
 use App\Http\Controllers\Api\NotifikasiController;
 use App\Http\Controllers\Api\KeranjangController;

@@ -158,7 +158,7 @@ class CustomAuthController extends Controller
 
         // Logika Upload Foto (Jika ada di form)
         if ($request->hasFile('foto_profil')) {
-            if ($user->foto_profil) {
+            if ($user->foto_profil && !preg_match('#^https?://#i', $user->foto_profil)) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->foto_profil);
             }
             $path = $request->file('foto_profil')->store('profil', 'public');

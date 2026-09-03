@@ -113,7 +113,7 @@ class CheckoutController extends Controller
 
                 $pesanan = new Pesanan();
                 $pesanan->user_id = $userId;
-                $pesanan->kode_pesanan = 'INV/' . date('Ymd') . '/' . strtoupper(Str::random(6));
+                $pesanan->kode_pesanan = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
                 $pesanan->total_harga = $totalPerPetani;
                 $pesanan->alamat_kirim = $request->alamat_kirim;
                 $pesanan->admin_fee = $adminFee;
@@ -183,7 +183,7 @@ class CheckoutController extends Controller
         $serverKey = config('services.midtrans.server_key');
         $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
 
-        if ($hashed !== $request->signature_key) {
+        if (!hash_equals($hashed, $request->signature_key)) {
             return response()->json(['message' => 'Invalid signature'], 400);
         }
 
@@ -320,7 +320,7 @@ class CheckoutController extends Controller
                 // B. Buat Order Baru (Satu Order per Petani)
                 $pesanan = Pesanan::create([
                     'user_id' => $userId,
-                    'kode_pesanan' => 'INV/' . date('Ymd') . '/' . strtoupper(Str::random(6)),
+                    'kode_pesanan' => 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
                     'alamat_kirim' => $request->alamat_pengiriman,
                     'status' => 'pending',
                     'total_harga' => $grandTotal,
@@ -347,7 +347,7 @@ class CheckoutController extends Controller
                 // D. Generate Midtrans Token untuk Pesanan Ini
                 $params = [
                     'transaction_details' => [
-                        'order_id' => $pesanan->kode_pesanan, // PENTING: Gunakan kode_pesanan (INV/..) bukan ID agar konsisten dengan Callback
+                        'order_id' => $pesanan->kode_pesanan, // PENTING: Gunakan kode_pesanan (INV-..) bukan ID agar konsisten dengan Callback
                         'gross_amount' => (int) $grandTotal, // Wajib Integer
                     ],
                     'customer_details' => [

@@ -24,9 +24,12 @@
     <title>{{ config('app.name', 'AgriSmart') }}</title>
 
     <!-- ============================= FONTS & LIBRARIES ============================= -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"></noscript>
 
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -56,26 +59,27 @@
             background: #15803d;
         }
 
-        /* Animasi Floating */
+        /* ===================== ANIMASI FLOAT ===================== */
         .animate-float {
             animation: float 6s ease-in-out infinite;
         }
 
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-20px);
-            }
-
-            100% {
-                transform: translateY(0px);
-            }
+        .animate-float-delayed {
+            animation: float-delayed 7s ease-in-out infinite 1s;
         }
 
-        /* Line Clamp Utilities */
+        @keyframes float-delayed {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes float {
+            0%   { transform: translateY(0px); }
+            50%  { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* ===================== LINE CLAMP ===================== */
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -90,62 +94,229 @@
             overflow: hidden;
         }
 
-        /* Animasi Blob */
-        @keyframes blob {
-            0% {
-                transform: translate(0px, 0px) scale(1);
-            }
-
-            33% {
-                transform: translate(30px, -50px) scale(1.1);
-            }
-
-            66% {
-                transform: translate(-20px, 20px) scale(0.9);
-            }
-
-            100% {
-                transform: translate(0px, 0px) scale(1);
-            }
+        /* ===================== LOGO FLOAT AROUND ===================== */
+        @keyframes float-around {
+            0%   { transform: translate(0vw, -10vh) rotate(0deg); }
+            25%  { transform: translate(60vw, 20vh) rotate(15deg) scale(1.1); }
+            50%  { transform: translate(40vw, 70vh) rotate(-10deg) scale(0.9); }
+            75%  { transform: translate(-10vw, 50vh) rotate(20deg) scale(1.05); }
+            100% { transform: translate(0vw, -10vh) rotate(0deg); }
+        }
+        .animate-float-around {
+            animation: float-around 40s ease-in-out infinite;
         }
 
-        .animate-blob {
-            animation: blob 7s infinite;
-        }
-
-        .animation-delay-2000 {
-            animation-delay: 2s;
-        }
-
-        .animation-delay-4000 {
-            animation-delay: 4s;
-        }
-
-        /* Animasi Spin Lambat */
+        /* ===================== SPIN SLOW ===================== */
         @keyframes spin-slow {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
         }
-
         .animate-spin-slow {
             animation: spin-slow 20s linear infinite;
         }
 
-        /* Optimasi Gambar */
-        img {
-            max-width: 100%;
-            height: auto;
+        /* ===================== IMAGE OPTIMASI ===================== */
+        img { max-width: 100%; height: auto; }
+        .aspect-square img { object-fit: cover; width: 100%; height: 100%; }
+
+        /* ===================== HERO: PURE WHITE BG ===================== */
+        .hero-white-bg {
+            background-color: #ffffff;
+            position: relative;
+            overflow: hidden;
         }
 
-        .aspect-square img {
-            object-fit: cover;
-            width: 100%;
+        /* ===================== HERO: PARTICLES ===================== */
+        .hero-particle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, #4ade80, #16a34a);
+            opacity: 0;
+            pointer-events: none;
+            animation: particle-drift var(--dur, 10s) ease-in-out infinite var(--delay, 0s);
+        }
+        @keyframes particle-drift {
+            0%   { transform: translateY(0) scale(1);   opacity: 0; }
+            15%  { opacity: var(--max-opacity, 0.5); }
+            85%  { opacity: var(--max-opacity, 0.5); }
+            100% { transform: translateY(-120px) scale(0.6); opacity: 0; }
+        }
+
+        /* ===================== HERO: SPOTLIGHT CARD ===================== */
+        .spotlight-card {
+            position: relative;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(134,239,172,0.18) 0%,
+                transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 1;
+            border-radius: inherit;
+        }
+        .spotlight-card:hover::before {
+            opacity: 1;
+        }
+
+        /* ===================== HERO: TYPEWRITER ===================== */
+        .typewriter-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1em;
+            background: #16a34a;
+            margin-left: 4px;
+            vertical-align: middle;
+            animation: blink-cursor 0.75s step-end infinite;
+        }
+        @keyframes blink-cursor {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0; }
+        }
+
+        /* ===================== HERO: SHIMMER BADGE ===================== */
+        .shimmer-badge {
+            position: relative;
+            overflow: hidden;
+        }
+        .shimmer-badge::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%;
             height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+            animation: badge-shimmer 3s ease-in-out infinite 1s;
+        }
+        @keyframes badge-shimmer {
+            0%   { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        /* ===================== HERO: STICKER PEEL BADGE ===================== */
+        .sticker-peel {
+            position: relative;
+            transform-origin: top left;
+            transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .sticker-peel:hover {
+            transform: rotate(-3deg) scale(1.08);
+        }
+        .sticker-peel::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; right: -4px;
+            width: 14px; height: 14px;
+            background: linear-gradient(135deg, #bbf7d0 50%, rgba(0,0,0,0.08) 50%);
+            clip-path: polygon(100% 0, 0 100%, 100% 100%);
+            border-radius: 0 0 4px 0;
+        }
+
+        /* ===================== HERO: ENTRANCE ANIMATIONS ===================== */
+        @keyframes hero-fade-up {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes hero-fade-right {
+            from { opacity: 0; transform: translateX(-40px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes hero-fade-left {
+            from { opacity: 0; transform: translateX(40px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes hero-scale-in {
+            from { opacity: 0; transform: scale(0.85); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+        .hero-anim-badge   { animation: hero-fade-up    0.6s cubic-bezier(0.34,1.56,0.64,1) 0.2s both; }
+        .hero-anim-title   { animation: hero-fade-right 0.8s cubic-bezier(0.22,1,0.36,1)    0.4s both; }
+        .hero-anim-desc    { animation: hero-fade-up    0.7s ease-out                        0.65s both; }
+        .hero-anim-btns    { animation: hero-fade-up    0.7s ease-out                        0.85s both; }
+        .hero-anim-stats   { animation: hero-fade-up    0.7s ease-out                        1.05s both; }
+        .hero-anim-img     { animation: hero-fade-left  0.9s cubic-bezier(0.22,1,0.36,1)    0.5s both; }
+        .hero-anim-floater { animation: hero-scale-in   0.6s cubic-bezier(0.34,1.56,0.64,1) var(--delay,0.8s) both; }
+
+        /* ===================== HERO: 3D TILT CARD ===================== */
+        .tilt-card {
+            transform-style: preserve-3d;
+            transform: perspective(900px) rotateX(0deg) rotateY(0deg);
+            transition: transform 0.08s linear, box-shadow 0.3s ease;
+            border-radius: 1.5rem;
+            will-change: transform;
+        }
+        .tilt-card:hover {
+            box-shadow: 0 30px 80px rgba(22,163,74,0.15);
+        }
+        .tilt-card .tilt-shine {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(circle at var(--tx,50%) var(--ty,50%),
+                rgba(255,255,255,0.18) 0%,
+                transparent 65%);
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .tilt-card:hover .tilt-shine { opacity: 1; }
+
+
+        /* ===================== HERO: MORPH SVG ORB ===================== */
+        .hero-morph-orb {
+            position: absolute;
+            pointer-events: none;
+            animation: orb-drift var(--dur, 12s) ease-in-out infinite var(--del, 0s);
+            opacity: var(--op, 0.4);
+        }
+        @keyframes orb-drift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33%       { transform: translate(var(--tx1,20px), var(--ty1,-30px)) scale(1.1); }
+            66%       { transform: translate(var(--tx2,-15px), var(--ty2,20px)) scale(0.95); }
+        }
+
+        /* ===================== HERO: LOOP MARQUEE (LOGO) ===================== */
+        .marquee-logo-track {
+            display: flex;
+            align-items: center;
+            width: max-content;
+            animation: marquee-loop 18s linear infinite;
+        }
+        .marquee-logo-track:hover { animation-play-state: paused; }
+        @keyframes marquee-loop {
+            from { transform: translateX(-50%); }
+            to   { transform: translateX(0); }
+        }
+        .marquee-logo-item {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 0 40px;
+            opacity: 0.55;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            filter: grayscale(1);
+        }
+        .marquee-logo-item:hover {
+            opacity: 1;
+            filter: grayscale(0);
+            transform: scale(1.08);
+        }
+
+
+
+        /* ===================== HERO: IMAGE RING ===================== */
+        @keyframes ring-rotate {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -153,96 +324,113 @@
 <body
     class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
 
+    <!-- ============================= BACKGROUND LOGO ANIMATION ============================= -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-10">
+        <img src="{{ asset('images/nav-logo.png') }}" alt="Background Logo" width="300" height="300"
+            class="absolute top-0 left-0 w-64 h-auto md:w-96 animate-float-around object-contain">
+    </div>
+
     <!-- ============================= NAVBAR KOMPONEN ============================= -->
-    <x-navbar />
+    <div class="relative z-50">
+        <x-navbar />
+    </div>
 
     <main class="flex-1">
 
         <!-- ============================= SECTION: HERO ============================= -->
-        <section class="relative bg-white overflow-hidden pt-24 pb-12 lg:pt-40 lg:pb-24">
-            <!-- Background Elements -->
-            <div
-                class="absolute inset-0 bg-[radial-gradient(#dcfce7_1px,transparent_1px)] [background-size:24px_24px] opacity-40 z-0">
-            </div>
-            <div
-                class="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 sm:w-64 sm:h-64 md:-mr-20 md:-mt-20 md:w-96 md:h-96 rounded-full bg-green-100 opacity-60 blur-[50px] md:blur-[80px] pointer-events-none">
-            </div>
-            <div
-                class="absolute bottom-0 left-0 -ml-10 -mb-10 md:-ml-20 md:-mb-20 w-64 h-64 md:w-80 md:h-80 rounded-full bg-emerald-100 opacity-60 blur-[60px] md:blur-[80px]">
-            </div>
+        <section id="hero" class="hero-white-bg overflow-hidden pt-24 pb-12 lg:pt-40 lg:pb-24">
+
+            <!-- Particle Field -->
+            <div id="hero-particles" aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden z-0"></div>
 
             <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+
                 <!-- Grid: Konten vs Gambar -->
                 <div class="grid lg:grid-cols-2 gap-10 lg:gap-12 items-center mb-12 lg:mb-20">
-                    <!-- Kolom Kiri: Konten Teks -->
-                    <div data-aos="fade-right" data-aos-duration="1000" class="text-center lg:text-left order-1">
-                        <!-- Badge Platform -->
-                        <div
-                            class="inline-flex items-center gap-2 px-4 py-2 bg-green-100 rounded-full border border-green-200 text-green-800 mb-6 lg:mb-8 shadow-sm mx-auto lg:mx-0">
-                            <span class="flex h-2.5 w-2.5 rounded-full bg-green-600 animate-pulse"></span>
-                            <span class="text-xs font-bold tracking-wide uppercase">Platform Pertanian No.1</span>
-                        </div>
 
-                        <!-- Judul Utama -->
-                        <h1
-                            class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-slate-900 leading-tight mb-4 lg:mb-6 tracking-tight">
-                            Pertanian Cerdas <br class="hidden sm:block">
-                            <span
-                                class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">Masa
-                                Depan.</span>
+                    <!-- ===================== KOLOM KIRI: KONTEN TEKS ===================== -->
+                    <div class="text-center lg:text-left order-1">
+
+                        <!-- Judul Utama dengan Typewriter -->
+                        <h1 class="hero-anim-title text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-slate-900 leading-tight mb-4 lg:mb-6 tracking-tight">
+                            Pertanian <br class="hidden sm:block">
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500">
+                                <span id="hero-typewriter">Cerdas</span><span class="typewriter-cursor"></span>
+                            </span>
                         </h1>
 
                         <!-- Deskripsi -->
-                        <p
-                            class="text-base sm:text-lg text-slate-600 mb-8 lg:mb-10 leading-relaxed max-w-xl font-medium mx-auto lg:mx-0">
-                            Tingkatkan hasil panen dengan teknologi IoT, akses pasar langsung tanpa perantara, dan
-                            edukasi dari para ahli. Semua dalam satu genggaman.
+                        <p class="hero-anim-desc text-base sm:text-lg text-slate-600 mb-8 lg:mb-10 leading-relaxed max-w-xl font-medium mx-auto lg:mx-0">
+                            Tingkatkan hasil panen dengan teknologi <strong class="text-green-700">IoT</strong>, akses pasar langsung tanpa perantara, dan edukasi dari para ahli. Semua dalam satu genggaman.
                         </p>
 
                         <!-- Container Tombol Aksi -->
-                        <div
-                            class="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center lg:justify-start w-full sm:w-auto">
+                        <div class="hero-anim-btns flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center lg:justify-start w-full sm:w-auto mb-8 lg:mb-10">
                             <!-- Tombol Utama: Mulai Sekarang -->
                             <a href="{{ route('produk.index') }}"
-                                class="inline-flex justify-center items-center px-6 lg:px-8 py-3 lg:py-4 bg-green-600 text-white font-extrabold rounded-xl shadow-lg shadow-green-600/20 hover:bg-green-700 hover:scale-105 transition-all duration-300 text-sm lg:text-base w-full sm:w-auto">
-                                Mulai Sekarang
-                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                                </svg>
+                                class="group/btn relative inline-flex justify-center items-center px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-extrabold rounded-xl shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:scale-105 transition-all duration-300 text-sm lg:text-base w-full sm:w-auto overflow-hidden">
+                                <span class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></span>
+                                <span class="relative z-10 flex items-center gap-2">
+                                    Mulai Sekarang
+                                    <svg class="w-5 h-5 transform group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                                    </svg>
+                                </span>
                             </a>
 
                             <!-- Tombol Sekunder: Tonton Video -->
                             <a href="#edukasi-preview"
-                                class="inline-flex justify-center items-center px-6 lg:px-8 py-3 lg:py-4 border-2 border-green-600 text-green-600 font-bold rounded-xl hover:bg-green-50 transition-all duration-300 text-sm lg:text-base w-full sm:w-auto">
+                                class="group/btn2 inline-flex justify-center items-center px-6 lg:px-8 py-3 lg:py-4 border-2 border-green-500 text-green-700 font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 hover:scale-105 transition-all duration-300 text-sm lg:text-base w-full sm:w-auto">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z">
-                                    </path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                                 Tonton Video
                             </a>
                         </div>
+
+                        <!-- Mini Stats Row (Data Real dari Database) -->
+                        <div class="hero-anim-stats flex flex-wrap gap-4 justify-center lg:justify-start">
+                            <div class="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                                <span class="text-2xl font-extrabold text-green-600">{{ $heroStats['jumlah_petani'] }}</span> Petani Aktif
+                            </div>
+                            <span class="text-slate-300">|</span>
+                            <div class="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                                <span class="text-2xl font-extrabold text-green-600">{{ $heroStats['jumlah_produk'] }}</span> Produk Segar
+                            </div>
+                            <span class="text-slate-300">|</span>
+                            <div class="flex items-center gap-2 text-sm font-semibold text-slate-600">
+                                <span class="text-2xl font-extrabold text-green-600">{{ $heroStats['pesanan_selesai'] }}</span> Transaksi Selesai
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Kolom Kanan: Gambar Hero -->
-                    <div class="relative block order-2 mt-8 lg:mt-0" data-aos="fade-left" data-aos-duration="1200">
-                        <div class="relative w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto animate-float">
-                            <!-- Efek Latar Belakang Gambar -->
-                            <div
-                                class="absolute top-10 -right-4 sm:-right-10 w-full h-full bg-green-200 rounded-[2.5rem] opacity-60 rotate-6 mix-blend-multiply">
-                            </div>
-                            <div
-                                class="absolute -bottom-5 -left-4 sm:-left-5 w-full h-full bg-emerald-200 rounded-[2.5rem] opacity-60 -rotate-3 mix-blend-multiply">
-                            </div>
+                    <!-- ===================== KOLOM KANAN: GAMBAR HERO ===================== -->
+                    <div class="relative block order-2 mt-8 lg:mt-0 hero-anim-img">
 
-                            <!-- Container Gambar Utama -->
-                            <div
-                                class="relative rounded-[2rem] overflow-hidden shadow-2xl border-[6px] border-white ring-1 ring-slate-100">
-                                <img src="{{ asset('images/hero1.png') }}" alt="Dashboard Pertanian"
-                                    class="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700">
+                        <!-- Morph Orbs (floating blobs di belakang gambar) -->
+                        <div class="hero-morph-orb w-72 h-72 rounded-full bg-green-200/50 -top-10 -right-10"
+                            style="--dur:10s;--del:0s;--op:0.35;--tx1:25px;--ty1:-20px;--tx2:-15px;--ty2:25px;"></div>
+                        <div class="hero-morph-orb w-56 h-56 rounded-full bg-emerald-200/40 bottom-0 -left-8"
+                            style="--dur:13s;--del:-4s;--op:0.28;--tx1:-20px;--ty1:15px;--tx2:18px;--ty2:-25px;"></div>
+
+                        <!-- Spotlight + 3D Tilt Card Wrapper -->
+                        <div id="hero-spotlight" class="spotlight-card relative w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto">
+
+                            <!-- 3D Tilt Container -->
+                            <div id="hero-tilt" class="tilt-card cursor-pointer">
+
+                                <!-- Shine overlay -->
+                                <div class="tilt-shine"></div>
+
+                                <!-- Gambar Utama -->
+                                <div class="animate-float">
+                                    <div class="relative w-full h-full [mask-image:radial-gradient(ellipse_at_center,black_65%,transparent_100%)] [-webkit-mask-image:radial-gradient(ellipse_at_center,black_65%,transparent_100%)]">
+                                        <img src="{{ asset('images/hero4.png') }}" alt="Dashboard Pertanian" width="500" height="500"
+                                            class="w-full h-auto object-cover">
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -250,30 +438,112 @@
             </div>
         </section>
 
-        <!-- ============================= SECTION: LAYANAN ============================= -->
-        <section id="layanan" class="py-16 sm:py-20 lg:py-32 relative overflow-hidden bg-[#F0FDF4]">
-            <!-- Background SVG -->
-            <div class="absolute inset-0 opacity-20 pointer-events-none">
-                <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800"
-                    preserveAspectRatio="xMidYMid slice">
-                    <path d="M 720 400 Q 800 300, 900 350 T 1050 450 T 1150 600 T 1200 800" stroke="#10b981"
-                        stroke-width="3" fill="none" opacity="0.3" />
-                    <path d="M 300 200 Q 400 150, 500 200 T 650 300 T 750 450 T 800 650" stroke="#10b981"
-                        stroke-width="2.5" fill="none" opacity="0.2" />
-                    <path d="M 100 500 Q 150 480, 180 510 T 220 580 T 240 660" stroke="#10b981" stroke-width="2"
-                        fill="none" opacity="0.15" />
-                    <path d="M 0 400 Q 360 300, 720 400 T 1440 400" stroke="#059669" stroke-width="1.5" fill="none"
-                        opacity="0.1" />
-                    <path d="M 0 600 Q 360 550, 720 600 T 1440 600" stroke="#10b981" stroke-width="1.5" fill="none"
-                        opacity="0.1" />
-                </svg>
-            </div>
+        <!-- ============================= HERO JS ANIMATIONS ============================= -->
+        <script>
+        (function() {
+            // ---- TYPEWRITER ----
+            const words = ['Cerdas', 'Digital', 'Masa Depan', 'Inovatif', 'Berkelanjutan'];
+            let wi = 0, ci = 0, deleting = false;
+            const el = document.getElementById('hero-typewriter');
+            function type() {
+                if (!el) return;
+                const word = words[wi];
+                if (!deleting) {
+                    el.textContent = word.substring(0, ci + 1);
+                    ci++;
+                    if (ci === word.length) { deleting = true; setTimeout(type, 2000); return; }
+                    setTimeout(type, 90);
+                } else {
+                    el.textContent = word.substring(0, ci - 1);
+                    ci--;
+                    if (ci === 0) { deleting = false; wi = (wi + 1) % words.length; setTimeout(type, 400); return; }
+                    setTimeout(type, 50);
+                }
+            }
+            setTimeout(type, 800);
 
-            <!-- Animated Blobs -->
-            <div class="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"
-                aria-hidden="true"></div>
-            <div class="absolute bottom-0 left-0 w-72 sm:w-96 h-72 sm:h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"
-                aria-hidden="true"></div>
+            // ---- SPOTLIGHT CARD ----
+            const card = document.getElementById('hero-spotlight');
+            if (card) {
+                card.addEventListener('mousemove', function(e) {
+                    const rect = card.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1) + '%';
+                    const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1) + '%';
+                    card.style.setProperty('--mouse-x', x);
+                    card.style.setProperty('--mouse-y', y);
+                });
+            }
+
+            // ---- 3D TILT (react-parallax-tilt style) ----
+            const tilt = document.getElementById('hero-tilt');
+            if (tilt) {
+                const MAX_TILT = 12; // derajat
+                tilt.addEventListener('mousemove', function(e) {
+                    const rect = tilt.getBoundingClientRect();
+                    const cx   = rect.left + rect.width  / 2;
+                    const cy   = rect.top  + rect.height / 2;
+                    const dx   = (e.clientX - cx) / (rect.width  / 2); // -1 to 1
+                    const dy   = (e.clientY - cy) / (rect.height / 2); // -1 to 1
+                    const rotX = (-dy * MAX_TILT).toFixed(2);
+                    const rotY = ( dx * MAX_TILT).toFixed(2);
+                    // Shine position
+                    const tx = ((e.clientX - rect.left) / rect.width  * 100).toFixed(1);
+                    const ty = ((e.clientY - rect.top)  / rect.height * 100).toFixed(1);
+                    tilt.style.transform = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.03,1.03,1.03)`;
+                    tilt.style.setProperty('--tx', tx + '%');
+                    tilt.style.setProperty('--ty', ty + '%');
+                });
+                tilt.addEventListener('mouseleave', function() {
+                    tilt.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+                });
+            }
+
+
+            // ---- PARTICLE FIELD ----
+            const container = document.getElementById('hero-particles');
+            if (container) {
+                const count = 18;
+                for (let i = 0; i < count; i++) {
+                    const p = document.createElement('div');
+                    const size = (Math.random() * 6 + 3).toFixed(1);
+                    const left = (Math.random() * 100).toFixed(1);
+                    const top  = (Math.random() * 100).toFixed(1);
+                    const dur  = (Math.random() * 8 + 8).toFixed(1);
+                    const delay= (Math.random() * -12).toFixed(1);
+                    const op   = (Math.random() * 0.35 + 0.1).toFixed(2);
+                    p.className = 'hero-particle';
+                    p.style.cssText = `width:${size}px;height:${size}px;left:${left}%;top:${top}%;--dur:${dur}s;--delay:${delay}s;--max-opacity:${op};`;
+                    container.appendChild(p);
+                }
+            }
+        })();
+        </script>
+
+        <!-- ===================== LOOP MARQUEE LOGO (FULL WIDTH) ===================== -->
+        <div class="relative w-full overflow-hidden bg-white border-y border-slate-100 shadow-sm py-5">
+            <!-- Fade edges kiri & kanan -->
+            <div class="absolute left-0 top-0 h-full w-16 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute right-0 top-0 h-full w-16 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none"></div>
+
+            <div class="marquee-logo-track">
+                {{-- Set 1: logo AgriSmart diulang beberapa kali untuk kepadatan strip --}}
+                @for($i = 0; $i < 12; $i++)
+                <div class="marquee-logo-item">
+                    <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart" class="h-8 w-auto object-contain">
+                </div>
+                @endfor
+                {{-- Set 2: duplikat identik agar loop mulus (seamless) --}}
+                @for($i = 0; $i < 12; $i++)
+                <div class="marquee-logo-item">
+                    <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart" class="h-8 w-auto object-contain">
+                </div>
+                @endfor
+            </div>
+        </div>
+
+        <!-- ============================= SECTION: LAYANAN ============================= -->
+        <section id="layanan" class="py-16 sm:py-20 lg:py-32 overflow-hidden bg-[#F0FDF4]">
+
 
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
                 <!-- Header Section -->
@@ -400,36 +670,8 @@
             </div>
         </section>
 
-        <!-- ============================= SECTION: PRODUK ============================= -->
-        <section class="py-12 md:py-16 lg:py-24 relative bg-white border-t border-green-50 overflow-hidden">
-            <!-- Background Effects -->
-            <div class="absolute inset-0 pointer-events-none overflow-hidden">
-                <div
-                    class="absolute top-0 left-1/2 -translate-x-1/2 w-full md:w-[1000px] h-[300px] md:h-[500px] bg-green-50/40 rounded-full blur-[80px] md:blur-[120px] -mt-20 md:-mt-32">
-                </div>
-                <div
-                    class="absolute bottom-0 right-0 w-[300px] md:w-[600px] h-[200px] md:h-[400px] bg-green-50/30 rounded-full blur-[60px] md:blur-[100px] translate-y-1/3 translate-x-1/3">
-                </div>
-
-                <!-- SVG Decorations -->
-                <svg class="absolute top-0 right-0 w-[350px] md:w-[700px] h-[350px] md:h-[700px] opacity-25 translate-x-1/4 md:translate-x-1/3 -translate-y-1/4"
-                    viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <path d="M0 100 Q 50 -20 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
-                    <path d="M0 100 Q 50 0 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
-                    <path d="M0 100 Q 50 20 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
-                </svg>
-                <svg class="absolute bottom-0 left-0 w-[300px] md:w-[600px] h-[300px] md:h-[600px] opacity-20 -translate-x-1/3 translate-y-1/4 rotate-180"
-                    viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <path d="M0 100 Q 50 0 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
-                    <path d="M0 100 Q 50 20 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
-                    <path d="M0 100 Q 50 40 100 100" stroke="#dcfce7" stroke-width="0.5" fill="none" />
-                </svg>
-                <svg class="absolute top-10 left-0 md:left-10 w-[150px] md:w-[300px] h-[150px] md:h-[300px] opacity-10 rotate-12 -translate-x-1/4 md:translate-x-0"
-                    viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <path d="M0 100 Q 50 10 100 100" stroke="#dcfce7" stroke-width="0.8" fill="none" />
-                    <path d="M0 100 Q 50 30 100 100" stroke="#dcfce7" stroke-width="0.8" fill="none" />
-                </svg>
-            </div>
+        <!-- ============================= SECTION: PRODUK TERBARU ============================= -->
+        <section class="py-12 md:py-16 lg:py-24 bg-white border-t border-green-50 overflow-hidden">
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <!-- Header Section -->
@@ -471,7 +713,7 @@
                                 <div class="relative aspect-square overflow-hidden bg-slate-50 flex-shrink-0">
                                     @if($item->foto_produk)
                                         <img src="{{ asset('storage/' . $item->foto_produk) }}" alt="{{ $item->nama_produk }}"
-                                            loading="lazy"
+                                            loading="lazy" width="400" height="400"
                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                     @else
                                         <!-- Placeholder jika tidak ada gambar -->
@@ -527,7 +769,7 @@
                                         </div>
 
                                         <!-- Tombol Detail Produk -->
-                                        <a href="{{ route('produk.show', $item->id) }}"
+                                        <a href="{{ route('produk.show', $item->id) }}" aria-label="Lihat Detail Produk {{ $item->nama_produk }}"
                                             class="flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl bg-green-600 hover:bg-green-700 flex items-center justify-center text-white transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -575,35 +817,8 @@
         </section>
 
         <!-- ============================= SECTION: EDUKASI ============================= -->
-        <section id="edukasi-preview" class="py-16 lg:py-24 relative overflow-hidden bg-[#F0FDF4]">
-            <!-- Background Effects -->
-            <div class="absolute inset-0 pointer-events-none overflow-hidden">
-                <div class="absolute inset-0 opacity-20 pointer-events-none">
-                    <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 800"
-                        preserveAspectRatio="xMidYMid slice">
-                        <path d="M 720 400 Q 800 300, 900 350 T 1050 450 T 1150 600 T 1200 800" stroke="#10b981"
-                            stroke-width="3" fill="none" opacity="0.3" />
-                        <path d="M 300 200 Q 400 150, 500 200 T 650 300 T 750 450 T 800 650" stroke="#10b981"
-                            stroke-width="2.5" fill="none" opacity="0.2" />
-                        <path d="M 100 500 Q 150 480, 180 510 T 220 580 T 240 660" stroke="#10b981" stroke-width="2"
-                            fill="none" opacity="0.15" />
-                        <path d="M 1200 150 Q 1250 120, 1300 160 T 1350 240 T 1380 340" stroke="#14b8a6"
-                            stroke-width="2" fill="none" opacity="0.15" />
-                        <path d="M 0 400 Q 360 300, 720 400 T 1440 400" stroke="#059669" stroke-width="1.5" fill="none"
-                            opacity="0.1" />
-                        <path d="M 0 600 Q 360 550, 720 600 T 1440 600" stroke="#10b981" stroke-width="1.5" fill="none"
-                            opacity="0.1" />
-                    </svg>
-                </div>
+        <section id="edukasi-preview" class="py-16 lg:py-24 overflow-hidden bg-[#F0FDF4]">
 
-                <!-- Animated Blobs -->
-                <div class="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-green-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"
-                    aria-hidden="true"></div>
-                <div class="absolute bottom-0 left-0 w-72 sm:w-96 h-72 sm:h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"
-                    aria-hidden="true"></div>
-                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 sm:w-96 h-72 sm:h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"
-                    aria-hidden="true"></div>
-            </div>
 
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
                 <!-- Header Section -->
@@ -654,7 +869,7 @@
                                         @if($item->foto_sampul)
                                             <!-- Gambar Artikel -->
                                             <img src="{{ asset('storage/' . $item->foto_sampul) }}" alt="{{ $item->judul }}"
-                                                loading="lazy"
+                                                loading="lazy" width="600" height="400"
                                                 class="absolute inset-0 w-full h-full object-cover opacity-95 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
                                         @else
                                             <!-- Placeholder jika tidak ada gambar -->
@@ -720,42 +935,33 @@
                             </a>
                         @endforeach
                     </div>
+                    
+                    <!-- Tombol Lihat Semua Artikel -->
+                    <div class="mt-12 lg:mt-16 text-center">
+                        <a href="{{ route('edukasi.index') }}"
+                            class="inline-flex items-center justify-center px-6 lg:px-8 py-3 lg:py-4 bg-white border-2 border-green-600 text-green-600 font-bold rounded-full hover:bg-green-50 transition-all duration-300 hover:shadow-lg group text-sm lg:text-base">
+                            Lihat Semua Artikel
+                            <svg class="w-4 h-4 lg:w-5 lg:h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                    d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                        </a>
+                    </div>
                 @else
                     <!-- State Kosong: Tidak Ada Artikel -->
-                    <div class="max-w-2xl mx-auto" data-aos="fade-up">
-                        <div class="text-center py-20 px-6 bg-white rounded-3xl border border-green-200">
-                            <div class="relative inline-flex mb-6">
-                                <div class="w-24 h-24 bg-green-50 rounded-2xl flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-green-400" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-
-                            <h3 class="text-2xl font-bold text-slate-900 mb-3">Konten Segera Hadir!</h3>
-                            <p class="text-slate-600 leading-relaxed max-w-md mx-auto mb-6">
-                                Kami sedang menyiapkan artikel edukatif berkualitas tinggi untuk meningkatkan pengetahuan
-                                pertanian Anda. Nantikan konten menarik dari kami segera!
-                            </p>
+                    <div class="text-center py-12 lg:py-20 bg-white/50 backdrop-blur-sm rounded-3xl border-2 border-dashed border-green-200 mx-4 sm:mx-0">
+                        <div class="w-20 h-20 lg:w-24 lg:h-24 mx-auto mb-6 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <svg class="w-10 h-10 lg:w-12 lg:h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                                </path>
+                            </svg>
                         </div>
+                        <h3 class="text-lg lg:text-xl font-bold text-slate-900 mb-2">Konten Segera Hadir!</h3>
+                        <p class="text-slate-500 text-sm max-w-md mx-auto px-4">Kami sedang menyiapkan artikel edukatif berkualitas tinggi untuk meningkatkan pengetahuan pertanian Anda. Nantikan konten menarik dari kami segera!</p>
                     </div>
                 @endif
-
-                <!-- Tombol Lihat Semua Artikel -->
-                <div class="mt-12 lg:mt-16 text-center">
-                    <a href="{{ route('edukasi.index') }}"
-                        class="inline-flex items-center justify-center px-6 lg:px-8 py-3 lg:py-4 bg-white border-2 border-green-600 text-green-600 font-bold rounded-full hover:bg-green-50 transition-all duration-300 hover:shadow-lg group text-sm lg:text-base">
-                        Lihat Semua Artikel
-                        <svg class="w-4 h-4 lg:w-5 lg:h-5 ml-2 group-hover:translate-x-1 transition-transform"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                        </svg>
-                    </a>
-                </div>
             </div>
         </section>
 
@@ -777,8 +983,8 @@
                         <!-- Container Gambar Utama -->
                         <div
                             class="relative rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white group">
-                            <img src="{{ asset('images/hero2.png') }}" alt="Tim AgriSmart"
-                                class="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105">
+                            <img src="{{ asset('images/hero2.png') }}" alt="Tim AgriSmart" loading="lazy" width="500" height="400"
+                                class="w-full h-auto object-cover hover:scale-105 transition-transform duration-700">
                             <div
                                 class="absolute inset-0 bg-gradient-to-t from-green-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                             </div>
@@ -860,7 +1066,7 @@
         </section>
 
         <!-- ============================= SECTION: KONTAK ============================= -->
-        <section id="kontak" class="py-16 lg:py-24 relative bg-[#F0FDF4] overflow-hidden">
+        <section id="kontak" class="py-16 lg:py-24 bg-[#F0FDF4] overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <!-- Header Section -->
                 <div class="text-center max-w-3xl mx-auto mb-12 lg:mb-16" data-aos="fade-up">
@@ -894,8 +1100,8 @@
                     <div class="space-y-6" data-aos="fade-right">
                         <!-- Gambar Lokasi -->
                         <div class="relative w-full h-[350px] lg:h-[450px] overflow-hidden group">
-                            <img src="{{ asset('images/hero3.png') }}" alt="Lokasi Kami"
-                                class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-in-out">
+                            <img src="{{ asset('images/hero3.png') }}" alt="Lokasi Kami" loading="lazy" width="500" height="400"
+                                class="w-full h-auto object-cover hover:scale-105 transition-transform duration-700">
                         </div>
 
                         <!-- Info Waktu Respon -->

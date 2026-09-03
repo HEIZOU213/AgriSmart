@@ -94,4 +94,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(Device::class);
     }
+
+    /**
+     * Accessor untuk URL foto profil (Support lokal storage & OAuth URL)
+     */
+    public function getFotoProfilUrlAttribute()
+    {
+        if (!$this->foto_profil) {
+            return null;
+        }
+
+        if (preg_match('#^https?://#i', $this->foto_profil)) {
+            $cleanUrl = preg_replace('/\?sz=\d+$/', '', $this->foto_profil);
+            return preg_replace('/=s\d+-c$/', '=s0-c', $cleanUrl);
+        }
+
+        return asset('storage/' . $this->foto_profil);
+    }
 }

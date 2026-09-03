@@ -54,4 +54,30 @@ class KontakController extends Controller
         Kontak::findOrFail($id)->delete();
         return back()->with('success', 'Pesan berhasil dihapus.');
     }
+
+    // --- BAGIAN API (Mobile App) ---
+    public function apiStore(Request $request)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email',
+            'no_hp' => 'required|string|max:20',
+            'pesan' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $kontak = Kontak::create($request->only('nama', 'email', 'no_hp', 'pesan'));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesan kontak berhasil dikirim',
+            'data' => $kontak
+        ], 201);
+    }
 }

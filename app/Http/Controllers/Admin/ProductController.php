@@ -58,7 +58,7 @@ class ProductController extends Controller
             'harga' => 'required|numeric',
             'stok' => 'required|integer',
             'deskripsi' => 'required|string',
-            'kategori_produk_id' => 'required|exists:kategori_produks,id',
+            'kategori_produk_id' => 'required|exists:kategori_produk,id',
             'foto_produk' => 'nullable|image|max:2048',
         ]);
 

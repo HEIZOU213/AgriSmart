@@ -12,16 +12,15 @@ use Carbon\Carbon;
 
 class AuthOtpController extends Controller
 {
-    // 1. Tampilkan Halaman Login (Custom)
+    // 1. Tampilkan Halaman Login
     public function showLoginForm()
     {
         return view('auth.custom-login');
     }
 
-    // 2. PROSES LOGIN (Cek Password -> Kirim OTP)
+    // 2. PROSES LOGIN
     public function loginWithPassword(Request $request)
     {
-        // Validasi Input
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'password' => 'required',
@@ -30,58 +29,57 @@ class AuthOtpController extends Controller
             'password.required' => 'Kata sandi wajib diisi.',
         ]);
 
-        // Ambil data user
         $user = User::where('email', $request->email)->first();
 
-        // --- CEK PASSWORD DULU ---
+        // Cek Password
         if (!Hash::check($request->password, $user->password)) {
             return back()->withErrors(['password' => 'Kata sandi salah.']);
         }
 
-        // --- JIKA PASSWORD BENAR, LANJUT KIRIM OTP ---
+        // --- LOGIKA OTP ENABLED/DISABLED ---
+        if (!filter_var(env('OTP_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
+            // Jika OTP dimatikan, langsung login
+            Auth::login($user);
+            return $this->redirectBasedOnRole($user);
+        }
 
-        // Generate OTP
+        // --- JIKA OTP AKTIF, KIRIM OTP ---
         $otp = rand(100000, 999999);
 
-        // Simpan OTP ke database (Valid 5 menit) [PERBAIKAN: 1 -> 5 Menit]
         $user->update([
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(5)
         ]);
 
-        // Catat waktu pengiriman (untuk data sesi saja)
-        session(['otp_last_sent' => now()]);
+        session(['otp_last_sent' => now(), 'otp_email' => $user->email]);
 
-        // Kirim Email
         try {
             Mail::to($user->email)->send(new OtpLoginMail($otp));
         } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'Gagal mengirim email OTP.']);
+            return back()->withErrors(['email' => 'Gagal mengirim email OTP. Silakan coba lagi.']);
         }
 
-        // Simpan email di session
-        session(['otp_email' => $user->email]);
-
-        // Arahkan ke halaman verifikasi
         return redirect()->route('otp.verify');
     }
 
-    // 3. Tampilkan Halaman Input OTP (Dengan Data Timer)
+    // 3. Tampilkan Halaman Input OTP
     public function showVerifyForm()
     {
+        // Proteksi jika OTP dimatikan tapi user mencoba akses manual route ini
+        if (!filter_var(env('OTP_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
+            return redirect()->route('login');
+        }
+
         $email = session('otp_email');
         if (!$email) {
-            return redirect()->route('login.otp');
+            return redirect()->route('login');
         }
 
         $user = User::where('email', $email)->first();
 
-        // [PERBAIKAN] Set waitTime jadi 0 agar tombol resend SELALU AKTIF (tidak perlu menunggu)
-        $waitTime = 0; 
-
         return view('auth.verify-otp', [
             'expires_at' => $user->otp_expires_at,
-            'waitTime' => $waitTime
+            'waitTime' => 0 // Tombol resend langsung aktif
         ]);
     }
 
@@ -96,67 +94,58 @@ class AuthOtpController extends Controller
         $user = User::where('email', $email)->first();
 
         if (!$user) {
-            return redirect()->route('login.otp')->withErrors(['email' => 'Sesi habis.']);
+            return redirect()->route('login')->withErrors(['email' => 'Sesi habis.']);
         }
 
-        // Cek OTP dan Waktu
+        // Cek OTP dan Masa Berlaku
         if ($user->otp == $request->otp && Carbon::now()->lessThanOrEqualTo($user->otp_expires_at)) {
             
-            // Login User
             Auth::login($user);
 
-            // Bersihkan data OTP
+            // Bersihkan data
             $user->update(['otp' => null, 'otp_expires_at' => null]);
-            session()->forget(['otp_email', 'otp_last_sent']); // Bersihkan session
+            session()->forget(['otp_email', 'otp_last_sent']);
 
-            // Redirect sesuai Role
-            switch ($user->role) {
-                case 'admin': return redirect()->route('admin.dashboard');
-                case 'petani': return redirect()->route('petani.dashboard');
-                case 'konsumen': return redirect()->route('homepage');
-                default: return redirect()->route('homepage');
-            }
+            return $this->redirectBasedOnRole($user);
         }
 
         return back()->withErrors(['otp' => 'Kode salah atau sudah kedaluwarsa.']);
     }
 
-    // 5. [PERBAIKAN] Logika Resend OTP via AJAX (LANGSUNG KIRIM)
+    // 5. Resend OTP via AJAX
     public function resendOtp()
     {
         $email = session('otp_email');
-        if (!$email) {
-            return response()->json(['status' => 'error', 'message' => 'Sesi habis, silakan login ulang.'], 401);
+        if (!$email || !filter_var(env('OTP_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
+            return response()->json(['status' => 'error', 'message' => 'Akses ditolak.'], 401);
         }
 
-        // [PERBAIKAN] Saya MENGHAPUS blok pengecekan Cooldown di sini.
-        // Permintaan resend akan langsung diproses tanpa batasan waktu.
-
-        // 1. Generate & Update OTP
         $user = User::where('email', $email)->first();
         $otp = rand(100000, 999999);
         
-        // Kode lama otomatis tertimpa (hangus) saat kita update kolom 'otp'
-        // [PERBAIKAN: Validasi jadi 5 Menit]
         $user->update([
             'otp' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(5)
         ]);
 
-        // 2. Update Session
-        session(['otp_last_sent' => now()]);
-
-        // 3. Kirim Email
         try {
             Mail::to($user->email)->send(new OtpLoginMail($otp));
+            return response()->json(['status' => 'success', 'message' => 'Kode OTP baru berhasil dikirim!']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => 'Gagal mengirim email.'], 500);
         }
+    }
 
-        // 4. BERHASIL (Kirim respon JSON sukses)
-        return response()->json([
-            'status' => 'success', 
-            'message' => 'Kode OTP baru berhasil dikirim!'
-        ]);
+    /**
+     * Helper untuk redirect berdasarkan role (Agar DRY - Don't Repeat Yourself)
+     */
+    private function redirectBasedOnRole($user)
+    {
+        return match ($user->role) {
+            'admin'    => redirect()->route('admin.dashboard'),
+            'petani'   => redirect()->route('petani.dashboard'),
+            'konsumen' => redirect()->route('homepage'),
+            default    => redirect()->route('homepage'),
+        };
     }
 }

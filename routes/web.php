@@ -18,12 +18,10 @@ use App\Http\Controllers\EdukasiController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PesanOrderController;
-// use App\Http\Controllers\ChatController; // (Opsional: Bisa dikomentari jika sudah tidak dipakai)
-use App\Http\Controllers\MarketChatController; // <--- IMPOR CONTROLLER BARU
+use App\Http\Controllers\MarketChatController;
 use App\Http\Controllers\KontakController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\OrderController;
 
 // --- IMPOR IOT CONTROLLER (BARU) ---
 use App\Http\Controllers\IotController;
@@ -76,19 +74,28 @@ Route::middleware('guest')->group(function () {
     
     // --- LOGIN OTP ROUTES (BARU) ---
     Route::get('/login-otp', [AuthOtpController::class, 'showLoginForm'])->name('login.otp');
-    Route::post('/login-otp', [AuthOtpController::class, 'loginWithPassword'])->name('login.otp.step1');
+    Route::post('/login-otp', [AuthOtpController::class, 'loginWithPassword'])->name('login.otp.step1')->middleware('throttle:auth');
     Route::get('/verify-otp', [AuthOtpController::class, 'showVerifyForm'])->name('otp.verify');
-    Route::post('/verify-otp', [AuthOtpController::class, 'verifyOtp'])->name('otp.verify.submit');
+    Route::post('/verify-otp', [AuthOtpController::class, 'verifyOtp'])->name('otp.verify.submit')->middleware('throttle:auth');
     
     // [TAMBAHAN] Rute Kirim Ulang OTP via AJAX (POST)
-    Route::post('/otp/resend', [AuthOtpController::class, 'resendOtp'])->name('otp.resend');
+    Route::post('/otp/resend', [AuthOtpController::class, 'resendOtp'])->name('otp.resend')->middleware('throttle:auth');
     // -------------------------------
 
     Route::get('/register', [CustomAuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [CustomAuthController::class, 'processRegister']);
+    Route::post('/register', [CustomAuthController::class, 'processRegister'])->middleware('throttle:auth');
 
     Route::get('/login', [CustomAuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [CustomAuthController::class, 'processLogin']);
+    Route::post('/login', [CustomAuthController::class, 'processLogin'])->middleware('throttle:auth');
+
+    // --- LUPA PASSWORD OTP ROUTES (BARU) ---
+    Route::get('/forgot-password', [\App\Http\Controllers\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [\App\Http\Controllers\ForgotPasswordController::class, 'sendResetOtp'])->name('password.email')->middleware('throttle:auth');
+    Route::get('/reset-password-verify', [\App\Http\Controllers\ForgotPasswordController::class, 'showVerifyForm'])->name('password.verify');
+    Route::post('/reset-password-verify', [\App\Http\Controllers\ForgotPasswordController::class, 'verifyOtp'])->name('password.verify.submit')->middleware('throttle:auth');
+    Route::get('/reset-password', [\App\Http\Controllers\ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [\App\Http\Controllers\ForgotPasswordController::class, 'resetPassword'])->name('password.reset.update');
+    // ---------------------------------------
 
     // Socialite Google
     Route::get('/auth/google/redirect', function () {
@@ -132,7 +139,7 @@ Route::middleware('guest')->group(function () {
 
     // Admin Login
     Route::get('/master-control/masuk', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
-    Route::post('/master-control/masuk', [AdminAuthController::class, 'login'])->name('admin.login.submit');
+    Route::post('/master-control/masuk', [AdminAuthController::class, 'login'])->name('admin.login.submit')->middleware('throttle:auth');
 });
 
 /*
@@ -268,8 +275,9 @@ Route::middleware(['auth', UserActivity::class])->group(function () {
     Route::middleware(['role:konsumen'])->prefix('konsumen')->name('konsumen.')->group(function () {
         Route::resource('pesanan', KonsumenPesanan::class);
         Route::put('/pesanan/{id}/cancel', [KonsumenPesanan::class, 'cancel'])->name('pesanan.cancel');
-        Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-        Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     });
+
+    // Realtime Notifikasi (Polling Web)
+    Route::get('/api/cek-notifikasi', [ChatController::class, 'checkNotifications'])->name('api.cek-notifikasi');
 
 });

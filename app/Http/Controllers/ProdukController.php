@@ -120,4 +120,28 @@ class ProdukController extends Controller
             'data' => $produk
         ]);
     }
+
+    /**
+     * API: Detail satu produk
+     */
+    public function apiShow(string $id)
+    {
+        $produk = Produk::with(['user', 'kategoriProduk'])->find($id);
+
+        if (!$produk) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Produk tidak ditemukan'
+            ], 404);
+        }
+
+        if ($produk->foto_produk && !str_starts_with($produk->foto_produk, 'http')) {
+            $produk->foto_produk = url('storage/' . $produk->foto_produk);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $produk
+        ]);
+    }
 }
