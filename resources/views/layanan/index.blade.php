@@ -162,153 +162,426 @@
                 @if(Auth::check())
                     {{-- $userRole sudah dikirim dari Controller --}}
 
-                    {{-- === TAMPILAN PETANI / ADMIN === --}}
-                    @if(in_array($userRole, ['petani', 'admin']))
+                    {{-- === TAMPILAN PEKEBUN / ADMIN === --}}
+                    @if(in_array($userRole, ['pekebun', 'petani', 'admin']))
 
-                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+                        <div x-data="{
+                            modalUploadOpen: false,
+                            modalEditOpen: false,
+                            editDevice: { id: '', name: '', serial_number: '', pin_code: '' }
+                        }">
 
-                            {{-- === KOLOM KIRI: FORM INPUT DEVICE === --}}
-                            <div class="lg:col-span-4 lg:sticky lg:top-28 w-full">
-                                <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-xl">
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
 
-                                    {{-- Form Header --}}
-                                    <div class="mb-5 sm:mb-6">
-                                        <h3 class="font-bold text-lg text-slate-900">Tambah Sensor Kebun</h3>
-                                        <p class="text-sm text-slate-500">Daftarkan sensor IoT kebun durian Anda.</p>
+                                {{-- === KOLOM KIRI: FORM INPUT DEVICE === --}}
+                                <div class="lg:col-span-4 lg:sticky lg:top-28 w-full space-y-4">
+                                    <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-xl">
+
+                                        {{-- Form Header --}}
+                                        <div class="mb-5 sm:mb-6">
+                                            <h3 class="font-bold text-lg text-slate-900">Hubungkan Sensor</h3>
+                                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                                                Masukkan Serial Number & PIN perangkat. Perangkat baru akan otomatis terdaftar dan tersimpan di database Anda.
+                                            </p>
+                                        </div>
+
+                                        {{-- Form Claim Device --}}
+                                        <form action="{{ route('layanan.claim') }}" method="POST" class="space-y-4">
+                                            @csrf
+
+                                            {{-- Input: Serial Number --}}
+                                            <div>
+                                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 block pl-1">
+                                                    Serial Number Perangkat
+                                                </label>
+                                                <input type="text" name="serial_number" required placeholder="Contoh: SN-AGRI-01 atau SN-ESP32-01"
+                                                    class="w-full px-4 py-3 rounded-xl bg-slate-50/50 border border-slate-200 text-slate-800 font-semibold text-base sm:text-sm placeholder:font-normal placeholder:text-slate-400
+                                                    hover:bg-white hover:border-green-200
+                                                    focus:outline-none focus:ring-0 focus:shadow-none focus:border-slate-200
+                                                    focus:hover:bg-white focus:hover:border-green-200 transition-colors">
+                                            </div>
+
+                                            {{-- Input: PIN Code / Password --}}
+                                            <div x-data="{ showPinInput: false }">
+                                                <div class="flex items-center justify-between mb-1 pl-1">
+                                                    <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
+                                                        PIN Code / Password
+                                                    </label>
+                                                    <button type="button" @click="showPinInput = !showPinInput" class="text-[11px] font-semibold text-green-600 hover:text-green-700">
+                                                        <span x-text="showPinInput ? 'Sembunyikan' : 'Lihat PIN'"></span>
+                                                    </button>
+                                                </div>
+                                                <input :type="showPinInput ? 'text' : 'password'" name="pin_code" required placeholder="Masukkan PIN / Password" 
+                                                    class="w-full px-4 py-3 rounded-xl bg-slate-50/50 border border-slate-200 text-slate-800 font-semibold text-base sm:text-sm placeholder:font-normal placeholder:text-slate-400
+                                                    hover:bg-white hover:border-green-200
+                                                    focus:outline-none focus:ring-0 focus:shadow-none focus:border-slate-200
+                                                    focus:hover:bg-white focus:hover:border-green-200 transition-colors">
+                                            </div>
+
+                                            {{-- Input: Nama Kebun / Blok --}}
+                                            <div>
+                                                <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 block pl-1">
+                                                    Nama Kebun / Lokasi Sensor
+                                                </label>
+                                                <input type="text" name="name" required placeholder="Misal: Durian Musang King Blok A" class="w-full px-4 py-3 rounded-xl bg-slate-50/50 border border-slate-200 text-slate-800 font-semibold text-base sm:text-sm placeholder:font-normal placeholder:text-slate-400
+                                                    hover:bg-white hover:border-green-200
+                                                    focus:outline-none focus:ring-0 focus:shadow-none focus:border-slate-200
+                                                    focus:hover:bg-white focus:hover:border-green-200 transition-colors">
+                                            </div>
+
+                                            {{-- Submit Button --}}
+                                            <button type="submit"
+                                                class="w-full mt-2 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-green-600/20 active:scale-95 flex items-center justify-center gap-2 text-sm sm:text-base">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                                <span>Hubungkan & Simpan Sensor</span>
+                                            </button>
+                                        </form>
+
+                                        {{-- Tombol Bantuan Upload Massal --}}
+                                        <div class="mt-4 pt-4 border-t border-slate-100 text-center">
+                                            <button type="button" @click="modalUploadOpen = true"
+                                                    class="w-full py-2.5 px-3 bg-slate-50 hover:bg-green-50 text-slate-700 hover:text-green-700 rounded-xl text-xs font-bold border border-slate-200 hover:border-green-200 transition-all flex items-center justify-center gap-2">
+                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                                </svg>
+                                                <span>Upload Massal PIN & Password (CSV)</span>
+                                            </button>
+                                            <p class="text-[11px] text-slate-400 mt-1.5">Punya banyak sensor? Daftarkan sekaligus lewat file atau tempel teks.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- === KOLOM KANAN: LIST PERANGKAT TERHUBUNG === --}}
+                                <div class="lg:col-span-8 w-full">
+                                    <div class="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
+
+                                        {{-- Header List Device --}}
+                                        <div class="px-5 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100">
+                                            <div>
+                                                <h3 class="font-bold text-slate-900 text-base sm:text-lg">Perangkat Saya</h3>
+                                                <p class="text-xs text-slate-500">Kelola dan pantau semua sensor perkebunan Anda di sini.</p>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <button type="button" @click="modalUploadOpen = true"
+                                                        class="px-3 py-1.5 rounded-xl bg-green-50 hover:bg-green-100 text-green-700 text-xs font-bold border border-green-200 transition-colors inline-flex items-center gap-1.5 shadow-sm">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                                    <span>Upload Massal</span>
+                                                </button>
+                                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                                                    {{ isset($myDevices) ? count($myDevices) : 0 }} Unit
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {{-- Body List Device (Dengan horizontal scroll aman untuk mobile) --}}
+                                        <div class="p-4 sm:p-6 space-y-3.5 overflow-x-auto">
+                                            @if(isset($myDevices) && count($myDevices) > 0)
+                                                {{-- Loop setiap device --}}
+                                                @foreach ($myDevices as $dev)
+                                                    <div class="p-4 sm:p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 hover:bg-white hover:border-green-300 hover:shadow-md transition-all duration-200 min-w-[280px]">
+                                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+                                                            {{-- Info Device --}}
+                                                            <div class="flex items-start sm:items-center gap-3.5 flex-1 min-w-0">
+                                                                {{-- Icon --}}
+                                                                <div class="w-11 h-11 bg-white rounded-xl flex items-center justify-center text-green-600 shadow-sm border border-slate-100 flex-shrink-0">
+                                                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                                                                    </svg>
+                                                                </div>
+
+                                                                {{-- Text Info --}}
+                                                                <div class="flex-1 min-w-0">
+                                                                    <div class="flex flex-wrap items-center gap-2">
+                                                                        <h4 class="font-bold text-slate-900 text-sm sm:text-base break-words">
+                                                                            {{ $dev->name }}
+                                                                        </h4>
+                                                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $dev->mode === 'AUTO' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
+                                                                            {{ $dev->mode }}
+                                                                        </span>
+                                                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $dev->is_pump_on ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600' }}">
+                                                                            Pompa: {{ $dev->is_pump_on ? 'HIDUP' : 'MATI' }}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs">
+                                                                        {{-- Serial Number --}}
+                                                                        <span class="text-slate-500 font-mono font-semibold break-all">
+                                                                            SN: <span class="text-slate-800">{{ $dev->serial_number }}</span>
+                                                                        </span>
+
+                                                                        {{-- PIN View/Hide Toggle --}}
+                                                                        <div x-data="{ showPin: false }" class="inline-flex items-center gap-1.5 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+                                                                            <span class="text-[10px] uppercase font-bold text-slate-400">PIN:</span>
+                                                                            <span class="font-mono text-xs font-bold text-slate-700 select-all"
+                                                                                  x-text="showPin ? '{{ $dev->pin_code }}' : '••••••'"></span>
+                                                                            <button type="button" @click="showPin = !showPin"
+                                                                                    class="text-slate-400 hover:text-green-600 transition-colors p-0.5"
+                                                                                    :title="showPin ? 'Sembunyikan PIN' : 'Lihat PIN'">
+                                                                                <svg x-show="!showPin" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                                                </svg>
+                                                                                <svg x-show="showPin" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            {{-- Action Buttons --}}
+                                                            <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
+                                                                {{-- Tombol Buka Monitoring --}}
+                                                                <a href="{{ route('layanan.show', $dev->serial_number) }}"
+                                                                   class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all duration-200 flex items-center gap-1.5"
+                                                                   title="Buka Dashboard Monitoring Realtime">
+                                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                                                    </svg>
+                                                                    <span>Pantau</span>
+                                                                </a>
+
+                                                                {{-- Tombol Edit --}}
+                                                                <button type="button"
+                                                                        @click="editDevice = {
+                                                                            id: '{{ $dev->id }}',
+                                                                            name: '{{ addslashes($dev->name) }}',
+                                                                            serial_number: '{{ $dev->serial_number }}',
+                                                                            pin_code: '{{ addslashes($dev->pin_code) }}'
+                                                                        }; modalEditOpen = true;"
+                                                                        class="p-2 bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 rounded-xl text-xs font-semibold border border-slate-200 transition-colors shadow-2xs"
+                                                                        title="Edit Nama / PIN Perangkat">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                                    </svg>
+                                                                </button>
+
+                                                                {{-- Tombol Hapus / Putuskan --}}
+                                                                <form action="{{ route('layanan.destroy', $dev->id) }}" method="POST"
+                                                                      onsubmit="return confirm('Apakah Anda yakin ingin menghapus perangkat {{ $dev->serial_number }} dari sistem?')"
+                                                                      class="inline">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit"
+                                                                            class="p-2 bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-xl text-xs font-semibold border border-slate-200 hover:border-red-200 transition-colors shadow-2xs"
+                                                                            title="Hapus Perangkat">
+                                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                        </svg>
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                {{-- Empty State: Tidak ada device --}}
+                                                <div class="py-10 flex flex-col items-center justify-center text-center px-4 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                                                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-full flex items-center justify-center mb-3 text-slate-300 shadow-sm border border-slate-100">
+                                                        <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2 2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                                        </svg>
+                                                    </div>
+                                                    <h4 class="text-slate-900 font-bold text-sm">Belum Ada Sensor Terhubung</h4>
+                                                    <p class="text-slate-500 text-xs mt-1 max-w-sm leading-relaxed">
+                                                        Hubungkan sensor pertama Anda lewat form di sebelah kiri atau unggah massal PIN dan password perangkat.
+                                                    </p>
+                                                    <button type="button" @click="modalUploadOpen = true"
+                                                            class="mt-4 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                                        <span>Upload Massal Sekarang</span>
+                                                    </button>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            {{-- === MODAL 1: UPLOAD MASSAL PIN & PASSWORD === --}}
+                            <div x-show="modalUploadOpen"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0"
+                                 x-transition:enter-end="opacity-100"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs overflow-y-auto"
+                                 style="display: none;"
+                                 @keydown.escape.window="modalUploadOpen = false">
+
+                                <div @click.away="modalUploadOpen = false"
+                                     x-show="modalUploadOpen"
+                                     x-transition:enter="transition ease-out duration-250"
+                                     x-transition:enter-start="opacity-0 scale-95"
+                                     x-transition:enter-end="opacity-100 scale-100"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-100 scale-100"
+                                     x-transition:leave-end="opacity-0 scale-95"
+                                     class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-7 shadow-2xl border border-slate-100 my-8">
+
+                                    {{-- Modal Header --}}
+                                    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-slate-900">Upload Massal PIN & Password</h3>
+                                            <p class="text-xs text-slate-500 mt-0.5">Daftarkan banyak sensor sekaligus tanpa perlu input manual di database.</p>
+                                        </div>
+                                        <button type="button" @click="modalUploadOpen = false" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
                                     </div>
 
-                                    {{-- Form Claim Device --}}
-                                    <form action="{{ route('layanan.claim') }}" method="POST" class="space-y-4">
+                                    {{-- Download Template Info Card --}}
+                                    <div class="mt-4 p-3.5 bg-green-50/70 rounded-2xl border border-green-200/80 flex items-center justify-between gap-3">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-xl bg-green-600 text-white flex items-center justify-center shrink-0">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-bold text-slate-800">Format Template CSV</p>
+                                                <p class="text-[11px] text-slate-500">Unduh contoh format CSV untuk pengisian cepat.</p>
+                                            </div>
+                                        </div>
+                                        <a href="{{ route('layanan.template') }}"
+                                           class="px-3 py-1.5 bg-white hover:bg-green-600 text-green-700 hover:text-white rounded-xl text-xs font-bold border border-green-300 transition-all shadow-2xs shrink-0 flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                            <span>Unduh CSV</span>
+                                        </a>
+                                    </div>
+
+                                    {{-- Form Upload --}}
+                                    <form action="{{ route('layanan.upload') }}" method="POST" enctype="multipart/form-data" class="mt-4 space-y-4">
                                         @csrf
 
-                                        {{-- Input: Serial Number --}}
+                                        {{-- 1. Opsi File Upload --}}
                                         <div>
-                                            <label
-                                                class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 block pl-1">
-                                                Serial Number
+                                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                                Pilih File CSV / TXT
                                             </label>
-                                            <input type="text" name="serial_number" required placeholder="Contoh: SN-AGRI-01"
-                                                class="w-full px-4 py-3 rounded-xl bg-slate-50/50 border border-slate-200 text-slate-800 font-semibold text-base sm:text-sm placeholder:font-normal placeholder:text-slate-400
-                                                hover:bg-white hover:border-green-200
-                                                focus:outline-none focus:ring-0 focus:shadow-none focus:border-slate-200
-                                                focus:hover:bg-white focus:hover:border-green-200 transition-colors">
+                                            <input type="file" name="file" accept=".csv,.txt,text/plain"
+                                                   class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 border border-slate-200 rounded-xl cursor-pointer bg-slate-50/50 p-1">
                                         </div>
 
-                                        {{-- Input: PIN Code --}}
+                                        {{-- 2. Opsi Paste Teks --}}
                                         <div>
-                                            <label
-                                                class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 block pl-1">
-                                                PIN Code
-                                            </label>
-                                            <input type="password" name="pin_code" required placeholder="• • • • • •" class="w-full px-4 py-3 rounded-xl bg-slate-50/50 border border-slate-200 text-slate-800 font-semibold text-base sm:text-sm placeholder:font-normal placeholder:text-slate-400
-                                                hover:bg-white hover:border-green-200
-                                                focus:outline-none focus:ring-0 focus:shadow-none focus:border-slate-200
-                                                focus:hover:bg-white focus:hover:border-green-200 transition-colors">
+                                            <div class="flex items-center justify-between mb-1.5">
+                                                <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                                    Atau Tempel Teks Daftar Sensor
+                                                </label>
+                                                <span class="text-[10px] text-slate-400">1 baris = 1 perangkat</span>
+                                            </div>
+                                            <textarea name="batch_text" rows="4"
+                                                      placeholder="SN-AGRI-001, 123456, Kebun Durian Blok A&#10;SN-AGRI-002, 654321, Kebun Durian Blok B"
+                                                      class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50/50 border border-slate-200 text-xs font-mono text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-green-500 transition-colors"></textarea>
+                                            <p class="text-[11px] text-slate-500 mt-1">
+                                                Format: <code class="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-semibold">nomor_seri, pin_password, nama_kebun</code> (bisa pisahkan koma atau titik koma).
+                                            </p>
                                         </div>
 
-                                        {{-- Input: Nama Kebun --}}
-                                        <div>
-                                            <label
-                                                class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1 block pl-1">
-                                                Nama Kebun
-                                            </label>
-                                            <input type="text" name="name" required placeholder="Misal: Kebun Hidroponik" class="w-full px-4 py-3 rounded-xl bg-slate-50/50 border border-slate-200 text-slate-800 font-semibold text-base sm:text-sm placeholder:font-normal placeholder:text-slate-400
-                                                hover:bg-white hover:border-green-200
-                                                focus:outline-none focus:ring-0 focus:shadow-none focus:border-slate-200
-                                                focus:hover:bg-white focus:hover:border-green-200 transition-colors">
+                                        {{-- Action Buttons --}}
+                                        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+                                            <button type="button" @click="modalUploadOpen = false"
+                                                    class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                                                Batal
+                                            </button>
+                                            <button type="submit"
+                                                    class="px-5 py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white text-xs font-bold transition-all shadow-md shadow-green-600/20 flex items-center gap-1.5">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                                <span>Mulai Upload & Simpan</span>
+                                            </button>
                                         </div>
-
-                                        {{-- Submit Button --}}
-                                        <button type="submit"
-                                            class="w-full mt-2 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-green-600/20 active:scale-95 flex items-center justify-center gap-2 text-sm sm:text-base">
-                                            <span>Hubungkan</span>
-                                        </button>
                                     </form>
+
                                 </div>
                             </div>
 
-                            {{-- === KOLOM KANAN: LIST PERANGKAT TERHUBUNG === --}}
-                            <div class="lg:col-span-8 w-full">
-                                <div class="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
+                            {{-- === MODAL 2: EDIT PERANGKAT & PIN === --}}
+                            <div x-show="modalEditOpen"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0"
+                                 x-transition:enter-end="opacity-100"
+                                 x-transition:leave="transition ease-in duration-150"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs overflow-y-auto"
+                                 style="display: none;"
+                                 @keydown.escape.window="modalEditOpen = false">
 
-                                    {{-- Header List Device --}}
-                                    <div
-                                        class="px-5 sm:px-6 py-4 sm:py-5 flex items-center justify-between mb-2 border-b border-slate-50">
-                                        <h3 class="font-bold text-slate-900 text-base sm:text-lg">Perangkat Saya</h3>
-                                        <span
-                                            class="bg-green-100/50 text-green-700 px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold border border-green-100 whitespace-nowrap">
-                                            {{ isset($myDevices) ? count($myDevices) : 0 }} Unit
-                                        </span>
+                                <div @click.away="modalEditOpen = false"
+                                     x-show="modalEditOpen"
+                                     x-transition:enter="transition ease-out duration-250"
+                                     x-transition:enter-start="opacity-0 scale-95"
+                                     x-transition:enter-end="opacity-100 scale-100"
+                                     x-transition:leave="transition ease-in duration-150"
+                                     x-transition:leave-start="opacity-100 scale-100"
+                                     x-transition:leave-end="opacity-0 scale-95"
+                                     class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-slate-100 my-8">
+
+                                    {{-- Modal Header --}}
+                                    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+                                        <div>
+                                            <h3 class="text-lg font-bold text-slate-900">Edit Perangkat Sensor</h3>
+                                            <p class="text-xs text-slate-500 mt-0.5">Ubah nama atau PIN/Password perangkat ini.</p>
+                                        </div>
+                                        <button type="button" @click="modalEditOpen = false" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
                                     </div>
 
-                                    {{-- Body List Device --}}
-                                    <div class="p-4 sm:p-6 space-y-3 pt-2">
-                                        @if(isset($myDevices) && count($myDevices) > 0)
-                                            {{-- Loop setiap device --}}
-                                            @foreach ($myDevices as $dev)
-                                                <a href="{{ route('layanan.show', $dev->serial_number) }}" class="group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-slate-50/50 border border-slate-100 transition-all duration-200
-                                                                    hover:bg-white hover:border-green-200
-                                                                    focus:outline-none focus:ring-0 focus:shadow-none focus:border-slate-100
-                                                                    focus:hover:border-green-200 focus:hover:bg-white">
+                                    {{-- Form Edit --}}
+                                    <form :action="'{{ url('/layanan/devices') }}/' + editDevice.id" method="POST" class="mt-4 space-y-4">
+                                        @csrf
+                                        @method('PUT')
 
-                                                    {{-- Icon Status Device --}}
-                                                    <div
-                                                        class="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-green-500 group-hover:text-white transition-all duration-300 flex-shrink-0 shadow-sm">
-                                                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-                                                        </svg>
-                                                    </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                                Nama Sensor / Kebun
+                                            </label>
+                                            <input type="text" name="name" x-model="editDevice.name" required
+                                                   class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-semibold text-slate-800 focus:bg-white focus:border-green-500 focus:outline-none transition-colors">
+                                        </div>
 
-                                                    {{-- Info Device --}}
-                                                    <div class="flex-1 min-w-0">
-                                                        <div class="flex items-center gap-2">
-                                                            <h4
-                                                                class="font-bold text-slate-900 text-sm sm:text-base truncate group-hover:text-green-700 transition-colors">
-                                                                {{ $dev->name }}
-                                                            </h4>
-                                                        </div>
-                                                        <p class="text-[11px] sm:text-xs text-slate-400 font-mono mt-0.5 truncate">SN:
-                                                            {{ $dev->serial_number }}
-                                                        </p>
-                                                    </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                                Serial Number
+                                            </label>
+                                            <input type="text" name="serial_number" x-model="editDevice.serial_number" required
+                                                   class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-mono font-semibold text-slate-800 focus:bg-white focus:border-green-500 focus:outline-none transition-colors">
+                                        </div>
 
-                                                    {{-- Arrow Navigasi ke Detail --}}
-                                                    <div
-                                                        class="text-slate-300 group-hover:text-green-600 group-hover:translate-x-1 transition-all flex-shrink-0">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M9 5l7 7-7 7" />
-                                                        </svg>
-                                                    </div>
-                                                </a>
-                                            @endforeach
-                                        @else
-                                            {{-- Empty State: Tidak ada device --}}
-                                            <div
-                                                class="py-8 flex flex-col items-center justify-center text-center px-4 border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/30">
-                                                <div
-                                                    class="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-full flex items-center justify-center mb-3 text-slate-300 shadow-sm">
-                                                    <svg class="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2 2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                                    </svg>
-                                                </div>
-                                                <h4 class="text-slate-900 font-bold text-sm">Belum Ada Perangkat</h4>
-                                                <p class="text-slate-500 text-xs mt-1 max-w-xs leading-relaxed">Data monitoring akan
-                                                    muncul di sini setelah Anda menghubungkan perangkat.</p>
-                                            </div>
-                                        @endif
-                                    </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                                PIN Code / Password
+                                            </label>
+                                            <input type="text" name="pin_code" x-model="editDevice.pin_code" required
+                                                   class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm font-mono font-semibold text-slate-800 focus:bg-white focus:border-green-500 focus:outline-none transition-colors">
+                                            <p class="text-[11px] text-slate-400 mt-1">Pastikan PIN sesuai dengan yang dikonfigurasikan di alat ESP32 Anda.</p>
+                                        </div>
+
+                                        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+                                            <button type="button" @click="modalEditOpen = false"
+                                                    class="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                                                Batal
+                                            </button>
+                                            <button type="submit"
+                                                    class="px-5 py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white text-xs font-bold transition-all shadow-md shadow-green-600/20">
+                                                Simpan Perubahan
+                                            </button>
+                                        </div>
+                                    </form>
+
                                 </div>
                             </div>
 
                         </div>
 
-                        {{-- === TAMPILAN KONSUMEN (RESTRICTED ACCESS) === --}}
-                    @elseif($userRole == 'konsumen')
+                        {{-- === TAMPILAN USER / KONSUMEN (RESTRICTED ACCESS) === --}}
+                    @elseif(in_array($userRole, ['user', 'konsumen']))
                         <div class="max-w-lg mx-auto px-4" data-aos="zoom-in">
                             <div class="p-6 sm:p-8 text-center">
 

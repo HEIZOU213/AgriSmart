@@ -4,10 +4,9 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Detail Pesanan ') }} ({{ $pesanan->kode_pesanan }})
             </h2>
-            {{-- [TOMBOL BARU] Hubungi Pembeli --}}
-            <a href="{{ route('chat.show', $pesanan->id) }}" 
-               class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+            {{-- Hubungi Pembeli --}}
+            <a href="{{ route('chat.show', ['userId' => $pesanan->user_id, 'text' => 'Halo ' . ($pesanan->user->name ?? 'Pelanggan') . ', mengenai pesanan #' . $pesanan->kode_pesanan, 'back_url' => route('petani.pesanan.show', $pesanan->id)]) }}" 
+               class="inline-flex items-center px-4 py-2 bg-emerald-600 border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-wider hover:bg-emerald-700 transition shadow-sm">
                 Hubungi Pembeli
             </a>
         </div>
@@ -33,7 +32,7 @@
                     <h3 class="text-lg font-semibold mb-3 border-b pb-2">Status & Aksi</h3>
                     <div class="mb-4 text-center">
                         <p class="text-sm text-gray-500">Status Saat Ini:</p>
-                        <p class="text-2xl font-bold capitalize text-red-600">{{ $pesanan->status }}</p>
+                        <p class="text-2xl font-bold capitalize {{ $pesanan->status == 'done' ? 'text-green-600' : ($pesanan->status == 'cancelled' ? 'text-red-600' : 'text-green-600') }}">{{ $pesanan->status }}</p>
                     </div>
 
                     {{-- Form untuk Update Status --}}
@@ -41,14 +40,18 @@
                         @csrf
                         @method('PUT')
 
-                        <label for="status" class="block text-sm font-medium text-gray-700 mt-4">Ubah Status:</label>
-                        <select name="status" id="status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                            <option value="pending" {{ $pesanan->status == 'pending' ? 'selected' : '' }}>01. Pending (Menunggu Pembayaran)</option>
-                            <option value="paid" {{ $pesanan->status == 'paid' ? 'selected' : '' }}>02. Paid (Pembayaran Diterima)</option>
-                            <option value="shipping" {{ $pesanan->status == 'shipping' ? 'selected' : '' }}>03. Shipping (Siap Dikirim / Dikirim)</option>
-                            <option value="done" {{ $pesanan->status == 'done' ? 'selected' : '' }}>04. Done (Selesai)</option>
-                            <option value="cancelled" {{ $pesanan->status == 'cancelled' ? 'selected' : '' }}>05. Cancelled (Dibatalkan)</option>
-                        </select>
+                        <label for="status" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mt-4 mb-1.5">Ubah Status:</label>
+                        <x-custom-dropdown 
+                            name="status" 
+                            id="status" 
+                            :value="$pesanan->status" 
+                            :options="[
+                                'shipping' => '01. Shipping (Sedang Dikirim)',
+                                'done' => '02. Done (Pesanan Selesai)',
+                                'cancelled' => '03. Cancelled (Batalkan Pesanan)'
+                            ]" 
+                            required 
+                        />
 
                         <button type="submit" class="mt-4 w-full px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
                             Konfirmasi Perubahan Status
@@ -73,28 +76,30 @@
                 </div>
 
                 {{-- Daftar Produk yang Dibeli --}}
-                <div class="bg-white shadow sm:rounded-lg p-6 border border-gray-200">
-                    <h3 class="text-lg font-semibold mb-3 border-b pb-2">Produk yang Dibeli</h3>
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produk</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jml</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Satuan</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($pesanan->detailPesanan as $detail)
+                <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200 overflow-hidden">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">Produk yang Dibeli</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[500px] divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $detail->produk ? $detail->produk->nama_produk : '[Produk Dihapus]' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">{{ $detail->jumlah }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">Rp {{ number_format($detail->harga_satuan, 0, ',', '.') }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right">Rp {{ number_format($detail->harga_satuan * $detail->jumlah, 0, ',', '.') }}</td>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Produk</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Jml</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Harga Satuan</th>
+                                    <th class="px-6 py-3 text-right text-xs font-bold text-gray-600 uppercase tracking-wider whitespace-nowrap">Subtotal</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach ($pesanan->detailPesanan as $detail)
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $detail->produk ? $detail->produk->nama_produk : '[Produk Dihapus]' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ $detail->jumlah }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">Rp {{ number_format($detail->harga_satuan, 0, ',', '.') }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-right">Rp {{ number_format($detail->harga_satuan * $detail->jumlah, 0, ',', '.') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 
                 {{-- (BAGIAN LOG PESAN SUDAH DIHAPUS DARI SINI) --}}

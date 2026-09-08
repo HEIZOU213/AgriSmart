@@ -24,11 +24,6 @@ class NotifikasiController extends Controller
 
         return response()->json([
             'success' => true,
-            // --- BAGIAN DEBUG (PENTING) ---
-            'debug_user_id' => $user->id,       // Kita butuh angka ini!
-            'debug_user_name' => $user->name,   // Sekalian cek namanya
-            'debug_user_email' => $user->email, // Sekalian cek emailnya
-            // ------------------------------
             'message' => 'Daftar notifikasi berhasil diambil',
             'data' => $notifikasi
         ]);

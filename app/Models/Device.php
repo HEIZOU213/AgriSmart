@@ -12,6 +12,10 @@ class Device extends Model
     // Field yang boleh diisi
     protected $fillable = ['serial_number', 'pin_code', 'name', 'user_id', 'mode', 'is_pump_on'];
 
+    protected $casts = [
+        'is_pump_on' => 'boolean',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

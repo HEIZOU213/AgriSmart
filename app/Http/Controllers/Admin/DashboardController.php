@@ -15,8 +15,8 @@ class DashboardController extends Controller
     {
         // 1. Statistik Dasar (User & Konten)
         $totalUsers = User::count();
-        $totalPetani = User::where('role', 'petani')->count();
-        $totalKonsumen = User::where('role', 'konsumen')->count();
+        $totalPetani = User::where('role', 'pekebun')->count();
+        $totalKonsumen = User::where('role', 'user')->count();
         $totalKonten = KontenEdukasi::count();
 
         // 2. Statistik Keuangan (LOGIKA BARU)
@@ -29,7 +29,7 @@ class DashboardController extends Controller
 
         // B. Hitung Dana Mengendap (Total saldo milik semua pekebun durian)
         // Ini adalah uang fisik yang ada di rekening Admin, tapi milik Pekebun
-        $danaPetani = User::where('role', 'petani')->sum('saldo');
+        $danaPetani = User::where('role', 'pekebun')->sum('saldo');
 
         // Masukkan semua ke array $stats
         $stats = [

@@ -13,7 +13,14 @@
 
     <div class="text-gray-900">
         @if ($errors->any())
-            {{-- ... (Error handling tetap sama) ... --}}
+            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
+                <strong>Whoops!</strong> Ada masalah dengan input Anda.<br><br>
+                <ul class="list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
         @endif
 
         <form action="{{ route('petani.produk.update', $produk->id) }}" method="POST" enctype="multipart/form-data">
@@ -21,41 +28,54 @@
             @method('PUT')
             
             <div class="space-y-4">
-                {{-- ... (Form Nama, Kategori, Harga, Stok, Deskripsi tetap sama) ... --}}
-                
                 <div>
                     <label for="nama_produk" class="block text-sm font-medium text-gray-700">Nama Produk</label>
                     <input type="text" id="nama_produk" name="nama_produk" value="{{ old('nama_produk', $produk->nama_produk) }}" 
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500">
+                    @error('nama_produk')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
                 <div>
-                    <label for="kategori_produk_id" class="block text-sm font-medium text-gray-700">Kategori Produk</label>
-                    <select name="kategori_produk_id" id="kategori_produk_id" 
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">-- Pilih Kategori --</option>
-                        @foreach ($kategori as $item)
-                            <option value="{{ $item->id }}" {{ old('kategori_produk_id', $produk->kategori_produk_id) == $item->id ? 'selected' : '' }}>
-                                {{ $item->nama_kategori }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <label for="kategori_produk_id" class="block text-sm font-semibold text-slate-700 mb-1.5">Kategori Produk</label>
+                    <x-custom-dropdown 
+                        name="kategori_produk_id" 
+                        id="kategori_produk_id" 
+                        placeholder="-- Pilih Kategori --" 
+                        :options="$kategori" 
+                        :value="old('kategori_produk_id', $produk->kategori_produk_id)" 
+                        searchable 
+                        required 
+                    />
+                    @error('kategori_produk_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="harga" class="block text-sm font-medium text-gray-700">Harga (Rp)</label>
                         <input type="number" id="harga" name="harga" value="{{ old('harga', $produk->harga) }}" 
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500">
+                        @error('harga')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label for="stok" class="block text-sm font-medium text-gray-700">Stok (Cth: Kg, Ikat)</label>
                         <input type="number" id="stok" name="stok" value="{{ old('stok', $produk->stok) }}" 
-                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                               class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500">
+                        @error('stok')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
                 <div>
                     <label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi Produk</label>
                     <textarea name="deskripsi" id="deskripsi" rows="5" 
-                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('deskripsi', $produk->deskripsi) }}</textarea>
+                              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500">{{ old('deskripsi', $produk->deskripsi) }}</textarea>
+                    @error('deskripsi')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 {{-- [BARU] Tampilkan foto saat ini dan form ganti foto --}}

@@ -2,7 +2,7 @@
     // Logika penentuan layout berdasarkan role user
     $layout = 'konsumen-layout';
     
-    if(Auth::user()->role === 'petani') {
+    if(in_array(Auth::user()->role, ['pekebun', 'petani'])) {
         $layout = 'petani-layout';
     } elseif(Auth::user()->role === 'admin') {
         $layout = 'admin-layout';

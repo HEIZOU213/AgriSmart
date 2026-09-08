@@ -1,15 +1,8 @@
 <x-konsumen-layout>
     <x-slot name="header">
-        <div class="flex items-center gap-3">
-            <div class="p-2 bg-green-100 rounded-lg text-green-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-            </div>
-            <h2 class="font-bold text-xl text-gray-800 leading-tight">
-                {{ __('Riwayat Pesanan') }}
-            </h2>
-        </div>
+        <h2 class="font-bold text-xl text-gray-800 leading-tight">
+            {{ __('Riwayat Pesanan') }}
+        </h2>
     </x-slot>
 
     <div class="max-w-5xl mx-auto space-y-6 pb-12">
@@ -110,15 +103,27 @@
                                 @endif
 
                                 @if ($item->status == 'pending')
-    {{-- Form Cancel Manual --}}
-    <form action="{{ route('pesanan.cancel', $item->id) }}" method="POST" 
-          onsubmit="return confirm('Yakin ingin membatalkan pesanan? Stok akan dikembalikan.');">
-        @csrf
-        <button type="submit" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-xs font-bold transition">
-            Batalkan Pesanan
-        </button>
-    </form>
-@endif
+                                    {{-- Form Cancel Manual --}}
+                                    <form action="{{ route('pesanan.cancel', $item->id) }}" method="POST" 
+                                          onsubmit="return confirm('Yakin ingin membatalkan pesanan? Stok akan dikembalikan.');">
+                                        @csrf
+                                        <button type="submit" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 text-xs font-bold transition">
+                                            Batalkan Pesanan
+                                        </button>
+                                    </form>
+                                @endif
+
+                                @if ($item->status == 'shipping')
+                                    {{-- Konfirmasi Pesanan Diterima --}}
+                                    <form action="{{ route('konsumen.pesanan.selesai', $item->id) }}" method="POST"
+                                          onsubmit="return confirm('Apakah pesanan sudah Anda terima dengan baik? Konfirmasi ini akan menyelesaikan pesanan.');">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-sm hover:shadow">
+                                            Pesanan Diterima
+                                        </button>
+                                    </form>
+                                @endif
                                 
                                 {{-- Tombol Detail --}}
                                 <a href="{{ route('konsumen.pesanan.show', $item->id) }}" 
@@ -143,7 +148,7 @@
             @empty
                 {{-- Empty State --}}
                 <div class="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-300 shadow-sm">
-                    <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                    <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
                         <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-2">Belum ada riwayat pesanan</h3>

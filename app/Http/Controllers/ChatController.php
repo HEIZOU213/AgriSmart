@@ -19,9 +19,9 @@ class ChatController extends Controller
         $role = Auth::user()->role;
         $pesananIds = [];
 
-        if ($role === 'konsumen') {
+        if ($role === 'user') {
             $pesananIds = Pesanan::where('user_id', $userId)->pluck('id');
-        } elseif ($role === 'petani') {
+        } elseif ($role === 'pekebun') {
             $produkIds = Produk::where('user_id', $userId)->pluck('id');
             $pesananIds = DetailPesanan::whereIn('produk_id', $produkIds)->pluck('pesanan_id');
         } else { // Admin
@@ -98,12 +98,12 @@ class ChatController extends Controller
     public function apiIndex()
     {
         $userId = Auth::id();
-        $role = Auth::user()->role ?? 'konsumen';
+        $role = Auth::user()->role ?? 'user';
         $pesananIds = [];
 
-        if ($role === 'konsumen') {
+        if ($role === 'user') {
             $pesananIds = Pesanan::where('user_id', $userId)->pluck('id');
-        } elseif ($role === 'petani') {
+        } elseif ($role === 'pekebun') {
             $produkIds = Produk::where('user_id', $userId)->pluck('id');
             $pesananIds = DetailPesanan::whereIn('produk_id', $produkIds)->pluck('pesanan_id');
         } else {
@@ -145,46 +145,26 @@ class ChatController extends Controller
         ];
 
         if ($user) {
-            // === LOGIKA UNTUK PETANI ===
-            if ($user->role === 'petani') {
+            // 1. Chat Masuk (Semua Role menggunakan MarketChat yang aktif)
+            try {
+                $data['chat'] = \App\Models\MarketChat::where('receiver_id', $user->id)
+                    ->where('is_read', false)
+                    ->count();
+            } catch (\Exception $e) {}
+
+            // 2. Data Khusus Berdasarkan Role
+            if ($user->role === 'pekebun') {
                 $petaniId = $user->id;
-                
-                // 1. Pesanan Masuk
+                // Pesanan Masuk
                 try {
                     $data['pesanan'] = \App\Models\Pesanan::whereHas('detailPesanan.produk', function($q) use ($petaniId) {
                         $q->where('user_id', $petaniId);
                     })->where('status', 'pending')->where('is_seen', false)->count();
                 } catch (\Exception $e) {}
-
-                // 2. Chat Masuk (Produk Pekebun)
+            } elseif ($user->role === 'user') {
+                // Hitung Isi Keranjang
                 try {
-                    $produkIds = \App\Models\Produk::where('user_id', $petaniId)->pluck('id');
-                    $pesananIds = \App\Models\DetailPesanan::whereIn('produk_id', $produkIds)->pluck('pesanan_id');
-                    $data['chat'] = \App\Models\PesanOrder::whereIn('pesanan_id', $pesananIds)
-                                    ->where('user_id', '!=', $petaniId)
-                                    ->where('is_read', false)->count();
-                } catch (\Exception $e) {}
-            } 
-            
-            // === LOGIKA UNTUK KONSUMEN ===
-            elseif ($user->role === 'konsumen') {
-                $konsumenId = $user->id;
-
-                // 1. Hitung Isi Keranjang
-                try {
-                    // Pastikan Model Keranjang sudah diimport atau gunakan full path
-                    $data['keranjang'] = \App\Models\Keranjang::where('user_id', $konsumenId)->count();
-                } catch (\Exception $e) {}
-
-                // 2. Hitung Chat Masuk (Balasan dari Pekebun)
-                try {
-                    // Cari pesanan milik konsumen ini
-                    $pesananIds = \App\Models\Pesanan::where('user_id', $konsumenId)->pluck('id');
-                    
-                    // Hitung pesan di order tersebut yang BUKAN dari konsumen ini (artinya dari pekebun durian)
-                    $data['chat'] = \App\Models\PesanOrder::whereIn('pesanan_id', $pesananIds)
-                                    ->where('user_id', '!=', $konsumenId)
-                                    ->where('is_read', false)->count();
+                    $data['keranjang'] = \App\Models\Keranjang::where('user_id', $user->id)->count();
                 } catch (\Exception $e) {}
             }
         }

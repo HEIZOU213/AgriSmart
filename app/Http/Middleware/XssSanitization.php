@@ -9,16 +9,21 @@ use Symfony\Component\HttpFoundation\Response;
 class XssSanitization
 {
     /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Field yang dikecualikan dari strip_tags (misal password agar tidak korup, isi_konten artikel edukasi)
      */
+    protected array $except = [
+        'password',
+        'password_confirmation',
+        'current_password',
+        'isi_konten',
+    ];
+
     public function handle(Request $request, Closure $next): Response
     {
         $input = $request->all();
 
-        array_walk_recursive($input, function(&$value) {
-            if (is_string($value)) {
+        array_walk_recursive($input, function(&$value, $key) {
+            if (is_string($value) && !in_array($key, $this->except, true)) {
                 $value = strip_tags($value);
             }
         });

@@ -11,7 +11,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>body{font-family:'Figtree',sans-serif;} [x-cloak]{display:none!important}</style>
 </head>
-<body class="font-sans antialiased bg-gray-50 text-slate-800">
+<body class="font-sans antialiased bg-green-50 text-slate-800">
 
 {{-- Navbar terpadu (role admin) --}}
 <x-app-navbar role="admin" />
@@ -128,7 +128,7 @@
     </div>
 
     {{-- ─── KONTEN UTAMA ─── --}}
-    <div class="flex-1 overflow-y-auto bg-gray-50">
+    <div class="flex-1 overflow-y-auto bg-green-50/50">
         <div class="p-5 md:p-8">
             @if(isset($header))
                 <h1 class="text-xl md:text-2xl font-bold text-slate-800 mb-6">{{ $header }}</h1>

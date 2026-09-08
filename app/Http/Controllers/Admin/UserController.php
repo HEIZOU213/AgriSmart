@@ -16,8 +16,8 @@ class UserController extends Controller
     public function index()
     {
         // Hitung jumlah untuk ditampilkan di badge
-        $countPetani = User::where('role', 'petani')->count();
-        $countKonsumen = User::where('role', 'konsumen')->count();
+        $countPetani = User::where('role', 'pekebun')->count();
+        $countKonsumen = User::where('role', 'user')->count();
 
         return view('admin.users.index', compact('countPetani', 'countKonsumen'));
     }
@@ -27,9 +27,9 @@ class UserController extends Controller
      */
     public function listPetani()
     {
-        $users = User::where('role', 'petani')->orderBy('created_at', 'desc')->paginate(12);
+        $users = User::where('role', 'pekebun')->orderBy('created_at', 'desc')->paginate(12);
         $title = 'Daftar Mitra Pekebun';
-        $roleType = 'petani'; // Untuk styling warna hijau
+        $roleType = 'pekebun'; // Untuk styling warna hijau
         
         return view('admin.users.list', compact('users', 'title', 'roleType'));
     }
@@ -39,9 +39,9 @@ class UserController extends Controller
      */
     public function listKonsumen()
     {
-        $users = User::where('role', 'konsumen')->orderBy('created_at', 'desc')->paginate(12);
+        $users = User::where('role', 'user')->orderBy('created_at', 'desc')->paginate(12);
         $title = 'Daftar Konsumen';
-        $roleType = 'konsumen'; // Untuk styling warna kuning
+        $roleType = 'user'; // Untuk styling warna kuning
         
         return view('admin.users.list', compact('users', 'title', 'roleType'));
     }
@@ -59,7 +59,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:admin,pekebun durian,konsumen',
+            'role' => 'required|in:admin,pekebun,user',
         ]);
 
         User::create([
@@ -70,8 +70,8 @@ class UserController extends Controller
         ]);
 
         // Redirect kembali ke halaman list yang sesuai
-        if($request->role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Akun Pekebun berhasil dibuat.');
-        if($request->role == 'konsumen') return redirect()->route('admin.users.konsumen')->with('success', 'Akun Konsumen berhasil dibuat.');
+        if($request->role == 'pekebun') return redirect()->route('admin.users.petani')->with('success', 'Akun Pekebun berhasil dibuat.');
+        if($request->role == 'user') return redirect()->route('admin.users.konsumen')->with('success', 'Akun Konsumen berhasil dibuat.');
         
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil dibuat.');
     }
@@ -98,7 +98,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|string|min:8',
-            'role' => 'required|in:admin,pekebun durian,konsumen',
+            'role' => 'required|in:admin,pekebun,user',
         ]);
 
         $user->name = $request->name;
@@ -111,8 +111,8 @@ class UserController extends Controller
         $user->save();
 
         // Redirect cerdas kembali ke list yang sesuai
-        if($user->role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Data Pekebun diperbarui.');
-        if($user->role == 'konsumen') return redirect()->route('admin.users.konsumen')->with('success', 'Data Konsumen diperbarui.');
+        if($user->role == 'pekebun') return redirect()->route('admin.users.petani')->with('success', 'Data Pekebun diperbarui.');
+        if($user->role == 'user') return redirect()->route('admin.users.konsumen')->with('success', 'Data Konsumen diperbarui.');
 
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil diperbarui.');
     }
@@ -128,8 +128,8 @@ class UserController extends Controller
         $role = $user->role; // Simpan role sebelum dihapus untuk redirect
         $user->delete();
 
-        if($role == 'petani') return redirect()->route('admin.users.petani')->with('success', 'Akun Pekebun dihapus.');
-        if($role == 'konsumen') return redirect()->route('admin.users.konsumen')->with('success', 'Akun Konsumen dihapus.');
+        if($role == 'pekebun') return redirect()->route('admin.users.petani')->with('success', 'Akun Pekebun dihapus.');
+        if($role == 'user') return redirect()->route('admin.users.konsumen')->with('success', 'Akun Konsumen dihapus.');
 
         return redirect()->route('admin.users.index')->with('success', 'Akun pengguna berhasil dihapus.');
     }

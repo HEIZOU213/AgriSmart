@@ -47,7 +47,7 @@ class ProdukController extends Controller
             'deskripsi' => 'nullable|string',
             'harga' => 'required|numeric|min:0',
             'stok' => 'required|integer|min:0',
-            'foto_produk' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_produk' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $path = null; // Inisialisasi path
@@ -71,7 +71,7 @@ class ProdukController extends Controller
         $produk->save();
 
         return redirect()->route('petani.produk.index')
-                         ->with('success', 'Produk panen durian durian berhasil ditambahkan.');
+                         ->with('success', 'Produk panen durian berhasil ditambahkan.');
     }
 
     /**
@@ -79,7 +79,8 @@ class ProdukController extends Controller
      */
     public function show(string $id)
     {
-        // ... (Logika tetap sama)
+        $produk = Produk::where('user_id', Auth::id())->findOrFail($id);
+        return redirect()->route('petani.produk.edit', $produk->id);
     }
 
     /**
@@ -104,7 +105,12 @@ class ProdukController extends Controller
         $produk = Produk::where('user_id', Auth::id())->findOrFail($id);
 
         $request->validate([
-            // ... (Validasi tetap sama)
+            'nama_produk' => 'required|string|max:255',
+            'kategori_produk_id' => 'required|exists:kategori_produk,id',
+            'deskripsi' => 'nullable|string',
+            'harga' => 'required|numeric|min:0',
+            'stok' => 'required|integer|min:0',
+            'foto_produk' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $path = $produk->foto_produk; // Ambil path foto yang lama
@@ -131,7 +137,7 @@ class ProdukController extends Controller
         $produk->save();
 
         return redirect()->route('petani.produk.index')
-                         ->with('success', 'Produk panen durian durian berhasil diperbarui.');
+                         ->with('success', 'Produk panen durian berhasil diperbarui.');
     }
 
     /**
@@ -150,7 +156,7 @@ class ProdukController extends Controller
         $produk->delete();
 
         return redirect()->route('petani.produk.index')
-                         ->with('success', 'Produk panen durian durian berhasil dihapus.');
+                         ->with('success', 'Produk panen durian berhasil dihapus.');
     }
 
     /**
@@ -230,11 +236,13 @@ class ProdukController extends Controller
      */
     public function apiUpdate(Request $request, $id)
     {
-        // 1. Cari Produk
-        $produk = Produk::find($id);
+        $user = $request->user() ?: Auth::user();
+
+        // 1. Cari Produk milik pekebun yang sedang login (Cegah IDOR)
+        $produk = Produk::where('user_id', $user->id)->where('id', $id)->first();
 
         if (!$produk) {
-            return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+            return response()->json(['message' => 'Produk tidak ditemukan atau bukan milik Anda'], 404);
         }
 
         // 2. Validasi Input (Gunakan Validator yang sudah diimport)
@@ -264,8 +272,8 @@ class ProdukController extends Controller
             // 4. Cek Apakah Ada Gambar Baru?
             if ($request->hasFile('foto_produk')) {
                 // Hapus gambar lama jika ada (opsional, biar server gak penuh)
-                if ($produk->foto_produk && Storage::exists('public/' . $produk->foto_produk)) {
-                    Storage::delete('public/' . $produk->foto_produk);
+                if ($produk->foto_produk && Storage::disk('public')->exists($produk->foto_produk)) {
+                    Storage::disk('public')->delete($produk->foto_produk);
                 }
 
                 // Upload gambar baru

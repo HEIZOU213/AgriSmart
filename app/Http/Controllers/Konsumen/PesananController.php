@@ -37,15 +37,9 @@ class PesananController extends Controller
         $pesanan = Pesanan::where('user_id', Auth::id())
                         ->with(['detailPesanan.produk']) 
                         ->findOrFail($id);
-        
-        $pesanLog = \App\Models\PesanOrder::where('pesanan_id', $id)
-                                    ->with('user')
-                                    ->orderBy('created_at', 'asc')
-                                    ->get();
                         
         return view('konsumen.pesanan.show', [
             'pesanan' => $pesanan,
-            'pesanLog' => $pesanLog
         ]);
     }
 
@@ -65,6 +59,116 @@ class PesananController extends Controller
                          ->with('success', 'Riwayat pesanan ' . $pesanan->kode_pesanan . ' berhasil diarsipkan.');
     }
 
+    /**
+     * Membatalkan pesanan (Versi Web untuk Konsumen).
+     */
+    public function cancel(string $id)
+    {
+        $pesanan = Pesanan::with('detailPesanan.produk')
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        if ($pesanan->status !== 'pending') {
+            return redirect()->back()->with('error', 'Pesanan tidak dapat dibatalkan karena status bukan pending.');
+        }
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+        try {
+            // Kembalikan stok produk
+            foreach ($pesanan->detailPesanan as $detail) {
+                if ($detail->produk) {
+                    $detail->produk->increment('stok', $detail->jumlah);
+                }
+            }
+
+            $pesanan->status = 'cancelled';
+            $pesanan->save();
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            return redirect()->route('konsumen.pesanan.index')
+                             ->with('success', 'Pesanan #' . $pesanan->kode_pesanan . ' berhasil dibatalkan.');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal membatalkan pesanan.');
+        }
+    }
+
+    /**
+     * Konfirmasi Pesanan Selesai / Diterima oleh Konsumen.
+     */
+    public function selesai(string $id)
+    {
+        $pesanan = Pesanan::with('detailPesanan.produk')
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        if ($pesanan->status !== 'shipping') {
+            return redirect()->back()->with('error', 'Pesanan hanya dapat diselesaikan saat dalam status pengiriman.');
+        }
+
+        $pesanan->status = 'done';
+        $pesanan->save();
+
+        // Notifikasi ke pekebun durian
+        try {
+            $sellerId = optional($pesanan->detailPesanan->first()?->produk)->user_id;
+            if ($sellerId) {
+                \App\Models\Notifikasi::create([
+                    'user_id' => $sellerId,
+                    'judul'   => 'Pesanan #' . ($pesanan->kode_pesanan ?? $pesanan->id) . ' Diterima',
+                    'pesan'   => 'Pembeli telah mengonfirmasi bahwa produk telah sampai dan pesanan selesai.',
+                    'type'    => 'success',
+                    'is_read' => false
+                ]);
+            }
+        } catch (\Exception $e) {}
+
+        return redirect()->back()->with('success', 'Pesanan #' . $pesanan->kode_pesanan . ' telah diselesaikan. Terima kasih!');
+    }
+
+
+    // ================= API SECTION (Mobile) =================
+
+    /**
+     * API: List semua pesanan user yang login
+     */
+    public function apiIndex()
+    {
+        $orders = Pesanan::where('user_id', Auth::id())
+                    ->with('detailPesanan.produk')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders
+        ]);
+    }
+
+    /**
+     * API: Detail pesanan berdasarkan ID
+     */
+    public function apiShow($id)
+    {
+        $order = Pesanan::where('user_id', Auth::id())
+                    ->with('detailPesanan.produk')
+                    ->find($id);
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $order
+        ]);
+    }
 
     public function apiCancel(Request $request, $id)
     {
@@ -95,25 +199,68 @@ class PesananController extends Controller
             ], 400);
         }
 
-        // 5. Lakukan Pembatalan
-        // Kembalikan stok produk (Looping detail pesanan)
-        foreach ($pesanan->detailPesanan as $detail) {
-            $produk = $detail->produk;
-            if($produk) {
-                $produk->stok += $detail->jumlah; // Balikin stok
-                $produk->save();
+        // 5. Lakukan Pembatalan dalam transaksi aman
+        \Illuminate\Support\Facades\DB::transaction(function () use ($pesanan) {
+            foreach ($pesanan->detailPesanan as $detail) {
+                $produk = $detail->produk;
+                if ($produk) {
+                    $produk->increment('stok', $detail->jumlah);
+                }
             }
-        }
 
-        // Ubah status jadi cancelled
-        $pesanan->status = 'cancelled';
-        $pesanan->save();
+            $pesanan->status = 'cancelled';
+            $pesanan->save();
+        });
 
         // 6. Return JSON Sukses (PENTING: Status Code 200)
         return response()->json([
             'success' => true,
             'message' => 'Pesanan berhasil dibatalkan',
             'data' => $pesanan
+        ], 200);
+    }
+
+    public function apiSelesai(Request $request, $id)
+    {
+        $pesanan = Pesanan::with('detailPesanan.produk')
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$pesanan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan tidak ditemukan'
+            ], 404);
+        }
+
+        if ($pesanan->status !== 'shipping') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan hanya dapat diselesaikan saat dalam status pengiriman'
+            ], 400);
+        }
+
+        $pesanan->status = 'done';
+        $pesanan->save();
+
+        try {
+            $sellerId = optional($pesanan->detailPesanan->first()?->produk)->user_id;
+            if ($sellerId) {
+                \App\Models\Notifikasi::create([
+                    'user_id' => $sellerId,
+                    'judul'   => 'Pesanan #' . ($pesanan->kode_pesanan ?? $pesanan->id) . ' Diterima',
+                    'pesan'   => 'Pembeli telah mengonfirmasi bahwa produk telah sampai dan pesanan selesai.',
+                    'type'    => 'success',
+                    'is_read' => false
+                ]);
+            }
+        } catch (\Exception $e) {}
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesanan berhasil diselesaikan',
+            'data'    => $pesanan
         ], 200);
     }
 }

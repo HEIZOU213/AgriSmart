@@ -92,7 +92,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password), // Enkripsi password
             'no_telepon' => $request->no_telepon,
-            'role' => 'konsumen', // Default role user baru adalah konsumen
+            'role' => 'user', // Default role user baru adalah konsumen
         ]);
 
         // 3. Buat Token (Opsional, agar langsung login)
@@ -211,7 +211,7 @@ class AuthController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->google_id . rand(1000,9999)), // Password acak
-                'role' => 'konsumen',
+                'role' => 'user',
                 'no_telepon' => null, // Nanti user bisa update sendiri
                 // 'google_id' => $request->google_id, // Aktifkan jika ada kolom ini
             ]);

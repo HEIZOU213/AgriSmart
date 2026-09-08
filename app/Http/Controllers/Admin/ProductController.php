@@ -34,7 +34,7 @@ class ProductController extends Controller
         $products = $query->latest()->paginate(10);
 
         // Data untuk Dropdown Filter
-        $petani = User::where('role', 'petani')->orderBy('name')->get();
+        $petani = User::where('role', 'pekebun')->orderBy('name')->get();
         $kategori = KategoriProduk::all();
 
         return view('admin.products.index', compact('products', 'petani', 'kategori'));
@@ -62,7 +62,7 @@ class ProductController extends Controller
             'foto_produk' => 'nullable|image|max:2048',
         ]);
 
-        $data = $request->all();
+        $data = $request->only(['nama_produk', 'harga', 'stok', 'deskripsi', 'kategori_produk_id']);
 
         if ($request->hasFile('foto_produk')) {
             if ($product->foto_produk) {

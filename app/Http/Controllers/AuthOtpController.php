@@ -36,10 +36,20 @@ class AuthOtpController extends Controller
             return back()->withErrors(['password' => 'Kata sandi salah.']);
         }
 
+        // --- 🛡️ SATPAM (LOGIKA KEAMANAN ADMIN) ---
+        // Akun Admin DILARANG masuk lewat form login umum / OTP
+        if ($user->role === 'admin') {
+            return back()->withErrors([
+                'email' => 'Akun Admin DILARANG masuk lewat sini! Gunakan jalur khusus Master Control.',
+            ])->withInput();
+        }
+
         // --- LOGIKA OTP ENABLED/DISABLED ---
+        // SEMENTARA DIPAKSA TRUE (BYPASS OTP) AGAR BISA LOGIN
         if (!filter_var(env('OTP_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
             // Jika OTP dimatikan, langsung login
             Auth::login($user);
+            $request->session()->regenerate();
             return $this->redirectBasedOnRole($user);
         }
 
@@ -143,8 +153,8 @@ class AuthOtpController extends Controller
     {
         return match ($user->role) {
             'admin'    => redirect()->route('admin.dashboard'),
-            'petani'   => redirect()->route('petani.dashboard'),
-            'konsumen' => redirect()->route('homepage'),
+            'pekebun'   => redirect()->route('portal.index'), // <-- Diubah ke Portal
+            'user' => redirect()->route('homepage'),
             default    => redirect()->route('homepage'),
         };
     }

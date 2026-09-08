@@ -60,7 +60,7 @@ class KontenEdukasiController extends Controller
         $konten->user_id = auth()->id();
         $konten->kategori_edukasi_id = $request->kategori_edukasi_id;
         $konten->judul = $request->judul;
-        $konten->slug = Str::slug($request->judul);
+        $konten->slug = $this->generateUniqueSlug($request->judul);
         $konten->isi_konten = $request->isi_konten;
         $konten->tipe_konten = $request->tipe_konten;
         $konten->url_video = $request->url_video;
@@ -121,7 +121,7 @@ class KontenEdukasiController extends Controller
         // 3. Update data konten
         $konten->kategori_edukasi_id = $request->kategori_edukasi_id;
         $konten->judul = $request->judul;
-        $konten->slug = Str::slug($request->judul);
+        $konten->slug = $this->generateUniqueSlug($request->judul, (int) $id);
         $konten->isi_konten = $request->isi_konten;
         $konten->tipe_konten = $request->tipe_konten;
         $konten->url_video = $request->url_video;
@@ -130,6 +130,23 @@ class KontenEdukasiController extends Controller
 
         return redirect()->route('admin.konten-edukasi.index')
                          ->with('success', 'Konten edukasi berhasil diperbarui.');
+    }
+
+    /**
+     * Helper untuk menghasilkan slug unik mencegah pelanggaran unique constraint.
+     */
+    private function generateUniqueSlug(string $title, ?int $ignoreId = null): string
+    {
+        $baseSlug = Str::slug($title) ?: 'konten';
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while (KontenEdukasi::where('slug', $slug)->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))->exists()) {
+            $slug = "{$baseSlug}-{$counter}";
+            $counter++;
+        }
+
+        return $slug;
     }
 
     /**

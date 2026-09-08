@@ -36,10 +36,9 @@ class PetaniDashboardController extends Controller
 
         // C. Total Pendapatan Bersih
         // Logic: Hitung (harga * jumlah) dari pesanan sukses
-        $pendapatan = DetailPesanan::whereIn('produk_id', $produkIds)
-            ->join('pesanan', 'detail_pesanan.pesanan_id', '=', 'pesanan.id')
-            ->whereIn('pesanan.status', ['paid', 'shipping', 'done', 'completed', 'shipped', 'confirmed'])
-            ->sum(DB::raw('detail_pesanan.harga_satuan * detail_pesanan.jumlah'));
+        $pendapatan = Pesanan::whereIn('id', DetailPesanan::whereIn('produk_id', $produkIds)->pluck('pesanan_id')->unique())
+            ->whereIn('status', ['paid', 'shipping', 'done', 'completed', 'shipped', 'confirmed'])
+            ->sum('seller_income');
 
         // D. Pesanan Masuk (Aktif)
         // Logic: Hitung pesanan yang statusnya BUKAN cancelled (termasuk pending)

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Pesanan;
 use App\Models\Produk;
 use App\Models\DetailPesanan;
-use App\Models\PesanOrder;
 use App\Models\User;
 use App\Models\Notifikasi;
 use Illuminate\Http\Request;
@@ -63,15 +62,8 @@ class PesananController extends Controller
             $pesanan->update(['is_seen' => true]);
         }
 
-        // Ambil log pesan
-        $pesanLog = PesanOrder::where('pesanan_id', $id)
-                              ->with('user')
-                              ->orderBy('created_at', 'asc')
-                              ->get();
-
         return view('petani.pesanan.show', [
             'pesanan' => $pesanan,
-            'pesanLog' => $pesanLog
         ]);
     }
 
@@ -106,11 +98,19 @@ class PesananController extends Controller
             'status' => 'required|in:shipping,done,cancelled', 
         ]);
 
-        // 3. LOGIKA POTONG SALDO (Refund)
-        if ($pesanan->status == 'paid' && $request->status == 'cancelled') {
+        // 3. LOGIKA POTONG SALDO & REFUND KE KONSUMEN
+        if (in_array($pesanan->status, ['paid', 'shipping']) && $request->status == 'cancelled') {
             $petani = User::find($petaniId);
-            $petani->saldo = $petani->saldo - $pesanan->seller_income;
-            $petani->save();
+            if ($petani && ($pesanan->seller_income ?? 0) > 0) {
+                $petani->saldo = max(0, $petani->saldo - $pesanan->seller_income);
+                $petani->save();
+            }
+
+            // Refund ke saldo konsumen
+            $konsumen = User::find($pesanan->user_id);
+            if ($konsumen) {
+                $konsumen->increment('saldo', $pesanan->total_harga);
+            }
         }
         
         // 4. LOGIKA KEMBALIKAN STOK (Restock)
@@ -165,11 +165,21 @@ class PesananController extends Controller
     public function apiUpdateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|string'
+            'status' => 'required|in:shipping,done,cancelled'
         ]);
 
         return DB::transaction(function () use ($request, $id) {
-            $user = $request->user();
+            $user = $request->user() ?: Auth::user();
+
+            // Verifikasi kepemilikan: pesanan harus berisi produk milik pekebun ini
+            $productIds = Produk::where('user_id', $user->id)->pluck('id');
+            $orderHasProduct = DetailPesanan::where('pesanan_id', $id)
+                                            ->whereIn('produk_id', $productIds)
+                                            ->exists();
+
+            if (!$orderHasProduct) {
+                return response()->json(['success' => false, 'message' => 'Akses ditolak. Pesanan bukan terkait produk Anda.'], 403);
+            }
             
             // Load detail pesanan, produk, DAN user pembeli
             $pesanan = Pesanan::with(['detailPesanan.produk', 'user'])->find($id);
@@ -193,14 +203,22 @@ class PesananController extends Controller
                 }
             }
 
-            // 2. LOGIKA REFUND (Potong Saldo Pekebun jika sudah lunas tapi dibatalkan)
-            if ($oldStatus == 'paid' && $newStatus == 'cancelled') {
+            // 2. LOGIKA REFUND (Potong Saldo Pekebun & Kembalikan ke Konsumen)
+            if (in_array($oldStatus, ['paid', 'shipping']) && $newStatus == 'cancelled') {
                 $pendapatan = $pesanan->seller_income ?? 0;
                 
                 if ($pendapatan > 0) {
                     $petani = User::find($user->id);
-                    $petani->saldo = $petani->saldo - $pendapatan;
-                    $petani->save();
+                    if ($petani) {
+                        $petani->saldo = max(0, $petani->saldo - $pendapatan);
+                        $petani->save();
+                    }
+                }
+
+                // Refund ke saldo konsumen
+                $konsumen = User::find($pembeliId);
+                if ($konsumen) {
+                    $konsumen->increment('saldo', $pesanan->total_harga ?? 0);
                 }
             }
 

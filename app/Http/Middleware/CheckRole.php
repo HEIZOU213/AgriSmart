@@ -15,17 +15,34 @@ class CheckRole
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      * @param  string  $role  // Parameter role yang kita kirim
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // 1. Cek apakah user sudah login DAN
-        // 2. Cek apakah role user SAMA DENGAN role yang dibutuhkan
-        if (!Auth::check() || Auth::user()->role !== $role) {
-            
-            // 3. Jika tidak, "tendang" mereka ke halaman 403 (Forbidden)
+        // 1. Cek login
+        if (!Auth::check()) {
             abort(403, 'ANDA TIDAK PUNYA AKSES KE HALAMAN INI.');
         }
 
-        // 4. Jika lolos, lanjutkan ke halaman yang dituju
+        $userRole = Auth::user()->role;
+        // Normalisasi alias legacy jika ada
+        if ($userRole === 'petani') $userRole = 'pekebun';
+        if ($userRole === 'konsumen') $userRole = 'user';
+
+        // 2. Kumpulkan role yang diizinkan (mendukung role tunggal atau koma)
+        $allowedRoles = [];
+        foreach ($roles as $role) {
+            foreach (explode(',', $role) as $r) {
+                $r = trim($r);
+                if ($r === 'petani') $r = 'pekebun';
+                if ($r === 'konsumen') $r = 'user';
+                $allowedRoles[] = $r;
+            }
+        }
+
+        // 3. Cek apakah role user termasuk dalam role yang diizinkan
+        if (!in_array($userRole, $allowedRoles)) {
+            abort(403, 'ANDA TIDAK PUNYA AKSES KE HALAMAN INI.');
+        }
+
         return $next($request);
     }
 }

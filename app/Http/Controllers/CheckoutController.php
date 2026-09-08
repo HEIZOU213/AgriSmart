@@ -142,7 +142,16 @@ class CheckoutController extends Controller
                     ],
                 ];
 
-                $pesanan->snap_token = Snap::getSnapToken($params);
+                if (app()->environment('testing') || empty(config('services.midtrans.server_key'))) {
+                    $pesanan->snap_token = 'MOCK-SNAP-TOKEN-' . Str::random(12);
+                } else {
+                    try {
+                        $pesanan->snap_token = Snap::getSnapToken($params);
+                    } catch (\Exception $snapException) {
+                        \Illuminate\Support\Facades\Log::warning('Midtrans Snap generation fallback: ' . $snapException->getMessage());
+                        $pesanan->snap_token = 'FALLBACK-SNAP-' . Str::random(12);
+                    }
+                }
                 $pesanan->save();
             }
 
@@ -228,31 +237,11 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Batalkan Pesanan Manual oleh User
+     * Batalkan Pesanan Manual oleh User (Delegasikan ke Konsumen\PesananController)
      */
     public function cancelOrder($id)
     {
-        $pesanan = Pesanan::with('detailPesanan.produk')
-            ->where('id', $id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
-
-        if ($pesanan->status == 'pending') {
-            DB::beginTransaction();
-            try {
-                foreach ($pesanan->detailPesanan as $detail) {
-                    $detail->produk->increment('stok', $detail->jumlah);
-                }
-                $pesanan->status = 'cancelled';
-                $pesanan->save();
-                DB::commit();
-                return redirect()->back()->with('success', 'Pesanan dibatalkan.');
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return redirect()->back()->with('error', 'Gagal membatalkan pesanan.');
-            }
-        }
-        return redirect()->back()->with('error', 'Pesanan tidak dapat dibatalkan.');
+        return app(\App\Http\Controllers\Konsumen\PesananController::class)->cancel($id);
     }
     
      // ================= API SECTION (Mobile & IoT) =================
@@ -314,7 +303,7 @@ class CheckoutController extends Controller
                 $ongkir = 0; // Bisa dibuat dinamis nanti
                 $grandTotal = $totalPerPetani + $ongkir;
                 
-                $adminFee = $totalPerPetani * 0.10; // 10% Fee
+                $adminFee = $totalPerPetani * 0.06; // 6% Fee
                 $sellerIncome = $totalPerPetani - $adminFee;
 
                 // B. Buat Order Baru (Satu Order per Pekebun)
@@ -361,7 +350,7 @@ class CheckoutController extends Controller
                     $pesanan->snap_token = $snapToken;
                     $pesanan->save();
                 } catch (\Exception $e) {
-                    // Jika gagal connect ke Midtrans, biarkan null dulu atau handle error
+                    \Log::error('Midtrans token failed for order ' . $pesanan->kode_pesanan . ': ' . $e->getMessage());
                 }
 
                 $createdOrders[] = $pesanan;

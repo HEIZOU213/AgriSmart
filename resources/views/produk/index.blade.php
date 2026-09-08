@@ -155,10 +155,10 @@
                         <div class="w-full">
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 relative z-30">
                                 @php
-                                    // Helper classes untuk styling dropdown agar konsisten
-                                    $btnClass = 'w-full bg-white text-slate-600 text-sm font-medium py-2.5 pl-4 pr-4 rounded-xl text-left shadow-sm flex items-center justify-between transition-all duration-200 cursor-pointer border border-transparent hover:border-gray-200';
-                                    $dropdownClass = 'absolute z-50 mt-1.5 w-full bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-y-auto py-1 custom-scrollbar ring-1 ring-black ring-opacity-5 focus:outline-none';
-                                    $itemClass = 'px-4 py-2 text-sm text-slate-600 cursor-pointer transition-colors hover:bg-green-50 hover:text-green-700';
+                                    // Helper classes untuk styling dropdown agar menarik, modern & responsive
+                                    $btnClass = 'w-full bg-white text-slate-700 text-sm font-semibold py-2.5 px-4 rounded-xl text-left shadow-sm flex items-center justify-between transition-all duration-200 cursor-pointer border border-slate-200 hover:border-green-500 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/15 outline-none select-none active:scale-[0.99]';
+                                    $dropdownClass = 'absolute z-50 mt-1.5 w-full bg-white rounded-2xl shadow-2xl border border-slate-100 max-h-60 overflow-y-auto py-1.5 custom-scrollbar focus:outline-none outline-none dropdown-menu-responsive';
+                                    $itemClass = 'px-4 py-2.5 text-sm text-slate-600 cursor-pointer transition-colors hover:bg-green-50 hover:text-green-700 font-medium flex items-center justify-between';
                                     $activeItemClass = 'bg-green-50 text-green-700 font-bold';
                                 @endphp
 
@@ -171,7 +171,7 @@
 
                                     <input type="hidden" name="kategori" :value="val">
 
-                                    <button type="button" @click="open = !open" class="{{ $btnClass }}">
+                                    <button type="button" @click="open = !open" class="{{ $btnClass }}" style="outline: none !important; -webkit-tap-highlight-color: transparent !important;">
                                         <span x-text="selected" class="truncate mr-2"></span>
                                         <svg class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"
                                             :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,7 +214,7 @@
 
                                     <input type="hidden" name="harga" :value="val">
 
-                                    <button type="button" @click="open = !open" class="{{ $btnClass }}">
+                                    <button type="button" @click="open = !open" class="{{ $btnClass }}" style="outline: none !important; -webkit-tap-highlight-color: transparent !important;">
                                         <span x-text="selected" class="truncate mr-2"></span>
                                         <svg class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"
                                             :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,7 +255,7 @@
 
                                     <input type="hidden" name="stok" :value="val">
 
-                                    <button type="button" @click="open = !open" class="{{ $btnClass }}">
+                                    <button type="button" @click="open = !open" class="{{ $btnClass }}" style="outline: none !important; -webkit-tap-highlight-color: transparent !important;">
                                         <span x-text="selected" class="truncate mr-2"></span>
                                         <svg class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"
                                             :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">

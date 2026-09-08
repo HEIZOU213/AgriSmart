@@ -305,7 +305,7 @@
                                     {{-- Marker Pin --}}
                                     <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                                         <div
-                                            class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center animate-pulse">
+                                            class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
                                             <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd"
                                                     d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
