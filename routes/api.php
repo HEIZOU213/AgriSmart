@@ -82,8 +82,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // --- PROFILE ---
+    Route::get('/profile/me', [AuthController::class, 'getProfile']);
     Route::post('/profile/update', [AuthController::class, 'updateProfile']); 
     Route::post('/profile/password', [AuthController::class, 'updatePassword']);
+    Route::delete('/profile/delete-account', [AuthController::class, 'deleteAccount']);
 
     // --- KERANJANG (CART) ---
     Route::get('/cart', [CartController::class, 'apiIndex']); 

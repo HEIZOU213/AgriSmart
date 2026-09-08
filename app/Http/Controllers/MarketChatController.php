@@ -62,7 +62,8 @@ class MarketChatController extends Controller
         if (request()->wantsJson() || request()->is('api/*')) {
             return response()->json([
                 'success' => true,
-                'data' => $formattedList
+                'data' => $formattedList,
+                'chats' => $formattedList,
             ]);
         }
 
