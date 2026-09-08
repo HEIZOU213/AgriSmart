@@ -108,42 +108,60 @@ class AuthController extends Controller
         ]);
     }
 
-    // --- UPDATE PROFIL (NAMA & FOTO) ---
+    // --- AMBIL DATA PROFIL USER LENGKAP ---
+    public function getProfile(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'data' => $request->user()
+        ]);
+    }
+
+    // --- UPDATE PROFIL (NAMA, EMAIL, NO TELEPON, ALAMAT, & FOTO) ---
     public function updateProfile(Request $request)
     {
         $user = $request->user();
 
-        // 1. Validasi Input (Menggunakan Rule agar Validasi Email User Sendiri Diabaikan)
+        // 1. Validasi Input (Email Unik kecuali User Sendiri)
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => [
                 'required',
                 'email',
-                // Artinya: Cek unik di tabel 'users', TAPI abaikan ID user yang sedang login
                 Rule::unique('users')->ignore($user->id),
             ],
-            'foto_profil' => 'nullable|image|max:2048',
+            'no_telepon' => 'nullable|string|max:20',
+            'no_wa' => 'nullable|string|max:20',
+            'alamat' => 'nullable|string|max:500',
+            'foto_profil' => 'nullable|image|max:3072',
         ]);
 
-        // Jika validasi gagal, kirim pesan error detail
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => $validator->errors()->first(), // Ambil pesan error pertama
+                'message' => $validator->errors()->first(),
             ], 422);
         }
 
-        // 2. Update Data (Jika lolos validasi)
+        // 2. Update Data
         $user->name = $request->name;
         $user->email = $request->email;
 
-        // 3. Update Foto
+        if ($request->has('no_telepon') && $request->no_telepon !== null) {
+            $user->no_telepon = $request->no_telepon;
+        } elseif ($request->has('no_wa') && $request->no_wa !== null) {
+            $user->no_telepon = $request->no_wa;
+        }
+
+        if ($request->has('alamat') && $request->alamat !== null) {
+            $user->alamat = $request->alamat;
+        }
+
+        // 3. Update Foto Profil
         if ($request->hasFile('foto_profil')) {
-            // Hapus foto lama jika ada (agar storage tidak penuh)
             if ($user->foto_profil && !preg_match('#^https?://#i', $user->foto_profil)) {
                 Storage::disk('public')->delete($user->foto_profil);
             }
-            // Simpan foto baru
             $path = $request->file('foto_profil')->store('profil', 'public');
             $user->foto_profil = $path;
         }
@@ -160,10 +178,31 @@ class AuthController extends Controller
     // --- GANTI PASSWORD ---
     public function updatePassword(Request $request)
     {
-        $request->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|min:8|confirmed', // confirmed = butuh field new_password_confirmation
+        // Fleksibel menangani field password atau new_password
+        $newPassword = $request->input('new_password', $request->input('password'));
+        $confirmPassword = $request->input('new_password_confirmation', $request->input('password_confirmation'));
+
+        $request->merge([
+            'new_password' => $newPassword,
+            'new_password_confirmation' => $confirmPassword,
         ]);
+
+        $validator = Validator::make($request->all(), [
+            'current_password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ], [
+            'current_password.required' => 'Kata sandi saat ini wajib diisi.',
+            'new_password.required' => 'Kata sandi baru wajib diisi.',
+            'new_password.min' => 'Kata sandi baru minimal 6 karakter.',
+            'new_password.confirmed' => 'Konfirmasi kata sandi baru tidak cocok.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+            ], 422);
+        }
 
         $user = $request->user();
 
@@ -171,7 +210,7 @@ class AuthController extends Controller
         if (!Hash::check($request->current_password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Password saat ini salah.',
+                'message' => 'Kata sandi saat ini salah.',
             ], 400);
         }
 
@@ -181,7 +220,29 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Password berhasil diperbarui!',
+            'message' => 'Kata sandi berhasil diperbarui!',
+        ]);
+    }
+
+    // --- HAPUS AKUN SECARA PERMANEN ---
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+
+        // Cabut semua token autentikasi
+        $user->tokens()->delete();
+
+        // Hapus foto profil dari storage jika ada
+        if ($user->foto_profil && !preg_match('#^https?://#i', $user->foto_profil)) {
+            Storage::disk('public')->delete($user->foto_profil);
+        }
+
+        // Hapus record user
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Akun Anda berhasil dihapus secara permanen.'
         ]);
     }
 

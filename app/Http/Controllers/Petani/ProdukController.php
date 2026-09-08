@@ -186,43 +186,54 @@ class ProdukController extends Controller
      */
     public function apiStore(Request $request)
     {
-        // 1. Validasi Input
-        $validator = Validator::make($request->all(), [
+        $rules = [
             'nama_produk' => 'required|string|max:255',
-            'kategori_produk_id' => 'required', // Bisa ID kategori
-            'harga' => 'required|numeric',
-            'stok' => 'required|integer',
+            'kategori_produk_id' => 'required|exists:kategori_produk,id',
+            'harga' => 'required|numeric|min:0',
+            'stok' => 'required|integer|min:0',
             'deskripsi' => 'nullable|string',
-            'foto_produk' => 'nullable|image|max:2048', // Max 2MB
-        ]);
+        ];
+
+        if ($request->hasFile('foto_produk')) {
+            $rules['foto_produk'] = 'image|mimes:jpeg,png,jpg,webp|max:3072';
+        }
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validasi Gagal',
+                'message' => $validator->errors()->first(),
                 'errors' => $validator->errors()
             ], 422);
         }
 
-        $user = $request->user();
-        $data = $request->all();
-        $data['user_id'] = $user->id; // Set Pemilik Produk
+        try {
+            $user = $request->user();
+            $data = $request->except(['foto_produk']);
+            $data['user_id'] = $user->id; // Set Pemilik Produk
 
-        // 2. Upload Foto
-        if ($request->hasFile('foto_produk')) {
-            // Simpan ke folder 'public/produk'
-            $path = $request->file('foto_produk')->store('produk', 'public');
-            $data['foto_produk'] = $path;
+            // Upload Foto jika ada
+            if ($request->hasFile('foto_produk')) {
+                $path = $request->file('foto_produk')->store('produk', 'public');
+                $data['foto_produk'] = $path;
+            }
+
+            // Simpan ke Database
+            $produk = Produk::create($data);
+            $produk->load(['user', 'kategoriProduk']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk Durian Berhasil Ditambahkan',
+                'data' => $produk
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan produk: ' . $e->getMessage()
+            ], 500);
         }
-
-        // 3. Simpan ke Database
-        $produk = Produk::create($data);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Produk Berhasil Ditambahkan',
-            'data' => $produk
-        ], 201);
     }
 
     /**
@@ -230,54 +241,63 @@ class ProdukController extends Controller
      */
     public function apiUpdate(Request $request, $id)
     {
-        // 1. Cari Produk
+        $user = $request->user();
         $produk = Produk::find($id);
 
         if (!$produk) {
-            return response()->json(['message' => 'Produk tidak ditemukan'], 404);
+            return response()->json(['success' => false, 'message' => 'Produk tidak ditemukan'], 404);
         }
 
-        // 2. Validasi Input (Gunakan Validator yang sudah diimport)
-        $validator = Validator::make($request->all(), [
-            'nama_produk' => 'required|string',
-            'harga'       => 'required|numeric',
-            'stok'        => 'required|integer',
-            'kategori_produk_id' => 'required',
-            'foto_produk' => 'nullable|image|max:2048', // Boleh kosong saat update
-        ]);
+        if ($user->role !== 'admin' && $produk->user_id != $user->id) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki izin mengedit produk ini'], 403);
+        }
+
+        $rules = [
+            'nama_produk' => 'required|string|max:255',
+            'harga'       => 'required|numeric|min:0',
+            'stok'        => 'required|integer|min:0',
+            'kategori_produk_id' => 'required|exists:kategori_produk,id',
+            'deskripsi'   => 'nullable|string',
+        ];
+
+        if ($request->hasFile('foto_produk')) {
+            $rules['foto_produk'] = 'image|mimes:jpeg,png,jpg,webp|max:3072';
+        }
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => $validator->errors()->first()
-            ], 400);
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         try {
-            // 3. Update Data Teks
+            // Update Data Teks
             $produk->nama_produk = $request->nama_produk;
             $produk->deskripsi   = $request->deskripsi;
             $produk->harga       = $request->harga;
             $produk->stok        = $request->stok;
             $produk->kategori_produk_id = $request->kategori_produk_id;
 
-            // 4. Cek Apakah Ada Gambar Baru?
+            // Cek Apakah Ada Gambar Baru?
             if ($request->hasFile('foto_produk')) {
-                // Hapus gambar lama jika ada (opsional, biar server gak penuh)
-                if ($produk->foto_produk && Storage::exists('public/' . $produk->foto_produk)) {
-                    Storage::delete('public/' . $produk->foto_produk);
+                if ($produk->foto_produk && Storage::disk('public')->exists($produk->foto_produk)) {
+                    Storage::disk('public')->delete($produk->foto_produk);
                 }
 
-                // Upload gambar baru
                 $path = $request->file('foto_produk')->store('produk', 'public');
                 $produk->foto_produk = $path;
             }
 
             $produk->save();
+            $produk->load(['user', 'kategoriProduk']);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Produk berhasil diupdate',
+                'message' => 'Produk berhasil diperbarui!',
                 'data'    => $produk
             ]);
 
@@ -295,23 +315,34 @@ class ProdukController extends Controller
     public function apiDestroy(Request $request, $id)
     {
         $user = $request->user();
-        $produk = Produk::where('user_id', $user->id)->where('id', $id)->first();
+        $produk = Produk::find($id);
 
         if (!$produk) {
             return response()->json(['success' => false, 'message' => 'Produk tidak ditemukan'], 404);
         }
 
-        // Hapus file foto
-        if ($produk->foto_produk && Storage::disk('public')->exists($produk->foto_produk)) {
-            Storage::disk('public')->delete($produk->foto_produk);
+        if ($user->role !== 'admin' && $produk->user_id != $user->id) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki izin menghapus produk ini'], 403);
         }
 
-        $produk->delete();
+        try {
+            // Hapus file foto jika ada
+            if ($produk->foto_produk && Storage::disk('public')->exists($produk->foto_produk)) {
+                Storage::disk('public')->delete($produk->foto_produk);
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Produk Berhasil Dihapus'
-        ]);
+            $produk->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk Berhasil Dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus produk: ' . $e->getMessage()
+            ], 500);
+        }
     }   
 }
 

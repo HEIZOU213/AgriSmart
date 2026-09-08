@@ -87,9 +87,17 @@ class ProdukController extends Controller
             });
         }
 
-        // 3. Filter Kategori
+        // 3. Filter Kategori (Mendukung ID atau Nama/Slug Kategori)
         if ($request->has('kategori') && $request->kategori != '') {
-            $query->where('kategori_produk_id', $request->kategori);
+            $kat = $request->kategori;
+            if (is_numeric($kat)) {
+                $query->where('kategori_produk_id', $kat);
+            } else {
+                $query->whereHas('kategoriProduk', function ($q) use ($kat) {
+                    $q->where('nama_kategori', 'like', '%' . $kat . '%')
+                      ->orWhere('slug', 'like', '%' . $kat . '%');
+                });
+            }
         }
 
         // 4. Filter Stok

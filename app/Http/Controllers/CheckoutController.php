@@ -262,18 +262,33 @@ class CheckoutController extends Controller
         // Validasi Input API
         $request->validate([
             'alamat_pengiriman' => 'required|string',
-            // 'catatan' => 'nullable|string', 
         ]);
 
         $userId = Auth::id();
 
-        // 2. Ambil Data Keranjang
-        // PENTING: Load relasi 'produk.user' untuk grouping berdasarkan pekebun durian
-        // Untuk Mobile App, saat ini kita anggap Checkout All (semua cart)
-        $cartItems = Keranjang::where('user_id', $userId)->with('produk.user')->get();
+        // 2. Ambil Data Keranjang atau Data Items langsung (Direct Buy / Booking)
+        $cartItems = collect();
+        if ($request->has('items') && is_array($request->items) && count($request->items) > 0) {
+            foreach ($request->items as $it) {
+                $pId = $it['product_id'] ?? $it['id'] ?? null;
+                $qty = $it['quantity'] ?? $it['jumlah'] ?? $it['qty'] ?? 1;
+                if ($pId) {
+                    $prod = Produk::with('user')->find($pId);
+                    if ($prod) {
+                        $cartItems->push((object)[
+                            'produk_id' => $prod->id,
+                            'jumlah' => (int)$qty,
+                            'produk' => $prod
+                        ]);
+                    }
+                }
+            }
+        } else {
+            $cartItems = Keranjang::where('user_id', $userId)->with('produk.user')->get();
+        }
 
         if ($cartItems->isEmpty()) {
-            return response()->json(['success' => false, 'message' => 'Keranjang kosong'], 400);
+            return response()->json(['success' => false, 'message' => 'Keranjang atau item pesanan kosong'], 400);
         }
 
         // 3. GROUPING: Pisahkan item berdasarkan ID Pekebun (User ID pemilik produk)
@@ -292,6 +307,13 @@ class CheckoutController extends Controller
             Config::$isProduction = config('services.midtrans.is_production', false);
             Config::$isSanitized = true;
             Config::$is3ds = true;
+
+            $prefix = 'INV-';
+            if ($request->has('type') && $request->type == 'booking_panen') {
+                $prefix = 'BKG-';
+            } elseif ($request->has('payment_method') && $request->payment_method == 'cod') {
+                $prefix = 'COD-';
+            }
 
             // Loop setiap kelompok pekebun durian
             foreach ($groupedItems as $petaniId => $items) {
@@ -320,7 +342,7 @@ class CheckoutController extends Controller
                 // B. Buat Order Baru (Satu Order per Pekebun)
                 $pesanan = Pesanan::create([
                     'user_id' => $userId,
-                    'kode_pesanan' => 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6)),
+                    'kode_pesanan' => $prefix . date('Ymd') . '-' . strtoupper(Str::random(6)),
                     'alamat_kirim' => $request->alamat_pengiriman,
                     'status' => 'pending',
                     'total_harga' => $grandTotal,
@@ -341,34 +363,44 @@ class CheckoutController extends Controller
 
                     // Potong Stok Produk
                     $produk = Produk::find($item->produk_id);
-                    $produk->decrement('stok', $item->jumlah);
+                    if ($produk) {
+                        $produk->decrement('stok', $item->jumlah);
+                    }
                 }
 
-                // D. Generate Midtrans Token untuk Pesanan Ini
-                $params = [
-                    'transaction_details' => [
-                        'order_id' => $pesanan->kode_pesanan, // PENTING: Gunakan kode_pesanan (INV-..) bukan ID agar konsisten dengan Callback
-                        'gross_amount' => (int) $grandTotal, // Wajib Integer
-                    ],
-                    'customer_details' => [
-                        'first_name' => Auth::user()->name,
-                        'email' => Auth::user()->email,
-                    ],
-                ];
+                // D. Generate Midtrans Token untuk Pesanan Ini (jika bukan COD)
+                if ($request->input('payment_method') != 'cod') {
+                    $params = [
+                        'transaction_details' => [
+                            'order_id' => $pesanan->kode_pesanan,
+                            'gross_amount' => (int) $grandTotal,
+                        ],
+                        'customer_details' => [
+                            'first_name' => Auth::user()->name,
+                            'email' => Auth::user()->email,
+                        ],
+                    ];
 
-                try {
-                    $snapToken = Snap::getSnapToken($params);
-                    $pesanan->snap_token = $snapToken;
-                    $pesanan->save();
-                } catch (\Exception $e) {
-                    // Jika gagal connect ke Midtrans, biarkan null dulu atau handle error
+                    try {
+                        $snapToken = Snap::getSnapToken($params);
+                        $pesanan->snap_token = $snapToken;
+                        $pesanan->save();
+                    } catch (\Exception $e) {
+                        // Jika gagal connect ke Midtrans, biarkan null dulu
+                    }
                 }
 
+                $pesanan->load('detailPesanan.produk');
                 $createdOrders[] = $pesanan;
             }
 
             // E. Hapus Keranjang setelah semua berhasil
-            Keranjang::where('user_id', $userId)->delete();
+            if (!$request->has('items')) {
+                Keranjang::where('user_id', $userId)->delete();
+            } else {
+                $orderedProductIds = $cartItems->pluck('produk_id')->toArray();
+                Keranjang::where('user_id', $userId)->whereIn('produk_id', $orderedProductIds)->delete();
+            }
 
             DB::commit();
 

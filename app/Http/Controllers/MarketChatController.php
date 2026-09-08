@@ -57,7 +57,15 @@ class MarketChatController extends Controller
                 'time' => $lastChat->created_at->format('H:i'),
                 'unread_count' => $unreadCount,
             ];
-        })->values(); 
+        })->values();
+
+        if (request()->wantsJson() || request()->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'chats' => $formattedList,
+                'data' => $formattedList,
+            ]);
+        }
 
         return view('chat.index', [
             'chats' => $formattedList
