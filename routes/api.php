@@ -99,6 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{id}', [KonsumenPesananController::class, 'apiShow']); // Detail Order
     Route::post('/orders/{id}/cancel', [KonsumenPesananController::class, 'apiCancel']); // Batalkan Order
     Route::post('/orders/{id}/selesai', [KonsumenPesananController::class, 'apiSelesai']); // Konfirmasi Selesai Order
+    Route::post('/orders/{id}/verify-payment', [CheckoutController::class, 'apiVerifyPayment']); // Verifikasi Pembayaran Midtrans
 
     // --- CHAT SYSTEM (MARKET & UMUM) ---
     // Chat Umum & Market Chat
