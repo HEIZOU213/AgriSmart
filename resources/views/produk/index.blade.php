@@ -100,7 +100,7 @@
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
                 <div class="w-[600px] h-[600px] lg:w-[800px] lg:h-[800px] opacity-5">
                     <div class="w-full h-full animate-[spin_30s_linear_infinite]">
-                        <img src="images/nav-logo.png" alt="Background Decorative" class="w-full h-full object-contain">
+                        <img src="{{ asset('images/nav-logo.png') }}" alt="Background Decorative" class="w-full h-full object-contain">
                     </div>
                 </div>
             </div>

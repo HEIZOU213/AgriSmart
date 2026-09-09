@@ -433,3 +433,125 @@ Route::middleware(['auth'])->group(function () {
     });
 
 });
+
+/*
+|--------------------------------------------------------------------------
+| ASSET & STORAGE FALLBACK ROUTES (CPANEL HOSTING COMPATIBILITY)
+|--------------------------------------------------------------------------
+| Memastikan semua gambar static, asset build Vite, dan gambar storage
+| tetap muncul sempurna di cPanel hosting agrismart.my.id
+*/
+
+// 1. Fallback untuk file storage jika symlink cPanel belum ada / terputus
+Route::get('/storage/{path}', function ($path) {
+    $cleanPath = str_replace(['..', "\0"], '', $path);
+
+    if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+        abort(404);
+    }
+
+    $filePath = \Illuminate\Support\Facades\Storage::disk('public')->path($cleanPath);
+
+    if (is_dir($filePath)) {
+        abort(404);
+    }
+
+    $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $mimeType = match ($extension) {
+        'png' => 'image/png',
+        'jpg', 'jpeg' => 'image/jpeg',
+        'webp' => 'image/webp',
+        'gif' => 'image/gif',
+        'svg' => 'image/svg+xml',
+        'pdf' => 'application/pdf',
+        default => mime_content_type($filePath) ?: 'application/octet-stream',
+    };
+
+    return response()->file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*');
+
+// 2. Fallback untuk file images static jika belum disalin ke public_html
+Route::get('/images/{path}', function ($path) {
+    $cleanPath = str_replace(['..', "\0"], '', $path);
+
+    $filePath = public_path('images/' . $cleanPath);
+    if (!file_exists($filePath) || is_dir($filePath)) {
+        $filePath = base_path('public/images/' . $cleanPath);
+    }
+
+    if (!file_exists($filePath) || is_dir($filePath)) {
+        abort(404);
+    }
+
+    $mimeType = mime_content_type($filePath) ?: 'application/octet-stream';
+
+    return response()->file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*');
+
+// 3. Fallback untuk asset Vite build jika belum disalin ke public_html
+Route::get('/build/{path}', function ($path) {
+    $cleanPath = str_replace(['..', "\0"], '', $path);
+
+    $filePath = public_path('build/' . $cleanPath);
+    if (!file_exists($filePath) || is_dir($filePath)) {
+        $filePath = base_path('public/build/' . $cleanPath);
+    }
+
+    if (!file_exists($filePath) || is_dir($filePath)) {
+        abort(404);
+    }
+
+    $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $mimeType = match ($extension) {
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'json' => 'application/json',
+        'svg' => 'image/svg+xml',
+        'png' => 'image/png',
+        'jpg', 'jpeg' => 'image/jpeg',
+        'webp' => 'image/webp',
+        'gif' => 'image/gif',
+        'ico' => 'image/x-icon',
+        default => mime_content_type($filePath) ?: 'application/octet-stream',
+    };
+
+    return response()->file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000, immutable',
+    ]);
+})->where('path', '.*');
+
+// 4. Helper satu-klik untuk membuat symlink storage di cPanel
+Route::get('/link-storage', function () {
+    $target = storage_path('app/public');
+    $link = public_path('storage');
+
+    if (file_exists($link)) {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Link storage sudah ada di: ' . $link,
+            'target' => $target,
+        ]);
+    }
+
+    if (@symlink($target, $link)) {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Berhasil membuat symlink storage ke: ' . $link,
+            'target' => $target,
+        ]);
+    }
+
+    return response()->json([
+        'status' => 'info',
+        'message' => 'Server cPanel tidak mengizinkan fungsi symlink(), tetapi jangan khawatir, route fallback /storage/ sudah aktif sehingga seluruh gambar tetap muncul otomatis!',
+        'target' => $target,
+        'link' => $link,
+    ]);
+});
