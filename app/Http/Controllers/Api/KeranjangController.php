@@ -16,10 +16,8 @@ class KeranjangController extends Controller
     {
         $user = $request->user();
 
-        // Menghitung jumlah baris data di tabel keranjangs milik user ini
-        $count = DB::table('keranjangs')
-                    ->where('user_id', $user->id)
-                    ->count();
+        // Menghitung jumlah item di keranjang milik user ini
+        $count = Keranjang::where('user_id', $user->id)->count();
 
         return response()->json([
             'success' => true,

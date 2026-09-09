@@ -26,4 +26,19 @@ class KategoriProduk extends Model
     {
         return $this->hasMany(Produk::class);
     }
+
+    public function isBooking(): bool
+    {
+        return $this->tipe_penjualan === 'booking_dp' || $this->slug === 'buah-durian';
+    }
+
+    public function isBibit(): bool
+    {
+        return $this->slug === 'bibit-durian';
+    }
+
+    public function isProdukTurunan(): bool
+    {
+        return $this->slug === 'produk-turunan-durian';
+    }
 }

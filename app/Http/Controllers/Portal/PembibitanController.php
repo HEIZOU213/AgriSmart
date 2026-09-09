@@ -411,7 +411,10 @@ class PembibitanController extends Controller
     public function monitoringStore(Request $request)
     {
         $data = $request->validate([
-            'bibit_id'      => 'required|exists:bibit,id',
+            'bibit_id'      => [
+                'required',
+                Rule::exists('bibit', 'id')->where(fn ($q) => $q->where('user_id', Auth::id())),
+            ],
             'tinggi_cm'     => 'nullable|numeric|min:0',
             'kondisi'       => 'required|in:sehat,kurang_sehat,kritis',
             'catatan'       => 'nullable|string',
@@ -442,7 +445,10 @@ class PembibitanController extends Controller
     {
         abort_if($monitoring->user_id !== Auth::id(), 403);
         $data = $request->validate([
-            'bibit_id'      => 'required|exists:bibit,id',
+            'bibit_id'      => [
+                'required',
+                Rule::exists('bibit', 'id')->where(fn ($q) => $q->where('user_id', Auth::id())),
+            ],
             'tinggi_cm'     => 'nullable|numeric|min:0',
             'kondisi'       => 'required|in:sehat,kurang_sehat,kritis',
             'catatan'       => 'nullable|string',
@@ -478,7 +484,10 @@ class PembibitanController extends Controller
     public function jadwalStore(Request $request)
     {
         $data = $request->validate([
-            'bibit_id'        => 'required|exists:bibit,id',
+            'bibit_id'        => [
+                'required',
+                Rule::exists('bibit', 'id')->where(fn ($q) => $q->where('user_id', Auth::id())),
+            ],
             'jenis_perawatan' => 'required|string|max:150',
             'tanggal_jadwal'  => 'required|date',
             'catatan'         => 'nullable|string',
@@ -505,7 +514,10 @@ class PembibitanController extends Controller
     {
         abort_if($jadwal->user_id !== Auth::id(), 403);
         $data = $request->validate([
-            'bibit_id'        => 'required|exists:bibit,id',
+            'bibit_id'        => [
+                'required',
+                Rule::exists('bibit', 'id')->where(fn ($q) => $q->where('user_id', Auth::id())),
+            ],
             'jenis_perawatan' => 'required|string|max:150',
             'tanggal_jadwal'  => 'required|date',
             'status'          => 'required|in:pending,selesai,batal',

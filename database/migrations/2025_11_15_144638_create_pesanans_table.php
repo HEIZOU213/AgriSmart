@@ -23,8 +23,7 @@ return new class extends Migration
             $table->text('alamat_kirim'); // Alamat pengiriman (dicopy saat checkout)
             
             // Status untuk melacak proses pesanan
-            $table->enum('status', ['pending', 'paid', 'shipping', 'done', 'cancelled'])
-                  ->default('pending');
+            $table->string('status', 50)->default('pending');
             
             $table->timestamps(); // Kolom created_at dan updated_at
         });

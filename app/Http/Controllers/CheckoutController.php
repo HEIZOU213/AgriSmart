@@ -81,7 +81,7 @@ class CheckoutController extends Controller
         $selectedIds = $request->input('selected_cart_ids');
         $cartItems = Keranjang::where('user_id', $userId)
             ->whereIn('id', $selectedIds)
-            ->with('produk.user')
+            ->with(['produk.user', 'produk.kategoriProduk'])
             ->get();
 
         if ($cartItems->isEmpty()) {
@@ -92,15 +92,22 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
-            // Setup Konfigurasi Midtrans
-            Config::$serverKey = config('services.midtrans.server_key');
-            Config::$isProduction = config('services.midtrans.is_production', false);
-            Config::$isSanitized = config('services.midtrans.is_sanitized', true);
-            Config::$is3ds = config('services.midtrans.is_3ds', true);
-
             foreach ($groupedItems as $petaniId => $items) {
+                $seller = \App\Models\User::find($petaniId);
+
+                // Deteksi apakah ada produk Buah Durian (Sistem Booking DP Rp 100.000)
+                $isBookingDurian = $items->contains(function ($it) {
+                    return $it->produk && ($it->produk->isBookingDurian() || $it->produk->kategoriProduk?->slug === 'buah-durian');
+                });
+
                 $totalPerPetani = 0;
                 foreach ($items as $item) {
+                    $itemIsBookingDurian = $item->produk && ($item->produk->isBookingDurian() || $item->produk->kategoriProduk?->slug === 'buah-durian');
+                    if ($itemIsBookingDurian && $item->jumlah < 2) {
+                        DB::rollBack();
+                        return redirect()->route('cart.index')->with('error', 'Minimal pemesanan untuk Buah Durian (' . $item->produk->nama_produk . ') adalah 2 kg.');
+                    }
+
                     if ($item->produk->stok < $item->jumlah) {
                         DB::rollBack();
                         return redirect()->route('cart.index')->with('error', 'Stok produk ' . $item->produk->nama_produk . ' habis!');
@@ -108,13 +115,29 @@ class CheckoutController extends Controller
                     $totalPerPetani += $item->produk->harga * $item->jumlah;
                 }
 
-                $adminFee = $totalPerPetani * 0.06;
-                $sellerIncome = $totalPerPetani - $adminFee;
+                // Zero admin penampungan: pembayaran langsung ke akun Midtrans Pekebun
+                $adminFee = 0;
+
+                if ($isBookingDurian) {
+                    $dpAmount = 100000; // DP flat wajib Rp 100.000 dengan minimal pembelian 2 kg
+                    $sellerIncome = $dpAmount;
+                    $grossAmount = $dpAmount;
+                    $kodePesanan = 'BKG-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+                    $tipePesanan = 'booking_durian';
+                } else {
+                    $dpAmount = 0;
+                    $sellerIncome = $totalPerPetani;
+                    $grossAmount = $totalPerPetani;
+                    $kodePesanan = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
+                    $tipePesanan = 'langsung';
+                }
 
                 $pesanan = new Pesanan();
                 $pesanan->user_id = $userId;
-                $pesanan->kode_pesanan = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(6));
-                $pesanan->total_harga = $totalPerPetani;
+                $pesanan->kode_pesanan = $kodePesanan;
+                $pesanan->tipe_pesanan = $tipePesanan;
+                $pesanan->total_harga = $grossAmount;
+                $pesanan->dp_amount = $dpAmount;
                 $pesanan->alamat_kirim = $request->alamat_kirim;
                 $pesanan->admin_fee = $adminFee;
                 $pesanan->seller_income = $sellerIncome;
@@ -134,7 +157,7 @@ class CheckoutController extends Controller
                 $params = [
                     'transaction_details' => [
                         'order_id' => $pesanan->kode_pesanan,
-                        'gross_amount' => (int) $totalPerPetani,
+                        'gross_amount' => (int) $grossAmount,
                     ],
                     'customer_details' => [
                         'first_name' => Auth::user()->name,
@@ -142,10 +165,18 @@ class CheckoutController extends Controller
                     ],
                 ];
 
-                if (app()->environment('testing') || empty(config('services.midtrans.server_key'))) {
+                // Konfigurasi Midtrans dinamis per-Pekebun
+                $sellerServerKey = $seller?->getMidtransServerKey();
+                $sellerIsProduction = $seller?->isMidtransProduction() ?? false;
+
+                if (app()->environment('testing') || empty($sellerServerKey)) {
                     $pesanan->snap_token = 'MOCK-SNAP-TOKEN-' . Str::random(12);
                 } else {
                     try {
+                        Config::$serverKey = $sellerServerKey;
+                        Config::$isProduction = $sellerIsProduction;
+                        Config::$isSanitized = true;
+                        Config::$is3ds = true;
                         $pesanan->snap_token = Snap::getSnapToken($params);
                     } catch (\Exception $snapException) {
                         \Illuminate\Support\Facades\Log::warning('Midtrans Snap generation fallback: ' . $snapException->getMessage());
@@ -158,7 +189,7 @@ class CheckoutController extends Controller
             Keranjang::where('user_id', $userId)->whereIn('id', $selectedIds)->delete();
             DB::commit();
 
-            return redirect()->route('konsumen.pesanan.index')->with('success', 'Pesanan dibuat. Silakan bayar.');
+            return redirect()->route('konsumen.pesanan.index')->with('success', 'Pesanan dibuat. Silakan selesaikan pembayaran.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('cart.index')->with('error', 'Gagal: ' . $e->getMessage());
@@ -171,13 +202,20 @@ class CheckoutController extends Controller
      */
     public function paymentFinish(Request $request)
     {
-        $orderId = $request->query('order_id');
+        $rawOrderId = $request->query('order_id');
+        $isPelunasan = str_starts_with((string)$rawOrderId, 'PELUNASAN-');
+        $orderId = $isPelunasan ? substr($rawOrderId, 10) : $rawOrderId;
+
         $pesanan = Pesanan::where('kode_pesanan', $orderId)->first();
 
         if (!$pesanan) return redirect('/')->with('error', 'Pesanan tidak ditemukan.');
 
+        if ($isPelunasan) {
+            return redirect()->route('konsumen.pesanan.kwitansi', $pesanan->id)->with('success', 'Pelunasan Berhasil!');
+        }
+
         // Hanya tampilkan status berdasarkan data terakhir di database
-        if (in_array($pesanan->status, ['paid', 'settlement', 'success'])) {
+        if (in_array($pesanan->status, ['paid', 'settlement', 'success', 'booked'])) {
             return redirect()->route('konsumen.pesanan.show', $pesanan->id)->with('success', 'Pembayaran Berhasil!');
         }
         return redirect()->route('konsumen.pesanan.show', $pesanan->id)->with('info', 'Status: ' . $pesanan->status);
@@ -189,35 +227,51 @@ class CheckoutController extends Controller
      */
     public function callback(Request $request)
     {
-        $serverKey = config('services.midtrans.server_key');
-        $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
-
-        if (!hash_equals($hashed, $request->signature_key)) {
-            return response()->json(['message' => 'Invalid signature'], 400);
-        }
+        $rawOrderId = $request->order_id;
+        $isPelunasan = str_starts_with((string)$rawOrderId, 'PELUNASAN-');
+        $lookupOrderId = $isPelunasan ? substr($rawOrderId, 10) : $rawOrderId;
 
         // Gunakan eager loading untuk efisiensi
-        $pesanan = Pesanan::with(['detailPesanan.produk.user'])->where('kode_pesanan', $request->order_id)->first();
+        $pesanan = Pesanan::with(['detailPesanan.produk.user'])->where('kode_pesanan', $lookupOrderId)->first();
         
         if (!$pesanan) {
             return response()->json(['message' => 'Order not found'], 404);
         }
 
+        $seller = $pesanan->getPekebun();
+        $serverKey = $seller?->getMidtransServerKey() ?: config('services.midtrans.server_key');
+
+        $hashed = hash("sha512", $rawOrderId . $request->status_code . $request->gross_amount . $serverKey);
+
+        if (!hash_equals($hashed, $request->signature_key)) {
+            return response()->json(['message' => 'Invalid signature'], 400);
+        }
+
         $status = $request->transaction_status;
         
         // Gunakan DB Transaction agar update status dan saldo aman
-        DB::transaction(function () use ($pesanan, $status) {
+        DB::transaction(function () use ($pesanan, $status, $isPelunasan, $seller, $request) {
             if ($status == 'capture' || $status == 'settlement') {
-                if ($pesanan->status == 'pending') {
+                if ($isPelunasan) {
+                    $pesanan->update([
+                        'status' => 'paid',
+                        'pelunasan_paid_at' => now(),
+                    ]);
+                    if ($seller) {
+                        $seller->increment('saldo', $pesanan->sisa_pelunasan ?: (float)$request->gross_amount);
+                    }
+                } elseif ($pesanan->isBookingDurian() && $pesanan->status == 'pending') {
+                    $pesanan->update([
+                        'status' => 'booked',
+                        'dp_paid_at' => now(),
+                    ]);
+                    if ($seller) {
+                        $seller->increment('saldo', $pesanan->dp_amount);
+                    }
+                } elseif ($pesanan->status == 'pending') {
                     $pesanan->update(['status' => 'paid']);
-                    
-                    // Validasi keberadaan detail pesanan sebelum akses properti
-                    if ($pesanan->detailPesanan->isNotEmpty()) {
-                        $detail = $pesanan->detailPesanan->first();
-                        if ($detail->produk && $detail->produk->user) {
-                            $petani = $detail->produk->user;
-                            $petani->increment('saldo', $pesanan->seller_income);
-                        }
+                    if ($seller) {
+                        $seller->increment('saldo', $pesanan->seller_income);
                     }
                 }
             } elseif (in_array($status, ['expire', 'cancel', 'deny'])) {
@@ -291,26 +345,28 @@ class CheckoutController extends Controller
         try {
             $createdOrders = []; // Untuk menampung pesanan yang berhasil dibuat
 
-            // Setup Midtrans (PENTING: Agar API juga bisa generate token)
-            Config::$serverKey = config('services.midtrans.server_key');
-            Config::$isProduction = config('services.midtrans.is_production', false);
-            Config::$isSanitized = true;
-            Config::$is3ds = true;
-
-            $prefix = 'INV-';
-            if ($request->has('type') && $request->type == 'booking_panen') {
-                $prefix = 'BKG-';
-            } elseif ($request->has('payment_method') && $request->payment_method == 'cod') {
-                $prefix = 'COD-';
-            }
-
             // Loop setiap kelompok pekebun durian
             foreach ($groupedItems as $petaniId => $items) {
-                
+                $seller = \App\Models\User::find($petaniId);
+
+                // Cek apakah ada produk Buah Durian
+                $isBookingDurian = ($request->has('type') && $request->type == 'booking_panen') || $items->contains(function ($it) {
+                    return $it->produk && ($it->produk->isBookingDurian() || $it->produk->kategoriProduk?->slug === 'buah-durian');
+                });
+
                 // A. Hitung Total per Pekebun & Cek Stok
                 $totalPerPetani = 0;
                 foreach ($items as $item) {
                     // Cek Stok
+                    $itemIsBookingDurian = $item->produk && ($item->produk->isBookingDurian() || $item->produk->kategoriProduk?->slug === 'buah-durian');
+                    if ($itemIsBookingDurian && $item->jumlah < 2) {
+                        DB::rollBack();
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Minimal pemesanan untuk Buah Durian (' . $item->produk->nama_produk . ') adalah 2 kg.'
+                        ], 400);
+                    }
+
                     if ($item->produk->stok < $item->jumlah) {
                         DB::rollBack(); // Batalkan semua jika ada 1 stok kurang
                         return response()->json([
@@ -321,22 +377,35 @@ class CheckoutController extends Controller
                     $totalPerPetani += $item->produk->harga * $item->jumlah;
                 }
 
-                // Hitung Ongkir & Komisi
-                $ongkir = 0; // Bisa dibuat dinamis nanti
-                $grandTotal = $totalPerPetani + $ongkir;
-                
-                $adminFee = $totalPerPetani * 0.06; // 6% Fee
-                $sellerIncome = $totalPerPetani - $adminFee;
+                // Hitung Ongkir
+                $ongkir = 0;
+                $adminFee = 0; // Zero admin fee
+
+                if ($isBookingDurian) {
+                    $dpAmount = 100000; // DP flat wajib Rp 100.000 dengan minimal pembelian 2 kg
+                    $grandTotal = $dpAmount + $ongkir;
+                    $sellerIncome = $dpAmount;
+                    $prefix = 'BKG-';
+                    $tipePesanan = 'booking_durian';
+                } else {
+                    $dpAmount = 0;
+                    $grandTotal = $totalPerPetani + $ongkir;
+                    $sellerIncome = $totalPerPetani;
+                    $prefix = ($request->input('payment_method') == 'cod') ? 'COD-' : 'INV-';
+                    $tipePesanan = 'langsung';
+                }
 
                 // B. Buat Order Baru (Satu Order per Pekebun)
                 $pesanan = Pesanan::create([
                     'user_id' => $userId,
                     'kode_pesanan' => $prefix . date('Ymd') . '-' . strtoupper(Str::random(6)),
+                    'tipe_pesanan' => $tipePesanan,
+                    'dp_amount' => $dpAmount,
                     'alamat_kirim' => $request->alamat_pengiriman,
                     'status' => 'pending',
                     'total_harga' => $grandTotal,
-                    'admin_fee' => $adminFee,       // Simpan fee
-                    'seller_income' => $sellerIncome, // Simpan pendapatan bersih pekebun durian
+                    'admin_fee' => $adminFee,       // Zero fee
+                    'seller_income' => $sellerIncome, // Pendapatan pekebun langsung
                     'is_seen' => 0,
                     'konsumen_arsip' => 0
                 ]);
@@ -359,13 +428,13 @@ class CheckoutController extends Controller
 
                 // D. Generate Midtrans Token untuk Pesanan Ini (jika bukan COD)
                 if ($request->input('payment_method') != 'cod') {
-                    $isBookingPanen = ($request->has('type') && $request->type == 'booking_panen');
-                    $payableAmount = $isBookingPanen ? ($grandTotal * 0.5) : $grandTotal;
+                    $sellerServerKey = $seller?->getMidtransServerKey();
+                    $sellerIsProduction = $seller?->isMidtransProduction() ?? false;
 
                     $params = [
                         'transaction_details' => [
                             'order_id' => $pesanan->kode_pesanan,
-                            'gross_amount' => (int) $payableAmount,
+                            'gross_amount' => (int) $grandTotal,
                         ],
                         'customer_details' => [
                             'first_name' => Auth::user()->name,
@@ -373,14 +442,23 @@ class CheckoutController extends Controller
                         ],
                     ];
 
-                    try {
-                        $snapToken = Snap::getSnapToken($params);
-                        $pesanan->snap_token = $snapToken;
+                    if (app()->environment('testing') || empty($sellerServerKey)) {
+                        $pesanan->snap_token = 'MOCK-SNAP-TOKEN-' . Str::random(12);
                         $pesanan->save();
-                    } catch (\Exception $e) {
-                        \Log::warning('Midtrans token fallback for order ' . $pesanan->kode_pesanan . ': ' . $e->getMessage());
-                        $pesanan->snap_token = 'MOCK-SNAP-' . strtoupper(Str::random(16));
-                        $pesanan->save();
+                    } else {
+                        try {
+                            Config::$serverKey = $sellerServerKey;
+                            Config::$isProduction = $sellerIsProduction;
+                            Config::$isSanitized = true;
+                            Config::$is3ds = true;
+                            $snapToken = Snap::getSnapToken($params);
+                            $pesanan->snap_token = $snapToken;
+                            $pesanan->save();
+                        } catch (\Exception $e) {
+                            \Log::error('Midtrans token failed for order ' . $pesanan->kode_pesanan . ': ' . $e->getMessage());
+                            $pesanan->snap_token = 'FALLBACK-SNAP-' . Str::random(12);
+                            $pesanan->save();
+                        }
                     }
                 }
 

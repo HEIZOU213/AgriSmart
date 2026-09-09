@@ -263,5 +263,150 @@ class PesananController extends Controller
             'data'    => $pesanan
         ], 200);
     }
+
+    /**
+     * Tampilkan E-Kwitansi resmi dengan QR Code.
+     */
+    public function kwitansi(string $id)
+    {
+        $pesanan = Pesanan::with(['user', 'detailPesanan.produk.user'])->findOrFail($id);
+
+        $user = Auth::user();
+        $isOwner = $user && $pesanan->user_id === $user->id;
+        $isSeller = false;
+        if ($user) {
+            $sellerIds = $pesanan->detailPesanan->map(fn($d) => $d->produk?->user_id)->filter()->all();
+            $isSeller = in_array($user->id, $sellerIds);
+        }
+        $isAdmin = $user && $user->role === 'admin';
+
+        if (!$isOwner && !$isSeller && !$isAdmin) {
+            abort(403, 'Akses Kwitansi Ditolak.');
+        }
+
+        return view('konsumen.pesanan.kwitansi', compact('pesanan'));
+    }
+
+    /**
+     * Proses bayar pelunasan via Midtrans Snap.
+     */
+    public function bayarPelunasan(Request $request, string $id)
+    {
+        $pesanan = Pesanan::with(['user', 'detailPesanan.produk.user'])
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
+
+        if ($pesanan->status !== 'menunggu_pelunasan' || ($pesanan->sisa_pelunasan ?? 0) <= 0) {
+            return back()->with('error', 'Pesanan ini tidak memerlukan pelunasan.');
+        }
+
+        $seller = $pesanan->getPekebun();
+        if (!$pesanan->pelunasan_snap_token) {
+            if (app()->environment('testing') || empty($seller?->getMidtransServerKey())) {
+                $pesanan->pelunasan_snap_token = 'MOCK-PELUNASAN-SNAP-' . \Illuminate\Support\Str::random(12);
+            } else {
+                try {
+                    \Midtrans\Config::$serverKey = $seller->getMidtransServerKey();
+                    \Midtrans\Config::$isProduction = $seller->isMidtransProduction();
+                    \Midtrans\Config::$isSanitized = true;
+                    \Midtrans\Config::$is3ds = true;
+
+                    $params = [
+                        'transaction_details' => [
+                            'order_id' => 'PELUNASAN-' . $pesanan->kode_pesanan,
+                            'gross_amount' => (int) $pesanan->sisa_pelunasan,
+                        ],
+                        'customer_details' => [
+                            'first_name' => Auth::user()->name,
+                            'email' => Auth::user()->email,
+                        ],
+                    ];
+                    $pesanan->pelunasan_snap_token = \Midtrans\Snap::getSnapToken($params);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Pelunasan snap generation fallback: ' . $e->getMessage());
+                    $pesanan->pelunasan_snap_token = 'FALLBACK-PELUNASAN-SNAP-' . \Illuminate\Support\Str::random(12);
+                }
+            }
+            $pesanan->save();
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'snap_token' => $pesanan->pelunasan_snap_token,
+                'sisa_pelunasan' => $pesanan->sisa_pelunasan,
+            ]);
+        }
+
+        return redirect()->route('konsumen.pesanan.kwitansi', $pesanan->id);
+    }
+
+    /**
+     * Refresh / Regenerate Snap Token untuk pesanan pending jika token lama kedaluwarsa atau fallback
+     */
+    public function refreshSnapToken(Request $request, $id)
+    {
+        $pesanan = Pesanan::with('detailPesanan.produk.user')
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$pesanan) {
+            return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan'], 404);
+        }
+
+        if ($pesanan->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Hanya pesanan berstatus pending yang dapat diperbarui token pembayarannya'], 400);
+        }
+
+        $seller = $pesanan->getPekebun();
+        $serverKey = $seller?->getMidtransServerKey();
+
+        if (empty($serverKey)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pekebun belum mengonfigurasi akun Midtrans.',
+            ], 422);
+        }
+
+        try {
+            $isProd = $seller->isMidtransProduction();
+            \Midtrans\Config::$serverKey = $serverKey;
+            \Midtrans\Config::$isProduction = $isProd;
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $pesanan->kode_pesanan,
+                    'gross_amount' => (int) $pesanan->total_harga,
+                ],
+                'customer_details' => [
+                    'first_name' => Auth::user()->name,
+                    'email' => Auth::user()->email,
+                ],
+            ];
+
+            if (app()->environment('testing')) {
+                $token = 'MOCK-SNAP-TOKEN-' . \Illuminate\Support\Str::random(12);
+            } else {
+                $token = \Midtrans\Snap::getSnapToken($params);
+            }
+            $pesanan->snap_token = $token;
+            $pesanan->save();
+
+            return response()->json([
+                'success' => true,
+                'snap_token' => $token,
+                'is_production' => $isProd,
+                'client_key' => $seller->getMidtransClientKey(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat token pembayaran Midtrans: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
 

@@ -88,12 +88,13 @@
 
                                 {{-- [BARU] TOMBOL BAYAR (Hanya muncul jika Pending & Token Ada) --}}
                                 @if ($item->status == 'pending' && $item->snap_token)
+                                    @php
+                                        $itemPekebun = $item->getPekebun();
+                                        $itemIsProd = $itemPekebun?->isMidtransProduction() ?? false;
+                                        $itemClientKey = $itemPekebun?->getMidtransClientKey() ?? config('services.midtrans.client_key');
+                                    @endphp
                                     <button type="button" 
-                                        onclick="snap.pay('{{ $item->snap_token }}', {
-                                            onSuccess: function(result){ window.location.href = '/payment-finish?order_id=' + result.order_id; },
-                                            onPending: function(result){ location.reload(); },
-                                            onError: function(result){ location.reload(); }
-                                        })"
+                                        onclick="openSnapPayment({{ $item->id }}, '{{ $item->snap_token }}', {{ $itemIsProd ? 'true' : 'false' }}, '{{ $itemClientKey }}')"
                                         class="flex-1 sm:flex-none text-center px-4 py-2.5 bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 flex items-center justify-center gap-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
@@ -167,8 +168,63 @@
 
     </div>
 
-    {{-- [BARU] SCRIPT MIDTRANS (Wajib Ada untuk Tombol Bayar) --}}
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('services.midtrans.client_key') }}"></script>
+    {{-- Dynamic Midtrans Snap Script & Handler --}}
+    <script>
+        function openSnapPayment(orderId, token, isProduction, clientKey) {
+            if (!token || token.indexOf('FALLBACK-SNAP') !== -1 || token.indexOf('MOCK-SNAP') !== -1) {
+                // Tampilkan loading / auto-refresh token dari server
+                var refreshUrl = '/konsumen/pesanan/' + orderId + '/refresh-snap-token';
+                fetch(refreshUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.success && data.snap_token && data.snap_token.indexOf('FALLBACK') === -1) {
+                        openSnapPayment(orderId, data.snap_token, data.is_production, data.client_key);
+                    } else {
+                        alert(data.message || 'Akun Midtrans penjual belum aktif atau kunci ditolak. Silakan hubungi penjual untuk memeriksa konfigurasi Midtrans mereka.');
+                    }
+                })
+                .catch(function(err) {
+                    alert('Gagal memperbarui token pembayaran. Silakan coba beberapa saat lagi.');
+                });
+                return;
+            }
 
+            var snapUrl = isProduction 
+                ? 'https://app.midtrans.com/snap/snap.js' 
+                : 'https://app.sandbox.midtrans.com/snap/snap.js';
+
+            function doPay() {
+                if (window.snap) {
+                    window.snap.pay(token, {
+                        onSuccess: function(result){ window.location.href = '/payment-finish?order_id=' + (result.order_id || ''); },
+                        onPending: function(result){ location.reload(); },
+                        onError: function(result){ alert('Pembayaran gagal: ' + (result.status_message || 'Terjadi kesalahan')); location.reload(); }
+                    });
+                }
+            }
+
+            var currentScript = document.getElementById('snap-dynamic-script');
+            if (currentScript && currentScript.getAttribute('src') === snapUrl && window.snap) {
+                doPay();
+            } else {
+                if (currentScript) currentScript.remove();
+                var s = document.createElement('script');
+                s.id = 'snap-dynamic-script';
+                s.src = snapUrl;
+                if (clientKey) {
+                    s.setAttribute('data-client-key', clientKey);
+                }
+                s.onload = doPay;
+                document.body.appendChild(s);
+            }
+        }
+    </script>
 </x-konsumen-layout>
 

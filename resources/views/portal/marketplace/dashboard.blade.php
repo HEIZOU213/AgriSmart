@@ -15,8 +15,11 @@
                 <a href="{{ route('petani.pesanan.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-emerald-800/60 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl backdrop-blur-sm border border-emerald-400/30 transition">
                     Pesanan Masuk
                 </a>
-                <a href="{{ route('petani.dompet.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-emerald-800/60 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl backdrop-blur-sm border border-emerald-400/30 transition">
-                    Dompet & Tarik Dana
+                <a href="{{ route('petani.scan.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-emerald-800/60 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl backdrop-blur-sm border border-emerald-400/30 transition">
+                    Scanner QR Code
+                </a>
+                <a href="{{ route('petani.midtrans.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-emerald-800/60 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl backdrop-blur-sm border border-emerald-400/30 transition">
+                    Midtrans Mandiri
                 </a>
                 <a href="{{ route('produk.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-emerald-800/60 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl backdrop-blur-sm border border-emerald-400/30 transition">
                     Kunjungi Marketplace
@@ -25,6 +28,23 @@
         </div>
         <div class="absolute -right-6 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
     </div>
+
+    {{-- Midtrans Configuration Alert --}}
+    @if(!Auth::user()->hasCustomMidtrans())
+        <div class="mb-6 p-4 bg-amber-50 border border-amber-300 rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-start gap-3">
+                <svg class="w-6 h-6 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                <div>
+                    <h4 class="font-bold text-amber-900 text-sm">Langkah Pertama: Atur Akun Midtrans Anda</h4>
+                    <p class="text-xs text-amber-800 mt-0.5 leading-relaxed">Sebelum dapat menambahkan dan menjual produk, Anda wajib mengisi kredensial akun Midtrans (Server Key, Client Key, Merchant ID). Pembayaran dari konsumen akan langsung masuk ke rekening Anda tanpa perantara.</p>
+                </div>
+            </div>
+            <a href="{{ route('petani.midtrans.index') }}" class="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 bg-amber-600 text-white text-xs font-bold rounded-xl hover:bg-amber-700 transition flex-shrink-0 shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Atur Midtrans Sekarang
+            </a>
+        </div>
+    @endif
 
     {{-- 5 Stat Cards --}}
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4 mb-6">
@@ -84,17 +104,19 @@
             </div>
         </div>
 
-        {{-- Saldo Dompet --}}
+        {{-- Midtrans Gateway Mandiri --}}
         <div class="bg-white rounded-2xl p-4 md:p-5 border border-slate-100 shadow-sm flex flex-col justify-between col-span-2 lg:col-span-1">
             <div class="flex items-center justify-between mb-3">
-                <div class="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                 </div>
-                <a href="{{ route('petani.dompet.index') }}" class="text-[10px] font-bold uppercase text-green-700 hover:underline">Tarik &rarr;</a>
+                <a href="{{ route('petani.midtrans.index') }}" class="text-[10px] font-bold uppercase text-emerald-700 hover:underline">Kelola &rarr;</a>
             </div>
             <div>
-                <div class="text-xl font-black text-emerald-700">Rp {{ number_format($stats['saldo_dompet'] ?? ($stats['saldo'] ?? 0), 0, ',', '.') }}</div>
-                <div class="text-xs font-semibold text-slate-500 mt-0.5">Saldo Dompet Aktif</div>
+                <div class="text-base sm:text-lg font-black text-emerald-700">
+                    {{ Auth::user()->hasCustomMidtrans() ? 'Akun Mandiri' : 'Default' }}
+                </div>
+                <div class="text-xs font-semibold text-slate-500 mt-0.5">Midtrans Gateway</div>
             </div>
         </div>
     </div>
