@@ -105,6 +105,54 @@ class ProdukController extends Controller
             $query->where('tipe_produk', $request->tipe_produk);
         }
 
+        // 3c. Filter Subkategori (Durian Biasa, Durian Premium, Lempuk, Dodol, Tempoyak, Pancake, Keripik Biji)
+        if ($request->has('subkategori') && !empty($request->subkategori) && !str_starts_with(strtolower($request->subkategori), 'semua')) {
+            $sub = strtolower($request->subkategori);
+            if (str_contains($sub, 'premium')) {
+                $query->where(function ($q) {
+                    $q->where('nama_produk', 'like', '%premium%')
+                      ->orWhere('nama_produk', 'like', '%musang king%')
+                      ->orWhere('nama_produk', 'like', '%black thorn%')
+                      ->orWhere('nama_produk', 'like', '%duri hitam%')
+                      ->orWhere('nama_produk', 'like', '%bawor%')
+                      ->orWhere('nama_produk', 'like', '%ochee%')
+                      ->orWhere('nama_produk', 'like', '%grade a%')
+                      ->orWhere('harga', '>=', 100000);
+                });
+            } elseif (str_contains($sub, 'biasa')) {
+                $query->where(function ($q) {
+                    $q->where('nama_produk', 'like', '%biasa%')
+                      ->orWhere('nama_produk', 'like', '%kampung%')
+                      ->orWhere('nama_produk', 'like', '%lokal%')
+                      ->orWhere('nama_produk', 'like', '%tembaga%')
+                      ->orWhere('nama_produk', 'like', '%montong%')
+                      ->orWhere(function ($subQ) {
+                          $subQ->where('harga', '<', 100000)
+                               ->where('nama_produk', 'not like', '%musang king%')
+                               ->where('nama_produk', 'not like', '%black thorn%')
+                               ->where('nama_produk', 'not like', '%duri hitam%')
+                               ->where('nama_produk', 'not like', '%premium%');
+                      });
+                });
+            } elseif (str_contains($sub, 'lempuk')) {
+                $query->where('nama_produk', 'like', '%lempuk%');
+            } elseif (str_contains($sub, 'dodol')) {
+                $query->where('nama_produk', 'like', '%dodol%');
+            } elseif (str_contains($sub, 'tempoyak')) {
+                $query->where('nama_produk', 'like', '%tempoyak%');
+            } elseif (str_contains($sub, 'pancake')) {
+                $query->where('nama_produk', 'like', '%pancake%');
+            } elseif (str_contains($sub, 'keripik') || str_contains($sub, 'biji') || str_contains($sub, 'bijik')) {
+                $query->where(function ($q) {
+                    $q->where('nama_produk', 'like', '%keripik%')
+                      ->orWhere('nama_produk', 'like', '%biji%')
+                      ->orWhere('nama_produk', 'like', '%bijik%');
+                });
+            } else {
+                $query->where('nama_produk', 'like', '%' . $sub . '%');
+            }
+        }
+
         // 4. Filter Stok
         if ($request->has('stok')) {
             if ($request->stok == 'tersedia') {
