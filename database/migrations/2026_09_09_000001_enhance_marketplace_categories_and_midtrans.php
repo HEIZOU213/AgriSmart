@@ -48,8 +48,19 @@ return new class extends Migration
             }
         });
 
+        try {
+            if (DB::getDriverName() === 'mysql') {
+                DB::statement("ALTER TABLE `pesanan` MODIFY COLUMN `status` VARCHAR(50) NOT NULL DEFAULT 'pending'");
+            } else {
+                Schema::table('pesanan', function (Blueprint $table) {
+                    $table->string('status', 50)->default('pending')->change();
+                });
+            }
+        } catch (\Throwable $e) {
+            // abaikan jika sudah di-alter
+        }
+
         Schema::table('pesanan', function (Blueprint $table) {
-            $table->string('status', 50)->default('pending')->change();
             if (!Schema::hasColumn('pesanan', 'tipe_pesanan')) {
                 $table->string('tipe_pesanan')->default('langsung')->after('snap_token');
             }

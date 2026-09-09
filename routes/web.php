@@ -64,7 +64,7 @@ Route::get('/tentang', [AboutController::class, 'index'])->name('tentang.index')
 Route::get('/edukasi', [EdukasiController::class, 'index'])->name('edukasi.index');
 Route::get('/edukasi/{slug}', [EdukasiController::class, 'show'])->name('edukasi.show');
 Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
-Route::get('/produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
+Route::get('/produk/{id}', [ProdukController::class, 'show'])->whereNumber('id')->name('produk.show');
 
 // --- LAYANAN SMART GARDEN IOT (FRONTEND BARU) ---
 Route::get('/layanan/smart-garden', [IotController::class, 'serviceIndex'])->name('layanan.index');
@@ -563,4 +563,22 @@ Route::get('/link-storage', function () {
         'link' => $link,
         'fallback_active' => true,
     ]);
+});
+
+// 5. Helper satu-klik untuk menjalankan migrasi database di cPanel (tanpa perlu SSH)
+Route::get('/run-migrate', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Migrasi database berhasil dijalankan!',
+            'output' => $output,
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal menjalankan migrasi: ' . $e->getMessage(),
+        ], 500);
+    }
 });

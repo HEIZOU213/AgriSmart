@@ -46,4 +46,12 @@ class AssetAndStorageFallbackTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure(['status', 'message', 'target']);
     }
+
+    public function test_run_migrate_endpoint(): void
+    {
+        $response = $this->get('/run-migrate');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(['status', 'message', 'output']);
+    }
 }
