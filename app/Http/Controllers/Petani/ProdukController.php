@@ -72,9 +72,9 @@ class ProdukController extends Controller
      */
     public function create()
     {
-        if (!Auth::user()->hasCustomMidtrans()) {
+        if (!Auth::user()->getMidtransServerKey()) {
             return redirect()->route('petani.midtrans.index')
-                ->with('error', 'Anda harus mengisi konfigurasi akun Midtrans terlebih dahulu sebelum dapat menambahkan produk. Pembayaran konsumen akan langsung masuk ke akun Midtrans Anda.');
+                ->with('error', 'Konfigurasi pembayaran sistem atau akun Midtrans belum tersedia.');
         }
 
         $kategori = KategoriProduk::all();
@@ -86,10 +86,10 @@ class ProdukController extends Controller
      */
     public function store(Request $request)
     {
-        // Guard: Midtrans wajib dikonfigurasi
-        if (!Auth::user()->hasCustomMidtrans()) {
+        // Guard: Midtrans wajib dikonfigurasi (Akun sendiri atau Default Sistem)
+        if (!Auth::user()->getMidtransServerKey()) {
             return redirect()->route('petani.midtrans.index')
-                ->with('error', 'Konfigurasi Midtrans wajib diisi sebelum menambahkan produk.');
+                ->with('error', 'Konfigurasi pembayaran Midtrans belum aktif di sistem atau akun Anda.');
         }
 
         // 1. Validasi input
@@ -257,12 +257,18 @@ class ProdukController extends Controller
      */
     public function apiStore(Request $request)
     {
-        // Guard: Midtrans wajib dikonfigurasi
+        // Guard: Midtrans wajib dikonfigurasi (Akun sendiri atau Default Sistem)
         $user = $request->user() ?: Auth::user();
-        if (!$user || !$user->hasCustomMidtrans()) {
+        if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda harus mengisi konfigurasi akun Midtrans terlebih dahulu sebelum dapat menambahkan produk.'
+                'message' => 'Sesi login telah berakhir. Silakan login kembali.'
+            ], 401);
+        }
+        if (empty($user->getMidtransServerKey())) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Konfigurasi pembayaran Midtrans belum aktif di sistem. Silakan hubungi admin.'
             ], 422);
         }
 
@@ -296,6 +302,10 @@ class ProdukController extends Controller
             $data['user_id'] = $user->id; // Set Pemilik Produk
             $data['tipe_produk'] = $request->input('tipe_produk', 'ready_stock');
             $data['estimasi_panen'] = $request->input('estimasi_panen');
+            if (empty($data['satuan'])) {
+                $kategori = KategoriProduk::find($data['kategori_produk_id']);
+                $data['satuan'] = $kategori?->satuan_default ?? 'pcs';
+            }
 
             // Upload Foto jika ada
             if ($request->hasFile('foto_produk')) {
