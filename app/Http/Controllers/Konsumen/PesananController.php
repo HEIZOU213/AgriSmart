@@ -139,6 +139,8 @@ class PesananController extends Controller
     {
         $userId = Auth::id();
         $orders = Pesanan::where('user_id', $userId)
+                    ->where('status', '!=', 'cancelled')
+                    ->where('konsumen_arsip', false)
                     ->with('detailPesanan.produk')
                     ->orderBy('created_at', 'desc')
                     ->get();
@@ -201,11 +203,11 @@ class PesananController extends Controller
             ], 403);
         }
 
-        // 4. Cek Status (Hanya 'pending' yang boleh batal)
-        if ($pesanan->status != 'pending') {
+        // 4. Cek Status (pending atau processing yang boleh batal)
+        if (!in_array($pesanan->status, ['pending', 'processing'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Pesanan tidak dapat dibatalkan karena status bukan pending'
+                'message' => 'Pesanan tidak dapat dibatalkan karena sudah dalam pengiriman atau selesai'
             ], 400);
         }
 
@@ -219,6 +221,7 @@ class PesananController extends Controller
             }
 
             $pesanan->status = 'cancelled';
+            $pesanan->konsumen_arsip = 1;
             $pesanan->save();
         });
 

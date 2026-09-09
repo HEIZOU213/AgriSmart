@@ -377,8 +377,13 @@ class CheckoutController extends Controller
                     $totalPerPetani += $item->produk->harga * $item->jumlah;
                 }
 
-                // Hitung Ongkir
-                $ongkir = 0;
+                // Hitung Ongkir: Flat Rp 15.000 jika delivery / kirim ke alamat
+                $shippingType = strtolower(trim((string)$request->input('shipping_type', $request->input('metode_pengiriman', ''))));
+                $alamatKirimLower = strtolower(trim((string)$request->alamat_pengiriman));
+                $isDelivery = ($shippingType === 'delivery' || $shippingType === 'kirim') || 
+                              (!empty($alamatKirimLower) && !str_starts_with($alamatKirimLower, 'ambil'));
+
+                $ongkir = $isDelivery ? (int)$request->input('ongkir', $request->input('shipping_cost', 15000)) : 0;
                 $adminFee = 0; // Zero admin fee
 
                 if ($isBookingDurian) {
