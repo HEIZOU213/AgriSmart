@@ -82,11 +82,8 @@
                     <a href="{{ route('layanan.index') }}"
                         class="group inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-green-600">
                         <span
-                            class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 shadow-sm transition-all group-hover:border-green-300 group-hover:bg-green-50 group-hover:text-green-600">
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 19l-7-7 7-7" />
-                            </svg>
+                            class="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-all group-hover:border-green-300 group-hover:bg-green-50 group-hover:text-green-600 font-bold text-base">
+                            &larr;
                         </span>
                         <span>Kembali ke Dashboard</span>
                     </a>
@@ -108,12 +105,7 @@
                             {{-- Status Indikator (ONLINE/OFFLINE) --}}
                             @if($device->latestSensorData && $device->latestSensorData->created_at->diffInMinutes(now()) < 5)
                                 <span
-                                    class="flex items-center gap-1.5 rounded-full border border-emerald-100 bg-white px-2.5 py-1 text-[10px] font-bold text-emerald-600 shadow-sm">
-                                    <span class="relative flex h-2 w-2">
-                                        <span
-                                            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                                        <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                                    </span>
+                                    class="rounded-full border border-emerald-100 bg-white px-2.5 py-1 text-[10px] font-bold text-emerald-600 shadow-sm">
                                     ONLINE
                                 </span>
                             @else
@@ -131,30 +123,12 @@
 
                         {{-- Card Mode (Compact & Interactive) --}}
                         <div
-                            class="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white py-1.5 pl-1.5 pr-4 transition-all hover:border-slate-300">
-
-                            {{-- Icon Mode Visual --}}
-                            <div
-                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full {{ $device->mode == 'AUTO' ? 'bg-green-500 text-white shadow-sm shadow-green-200' : 'bg-amber-100 text-amber-600' }}">
-                                @if($device->mode == 'AUTO')
-                                    {{-- Icon untuk mode AUTO --}}
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                                    </svg>
-                                @else
-                                    {{-- Icon untuk mode MANUAL --}}
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                @endif
-                            </div>
+                            class="inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white py-1.5 pl-3 pr-4 transition-all hover:border-slate-300">
 
                             {{-- Text Mode --}}
                             <div class="flex flex-col justify-center leading-tight">
                                 <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Mode</span>
-                                <span class="text-xs font-extrabold uppercase text-slate-800">
+                                <span class="text-xs font-extrabold uppercase {{ $device->mode == 'AUTO' ? 'text-green-700' : 'text-amber-700' }}">
                                     {{ $device->mode == 'AUTO' ? 'OTOMATIS' : 'MANUAL' }}
                                 </span>
                             </div>
@@ -168,12 +142,8 @@
                                     <form action="{{ route('iot.manual', $device->id) }}" method="POST">
                                         @csrf
                                         <button type="submit"
-                                            class="group flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-all hover:bg-green-50 hover:text-green-600">
-                                            <svg class="h-3.5 w-3.5 transition-transform duration-500 group-hover:rotate-180"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
+                                            class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-600 transition hover:bg-green-100 hover:text-green-700">
+                                            Ganti ke Manual
                                         </button>
                                     </form>
                                 @else
@@ -181,12 +151,8 @@
                                     <form action="{{ route('iot.auto', $device->id) }}" method="POST">
                                         @csrf
                                         <button type="submit"
-                                            class="group flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-all hover:bg-green-50 hover:text-green-600">
-                                            <svg class="h-3.5 w-3.5 transition-transform duration-500 group-hover:rotate-180"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
+                                            class="px-2.5 py-1 text-xs font-bold rounded-full bg-slate-100 text-slate-600 transition hover:bg-green-100 hover:text-green-700">
+                                            Ganti ke Otomatis
                                         </button>
                                     </form>
                                 @endif
@@ -341,7 +307,7 @@
                             {{-- Icon Container (Diperkecil agar lebih rapat) --}}
                             <div id="pump-icon-container"
                                 class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border transition-all duration-500 {{ $device->is_pump_on ? 'bg-green-50 border-green-200 text-green-600 shadow-md shadow-green-100' : 'bg-slate-50 border-slate-100 text-slate-300' }}">
-                                <svg class="h-7 w-7 {{ $device->is_pump_on ? 'animate-pulse' : '' }}" fill="none"
+                                <svg class="h-7 w-7" fill="none"
                                     stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" />

@@ -63,7 +63,7 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
             <div class="flex-1 flex justify-start items-center py-2">
                 <a href="/" aria-label="Beranda AgriSmart" class="flex items-center gap-2 group relative shrink-0">
                     <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
-                        class="h-12 sm:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                        class="h-10 sm:h-14 lg:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
                 </a>
             </div>
 
@@ -94,11 +94,11 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
             3. RIGHT SIDE (KANAN)
             Berisi keranjang, profil user, dan tombol mobile menu
             ================================================ --}}
-            <div class="flex-1 flex justify-end items-center gap-2 sm:gap-4">
+            <div class="flex-1 flex justify-end items-center gap-1.5 sm:gap-4">
 
-                {{-- Ikon Keranjang (Desktop) --}}
+                {{-- Ikon Keranjang (Mobile & Desktop) --}}
                 <a href="{{ Auth::check() ? route('cart.index') : route('login') }}" aria-label="Lihat Keranjang"
-                    class="group relative p-2 text-slate-600 hover:text-green-700 transition-colors hidden sm:block mr-1">
+                    class="group relative p-1.5 sm:p-2 text-slate-600 hover:text-green-700 transition-colors flex items-center">
 
                     <svg class="w-6 h-6 transition-transform group-hover:scale-110" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
@@ -109,7 +109,7 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                     {{-- Badge jumlah item di keranjang --}}
                     @if(isset($cartCount) && $cartCount > 0)
                         <span
-                            class="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-md ring-2 ring-white transform transition-transform group-hover:scale-110">
+                            class="absolute top-0 right-0 -mt-0.5 -mr-0.5 sm:-mt-1 sm:-mr-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-red-600 text-[9px] sm:text-[10px] font-bold text-white shadow-md ring-2 ring-white transform transition-transform group-hover:scale-110">
                             {{ $cartCount }}
                         </span>
                     @endif
@@ -119,16 +119,17 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                 AREA USER (Jika sudah login)
                 ================================================ --}}
                 @auth
-                    {{-- User Dropdown (Desktop Only) --}}
-                    <div class="hidden lg:block relative" x-data="{ dropdownOpen: false }">
+                    {{-- User Dropdown (Mobile & Desktop Responsive) --}}
+                    <div class="relative" x-data="{ dropdownOpen: false }">
 
-                        {{-- Tombol Profil Utama --}}
-                        <button @click="dropdownOpen = !dropdownOpen" aria-label="Menu Profil" aria-expanded="false" :aria-expanded="dropdownOpen.toString()"
-                            class="relative flex items-center justify-center w-10 h-10 rounded-full text-white font-bold text-lg hover:shadow-lg hover:shadow-green-100 border-2 border-transparent hover:border-green-200 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 overflow-hidden">
+                        {{-- Tombol Profil Utama (Bebas Garis Biru) --}}
+                        <button type="button" @click="dropdownOpen = !dropdownOpen" aria-label="Menu Profil" aria-expanded="false" :aria-expanded="dropdownOpen.toString()"
+                            class="relative flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full text-white font-bold text-lg hover:shadow-md hover:shadow-green-100 border-2 border-slate-200 hover:border-green-500 transition-all duration-300 outline-none focus:outline-none focus:ring-0 active:scale-95 overflow-hidden"
+                            style="outline: none !important; -webkit-tap-highlight-color: transparent !important;">
 
                             {{-- Foto Profil atau Inisial --}}
                             <div
-                                class="h-10 w-10 rounded-full overflow-hidden {{ $userPhotoUrl ? 'bg-transparent' : 'bg-green-600' }} flex items-center justify-center text-xl font-semibold border border-gray-300">
+                                class="h-full w-full rounded-full overflow-hidden {{ $userPhotoUrl ? 'bg-transparent' : 'bg-green-600' }} flex items-center justify-center text-sm sm:text-base font-semibold pointer-events-none select-none">
                                 @if ($userPhotoUrl)
                                     <img src="{{ $userPhotoUrl }}" alt="Foto Profil {{ $user->name }}"
                                         class="w-full h-full object-cover">
@@ -138,18 +139,20 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                             </div>
                         </button>
 
-                        {{-- Dropdown Content --}}
-                        <div x-show="dropdownOpen" x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 translate-y-2"
-                            x-transition:enter-end="opacity-100 translate-y-0"
+                        {{-- Dropdown Content — Responsive pada layar HP --}}
+                        <div x-show="dropdownOpen" 
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                             x-transition:leave="transition ease-in duration-150"
-                            x-transition:leave-start="opacity-100 translate-y-0"
-                            x-transition:leave-end="opacity-0 translate-y-2" @click.away="dropdownOpen = false"
+                            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                            x-transition:leave-end="opacity-0 translate-y-2 scale-95" 
+                            @click.away="dropdownOpen = false"
                             style="display: none;"
-                            class="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-xl border border-green-100 overflow-hidden z-50">
+                            class="absolute right-0 mt-3 w-72 max-w-[calc(100vw-1.5rem)] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50 dropdown-menu-responsive">
 
                             {{-- Header Dropdown (Info User) --}}
-                            <div class="px-6 py-5 border-b border-green-50 bg-green-50/50">
+                            <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-green-50 bg-green-50/50">
                                 <div class="flex items-center gap-3">
                                     {{-- Foto di dalam Dropdown --}}
                                     <div
@@ -181,8 +184,8 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                                         </svg>
                                         Admin Panel
                                     </a>
-                                @elseif($user->role === 'petani')
-                                    <a href="{{ route('petani.dashboard') }}"
+                                @elseif(in_array($user->role, ['pekebun', 'petani']))
+                                    <a href="{{ route('portal.index') }}"
                                         class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-green-700 hover:bg-green-50 transition-all group">
                                         <svg class="w-5 h-5 text-slate-400 group-hover:text-green-600" fill="none"
                                             stroke="currentColor" viewBox="0 0 24 24">
@@ -205,7 +208,7 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                                 </a>
 
                                 {{-- Menu Pesanan untuk konsumen --}}
-                                @if($user->role === 'konsumen')
+                                @if(in_array($user->role, ['user', 'konsumen']))
                                     <a href="{{ route('konsumen.pesanan.index') }}"
                                         class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:text-green-700 hover:bg-green-50 transition-all group">
                                         <svg class="w-5 h-5 text-slate-400 group-hover:text-green-600" fill="none"
@@ -236,15 +239,15 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                     </div>
                 @else
                     {{-- ================================================
-                    TOMBOL GUEST (Belum login - Desktop/Tablet)
+                    TOMBOL GUEST (Belum login)
                     ================================================ --}}
-                    <div class="hidden md:flex items-center gap-3">
+                    <div class="flex items-center gap-2 sm:gap-3">
                         <a href="{{ route('login') }}"
-                            class="group relative px-5 py-2.5 text-sm lg:text-base font-bold text-white bg-gradient-to-r from-green-600 to-green-700 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-green-200 hover:-translate-y-0.5 whitespace-nowrap overflow-hidden">
+                            class="group relative px-3.5 py-1.5 sm:px-5 sm:py-2.5 text-xs sm:text-sm lg:text-base font-bold text-white bg-gradient-to-r from-green-600 to-green-700 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-green-200 hover:-translate-y-0.5 whitespace-nowrap overflow-hidden">
                             <div
                                 class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                             </div>
-                            <span class="relative z-10 flex items-center gap-2">Masuk</span>
+                            <span class="relative z-10 flex items-center gap-1.5">Masuk</span>
                         </a>
                     </div>
                 @endauth
@@ -254,7 +257,7 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                 Tombol hamburger untuk membuka menu mobile
                 ================================================ --}}
                 <button @click="mobileOpen = !mobileOpen" aria-label="Buka Menu Navigasi" aria-expanded="false" :aria-expanded="mobileOpen.toString()"
-                    class="lg:hidden p-2 text-slate-700 hover:text-green-700 transition-colors">
+                    class="lg:hidden p-1.5 sm:p-2 text-slate-700 hover:text-green-700 transition-colors">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path x-show="!mobileOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                             d="M4 6h16M4 12h16M4 18h16" />
@@ -327,8 +330,8 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                             </svg>
                             Admin Panel
                         </a>
-                    @elseif($user->role === 'petani')
-                        <a href="{{ route('petani.dashboard') }}" @click="mobileOpen = false"
+                    @elseif(in_array($user->role, ['pekebun', 'petani']))
+                        <a href="{{ route('portal.index') }}" @click="mobileOpen = false"
                             class="flex items-center gap-3 py-3 px-4 text-base font-semibold text-slate-700 hover:text-green-700 hover:bg-green-50 rounded-xl transition-all group">
                             <svg class="w-5 h-5 text-slate-500 group-hover:text-green-700 transition-colors" fill="none"
                                 stroke="currentColor" viewBox="0 0 24 24">
@@ -351,7 +354,7 @@ Menggunakan Alpine.js untuk state mobile menu dan scroll effect
                     </a>
 
                     {{-- Menu Pesanan untuk konsumen (Mobile) --}}
-                    @if($user->role === 'konsumen')
+                    @if(in_array($user->role, ['user', 'konsumen']))
                         <a href="{{ route('konsumen.pesanan.index') }}" @click="mobileOpen = false"
                             class="flex items-center gap-3 py-3 px-4 text-base font-semibold text-slate-700 hover:text-green-700 hover:bg-green-50 rounded-xl transition-all group">
                             <svg class="w-5 h-5 text-slate-500 group-hover:text-green-700 transition-colors" fill="none"

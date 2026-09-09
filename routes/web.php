@@ -19,7 +19,6 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ChatController;
-use App\Http\Controllers\PesanOrderController;
 use App\Http\Controllers\MarketChatController;
 use App\Http\Controllers\KontakController;
 
@@ -46,6 +45,13 @@ use App\Http\Controllers\Petani\DompetController;
 
 // Konsumen
 use App\Http\Controllers\Konsumen\PesananController as KonsumenPesanan;
+
+// Portal
+use App\Http\Controllers\Portal\PortalController;
+use App\Http\Controllers\Portal\PembibitanController;
+use App\Http\Controllers\Portal\PertumbuhanController;
+use App\Http\Controllers\Portal\ManajemenController;
+use App\Http\Controllers\Portal\MarketplacePortalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -128,7 +134,7 @@ Route::middleware('guest')->group(function () {
                 'provider_id' => $googleId,
                 'foto_profil' => $socialiteUser->getAvatar(),
                 'email_verified_at' => now(),
-                'role' => 'konsumen',
+                'role' => 'user',
                 'password' => null,
             ]);
         }
@@ -147,8 +153,7 @@ Route::middleware('guest')->group(function () {
 | BAGIAN 2: RUTE TERPROTEKSI (WAJIB LOGIN)
 |--------------------------------------------------------------------------
 */
-// [PERBAIKAN 2] Menambahkan UserActivity::class agar status online terupdate
-Route::middleware(['auth', UserActivity::class])->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     // Logout
     Route::post('/logout', [CustomAuthController::class, 'logout'])->name('logout');
@@ -197,18 +202,20 @@ Route::middleware(['auth', UserActivity::class])->group(function () {
     
     // [TAMBAHAN BARU] Route khusus untuk set offline saat tutup tab
     Route::post('/chat/offline', [MarketChatController::class, 'setOffline'])->name('chat.offline');
-
-    // Fitur pesan otomatis dari pesanan (jika masih dipakai)
-    Route::post('/pesan-order/{id}', [PesanOrderController::class, 'store'])->name('pesan.store');
     
     // ====================================================
 
     // Pesanan & Payment
     Route::get('/payment-finish', [CheckoutController::class, 'paymentFinish'])->name('payment.finish');
-    Route::post('/pesanan/{id}/cancel', [CheckoutController::class, 'cancelOrder'])->name('pesanan.cancel');
+    Route::match(['post', 'put'], '/pesanan/{id}/cancel', [KonsumenPesanan::class, 'cancel'])->name('pesanan.cancel');
+    Route::patch('/pesanan/{id}/selesai', [KonsumenPesanan::class, 'selesai'])->name('pesanan.selesai');
 
-    // --- IOT SMART GARDEN (GLOBAL AUTH) ---
+    // --- IOT SMART GARDEN (PEKEBUN & GLOBAL AUTH) ---
     Route::post('/layanan/claim', [IotController::class, 'claimDevice'])->name('layanan.claim');
+    Route::get('/layanan/devices/template', [IotController::class, 'downloadTemplate'])->name('layanan.template');
+    Route::post('/layanan/devices/upload', [IotController::class, 'uploadDevices'])->name('layanan.upload');
+    Route::put('/layanan/devices/{id}', [IotController::class, 'updateDevice'])->name('layanan.update');
+    Route::delete('/layanan/devices/{id}', [IotController::class, 'destroyDevice'])->name('layanan.destroy');
     Route::post('/iot/toggle/{id}', [IotController::class, 'togglePump'])->name('iot.toggle');
     Route::post('/iot/auto/{id}', [IotController::class, 'setAuto'])->name('iot.auto');
     
@@ -224,9 +231,9 @@ Route::middleware(['auth', UserActivity::class])->group(function () {
         switch ($role) {
             case 'admin':
                 return redirect()->route('admin.dashboard');
-            case 'petani':
-                return redirect()->route('petani.dashboard');
-            case 'konsumen':
+            case 'pekebun':
+                return redirect()->route('portal.index'); // → Portal
+            case 'user':
                 return redirect()->route('homepage');
             default:
                 return redirect('/');
@@ -257,24 +264,166 @@ Route::middleware(['auth', UserActivity::class])->group(function () {
         Route::resource('products', AdminProductController::class)->except(['create', 'store', 'show']);
         Route::get('/withdraw', [WithdrawController::class, 'index'])->name('withdraw.index');
         Route::patch('/withdraw/{id}/approve', [WithdrawController::class, 'approve'])->name('withdraw.approve');
+        Route::patch('/withdraw/{id}/reject', [WithdrawController::class, 'reject'])->name('withdraw.reject');
     });
 
-    // 2. PETANI ROUTES
-    Route::middleware(['role:petani'])->prefix('petani')->name('petani.')->group(function () {
+    // 2. PETANI ROUTES (existing — tetap dipertahankan)
+    Route::middleware(['role:pekebun'])->prefix('petani')->name('petani.')->group(function () {
         Route::get('/dashboard', [PetaniDashboard::class, 'index'])->name('dashboard');
         Route::resource('produk', PetaniProduk::class);
-        Route::resource('pesanan', PetaniPesananController::class)->only(['index', 'show', 'update', 'destroy']);
+        Route::resource('pesanan', PetaniPesananController::class)->only(['index', 'show', 'update']);
         Route::get('/dompet', [DompetController::class, 'index'])->name('dompet.index');
         Route::post('/dompet', [DompetController::class, 'store'])->name('dompet.store');
-
-        // Dashboard Internal IoT (List)
-        Route::get('/iot', [IotController::class, 'index'])->name('iot.index');
+        Route::get('/iot', fn() => redirect()->route('layanan.index'))->name('iot.index');
     });
 
     // 3. KONSUMEN ROUTES
-    Route::middleware(['role:konsumen'])->prefix('konsumen')->name('konsumen.')->group(function () {
-        Route::resource('pesanan', KonsumenPesanan::class);
+    Route::middleware(['role:user'])->prefix('konsumen')->name('konsumen.')->group(function () {
+        Route::resource('pesanan', KonsumenPesanan::class)->only(['index', 'show', 'destroy']);
         Route::put('/pesanan/{id}/cancel', [KonsumenPesanan::class, 'cancel'])->name('pesanan.cancel');
+        Route::patch('/pesanan/{id}/selesai', [KonsumenPesanan::class, 'selesai'])->name('pesanan.selesai');
+    });
+
+    // ====================================================
+    // PORTAL ROUTES (role: petani)
+    // ====================================================
+    Route::middleware(['role:pekebun'])->prefix('portal')->name('portal.')->group(function () {
+
+        // ── Portal Selection ──────────────────────────────────
+        Route::get('/', [PortalController::class, 'index'])->name('index');
+
+        // ── Portal Pembibitan ─────────────────────────────────
+        Route::prefix('pembibitan')->name('pembibitan.')->group(function () {
+            Route::get('/', [PembibitanController::class, 'dashboard'])->name('dashboard');
+
+            // Data Bibit
+            Route::get('/bibit', [PembibitanController::class, 'bibitIndex'])->name('bibit.index');
+            Route::get('/bibit/create', [PembibitanController::class, 'bibitCreate'])->name('bibit.create');
+            Route::post('/bibit', [PembibitanController::class, 'bibitStore'])->name('bibit.store');
+            Route::get('/bibit/{bibit}/edit', [PembibitanController::class, 'bibitEdit'])->name('bibit.edit');
+            Route::put('/bibit/{bibit}', [PembibitanController::class, 'bibitUpdate'])->name('bibit.update');
+            Route::delete('/bibit/{bibit}', [PembibitanController::class, 'bibitDestroy'])->name('bibit.destroy');
+            Route::get('/bibit/{bibit}/tanam', [PembibitanController::class, 'tanamCreate'])->name('bibit.tanam.create');
+            Route::post('/bibit/{bibit}/tanam', [PembibitanController::class, 'tanamStore'])->name('bibit.tanam.store');
+
+            // Pengadaan
+            Route::get('/pengadaan', [PembibitanController::class, 'pengadaanIndex'])->name('pengadaan.index');
+            Route::get('/pengadaan/create', [PembibitanController::class, 'pengadaanCreate'])->name('pengadaan.create');
+            Route::post('/pengadaan', [PembibitanController::class, 'pengadaanStore'])->name('pengadaan.store');
+            Route::get('/pengadaan/{pengadaan}/edit', [PembibitanController::class, 'pengadaanEdit'])->name('pengadaan.edit');
+            Route::put('/pengadaan/{pengadaan}', [PembibitanController::class, 'pengadaanUpdate'])->name('pengadaan.update');
+            Route::delete('/pengadaan/{pengadaan}', [PembibitanController::class, 'pengadaanDestroy'])->name('pengadaan.destroy');
+
+            // Monitoring
+            Route::get('/monitoring', [PembibitanController::class, 'monitoringIndex'])->name('monitoring.index');
+            Route::get('/monitoring/create', [PembibitanController::class, 'monitoringCreate'])->name('monitoring.create');
+            Route::post('/monitoring', [PembibitanController::class, 'monitoringStore'])->name('monitoring.store');
+            Route::get('/monitoring/{monitoring}/edit', [PembibitanController::class, 'monitoringEdit'])->name('monitoring.edit');
+            Route::put('/monitoring/{monitoring}', [PembibitanController::class, 'monitoringUpdate'])->name('monitoring.update');
+            Route::delete('/monitoring/{monitoring}', [PembibitanController::class, 'monitoringDestroy'])->name('monitoring.destroy');
+
+            // Jadwal
+            Route::get('/jadwal', [PembibitanController::class, 'jadwalIndex'])->name('jadwal.index');
+            Route::get('/jadwal/create', [PembibitanController::class, 'jadwalCreate'])->name('jadwal.create');
+            Route::post('/jadwal', [PembibitanController::class, 'jadwalStore'])->name('jadwal.store');
+            Route::get('/jadwal/{jadwal}/edit', [PembibitanController::class, 'jadwalEdit'])->name('jadwal.edit');
+            Route::put('/jadwal/{jadwal}', [PembibitanController::class, 'jadwalUpdate'])->name('jadwal.update');
+            Route::delete('/jadwal/{jadwal}', [PembibitanController::class, 'jadwalDestroy'])->name('jadwal.destroy');
+            Route::patch('/jadwal/{jadwal}/selesai', [PembibitanController::class, 'jadwalSelesai'])->name('jadwal.selesai');
+
+            // Laporan
+            Route::get('/laporan', [PembibitanController::class, 'laporan'])->name('laporan');
+        });
+
+        // ── Portal Pertumbuhan ────────────────────────────────
+        Route::prefix('pertumbuhan')->name('pertumbuhan.')->group(function () {
+            Route::get('/', [PertumbuhanController::class, 'dashboard'])->name('dashboard');
+
+            // Data Pohon
+            Route::get('/pohon', [PertumbuhanController::class, 'pohonIndex'])->name('pohon.index');
+            Route::get('/pohon/create', [PertumbuhanController::class, 'pohonCreate'])->name('pohon.create');
+            Route::post('/pohon', [PertumbuhanController::class, 'pohonStore'])->name('pohon.store');
+            Route::get('/pohon/{pohon}/edit', [PertumbuhanController::class, 'pohonEdit'])->name('pohon.edit');
+            Route::put('/pohon/{pohon}', [PertumbuhanController::class, 'pohonUpdate'])->name('pohon.update');
+            Route::delete('/pohon/{pohon}', [PertumbuhanController::class, 'pohonDestroy'])->name('pohon.destroy');
+
+            // Fase
+            Route::get('/fase', [PertumbuhanController::class, 'fase'])->name('fase');
+
+            // Monitoring
+            Route::get('/monitoring', [PertumbuhanController::class, 'monitoringIndex'])->name('monitoring.index');
+            Route::get('/monitoring/create', [PertumbuhanController::class, 'monitoringCreate'])->name('monitoring.create');
+            Route::post('/monitoring', [PertumbuhanController::class, 'monitoringStore'])->name('monitoring.store');
+            Route::get('/monitoring/{monitoring}/edit', [PertumbuhanController::class, 'monitoringEdit'])->name('monitoring.edit');
+            Route::put('/monitoring/{monitoring}', [PertumbuhanController::class, 'monitoringUpdate'])->name('monitoring.update');
+            Route::delete('/monitoring/{monitoring}', [PertumbuhanController::class, 'monitoringDestroy'])->name('monitoring.destroy');
+
+            // Jadwal
+            Route::get('/jadwal', [PertumbuhanController::class, 'jadwalIndex'])->name('jadwal.index');
+            Route::get('/jadwal/create', [PertumbuhanController::class, 'jadwalCreate'])->name('jadwal.create');
+            Route::post('/jadwal', [PertumbuhanController::class, 'jadwalStore'])->name('jadwal.store');
+            Route::get('/jadwal/{jadwal}/edit', [PertumbuhanController::class, 'jadwalEdit'])->name('jadwal.edit');
+            Route::put('/jadwal/{jadwal}', [PertumbuhanController::class, 'jadwalUpdate'])->name('jadwal.update');
+            Route::delete('/jadwal/{jadwal}', [PertumbuhanController::class, 'jadwalDestroy'])->name('jadwal.destroy');
+            Route::patch('/jadwal/{jadwal}/selesai', [PertumbuhanController::class, 'jadwalSelesai'])->name('jadwal.selesai');
+
+            // Laporan
+            Route::get('/laporan', [PertumbuhanController::class, 'laporan'])->name('laporan');
+        });
+
+        // ── Portal Manajemen Kebun ────────────────────────────
+        Route::prefix('manajemen')->name('manajemen.')->group(function () {
+            Route::get('/', [ManajemenController::class, 'dashboard'])->name('dashboard');
+
+            // Lahan
+            Route::get('/lahan', [ManajemenController::class, 'lahanIndex'])->name('lahan.index');
+            Route::get('/lahan/create', [ManajemenController::class, 'lahanCreate'])->name('lahan.create');
+            Route::post('/lahan', [ManajemenController::class, 'lahanStore'])->name('lahan.store');
+            Route::get('/lahan/{lahan}/edit', [ManajemenController::class, 'lahanEdit'])->name('lahan.edit');
+            Route::put('/lahan/{lahan}', [ManajemenController::class, 'lahanUpdate'])->name('lahan.update');
+            Route::delete('/lahan/{lahan}', [ManajemenController::class, 'lahanDestroy'])->name('lahan.destroy');
+
+            // Stok
+            Route::get('/stok', [ManajemenController::class, 'stokIndex'])->name('stok.index');
+            Route::get('/stok/create', [ManajemenController::class, 'stokCreate'])->name('stok.create');
+            Route::post('/stok', [ManajemenController::class, 'stokStore'])->name('stok.store');
+            Route::get('/stok/{stok}/edit', [ManajemenController::class, 'stokEdit'])->name('stok.edit');
+            Route::put('/stok/{stok}', [ManajemenController::class, 'stokUpdate'])->name('stok.update');
+            Route::delete('/stok/{stok}', [ManajemenController::class, 'stokDestroy'])->name('stok.destroy');
+
+            // Panen
+            Route::get('/panen', [ManajemenController::class, 'panenIndex'])->name('panen.index');
+            Route::get('/panen/create', [ManajemenController::class, 'panenCreate'])->name('panen.create');
+            Route::post('/panen', [ManajemenController::class, 'panenStore'])->name('panen.store');
+            Route::get('/panen/{panen}/edit', [ManajemenController::class, 'panenEdit'])->name('panen.edit');
+            Route::put('/panen/{panen}', [ManajemenController::class, 'panenUpdate'])->name('panen.update');
+            Route::delete('/panen/{panen}', [ManajemenController::class, 'panenDestroy'])->name('panen.destroy');
+
+            // Biaya
+            Route::get('/biaya', [ManajemenController::class, 'biayaIndex'])->name('biaya.index');
+            Route::get('/biaya/create', [ManajemenController::class, 'biayaCreate'])->name('biaya.create');
+            Route::post('/biaya', [ManajemenController::class, 'biayaStore'])->name('biaya.store');
+            Route::get('/biaya/{biaya}/edit', [ManajemenController::class, 'biayaEdit'])->name('biaya.edit');
+            Route::put('/biaya/{biaya}', [ManajemenController::class, 'biayaUpdate'])->name('biaya.update');
+            Route::delete('/biaya/{biaya}', [ManajemenController::class, 'biayaDestroy'])->name('biaya.destroy');
+
+            // Jadwal
+            Route::get('/jadwal', [ManajemenController::class, 'jadwalIndex'])->name('jadwal.index');
+            Route::get('/jadwal/create', [ManajemenController::class, 'jadwalCreate'])->name('jadwal.create');
+            Route::post('/jadwal', [ManajemenController::class, 'jadwalStore'])->name('jadwal.store');
+            Route::get('/jadwal/{jadwal}/edit', [ManajemenController::class, 'jadwalEdit'])->name('jadwal.edit');
+            Route::put('/jadwal/{jadwal}', [ManajemenController::class, 'jadwalUpdate'])->name('jadwal.update');
+            Route::delete('/jadwal/{jadwal}', [ManajemenController::class, 'jadwalDestroy'])->name('jadwal.destroy');
+            Route::patch('/jadwal/{jadwal}/selesai', [ManajemenController::class, 'jadwalSelesai'])->name('jadwal.selesai');
+
+            // Laporan
+            Route::get('/laporan', [ManajemenController::class, 'laporan'])->name('laporan');
+        });
+
+        // ── Portal Marketplace ────────────────────────────────
+        Route::prefix('marketplace')->name('marketplace.')->group(function () {
+            Route::get('/', [MarketplacePortalController::class, 'dashboard'])->name('dashboard');
+        });
     });
 
     // Realtime Notifikasi (Polling Web)

@@ -5,23 +5,25 @@
        - role      : 'konsumen' | 'admin' | 'petani'  (auto-detect jika null)
        - cartCount : integer, hanya dipakai role konsumen
      ================================================================ --}}
-@props(['role' => null, 'cartCount' => 0])
+@props(['role' => null, 'cartCount' => 0, 'hasSidebar' => null])
 
 @php
     // ── Deteksi role ────────────────────────────────────────────────
     $user = Auth::user();
     if (is_null($role)) {
-        $role = $user?->role ?? 'konsumen';
+        $role = $user?->role ?? 'user';
     }
     $isAdmin    = $role === 'admin';
-    $isPetani   = $role === 'petani';
+    $isPetani   = in_array($role, ['pekebun', 'petani']);
     $isKonsumen = !$isAdmin && !$isPetani;
-    $hasSidebar = $isAdmin || $isPetani; // punya sidebar → hamburger di kiri
+    if (is_null($hasSidebar)) {
+        $hasSidebar = ($isAdmin || $isPetani) && !request()->routeIs('portal.index'); // punya sidebar → hamburger di kiri
+    }
 
     // ── Href logo ───────────────────────────────────────────────────
     $logoHref = match(true) {
         $isAdmin  => route('admin.dashboard'),
-        $isPetani => route('petani.dashboard'),
+        $isPetani => route('portal.index'),
         default   => '/',
     };
 
@@ -78,7 +80,7 @@
                         class="lg:hidden relative p-2 text-slate-600 hover:text-green-700 transition-colors">
                     {{-- Badge notif --}}
                     <span id="badge-hamburger"
-                          class="hidden absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white animate-pulse"></span>
+                          class="hidden absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white"></span>
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                               d="M4 6h16M4 12h16M4 18h16"/>
@@ -89,7 +91,7 @@
                 {{-- Logo --}}
                 <a href="{{ $logoHref }}" class="flex items-center gap-2 group shrink-0">
                     <img src="{{ asset('images/nav-logo.png') }}" alt="AgriSmart Logo"
-                         class="h-12 sm:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                         class="h-10 sm:h-14 lg:h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
                 </a>
 
                 {{-- Label Panel — hanya admin/petani, di samping logo --}}
@@ -142,12 +144,12 @@
             @endif
 
             {{-- ════════════════ KANAN: Keranjang + Avatar ════════════════ --}}
-            <div class="flex-1 flex justify-end items-center gap-2 sm:gap-4">
+            <div class="flex-1 flex justify-end items-center gap-1.5 sm:gap-4">
 
                 {{-- Keranjang — hanya konsumen --}}
                 @if($isKonsumen)
                 <a href="{{ route('cart.index') }}"
-                   class="group relative p-2 text-slate-600 hover:text-green-700 transition-colors hidden sm:block mr-1">
+                   class="group relative p-1.5 sm:p-2 text-slate-600 hover:text-green-700 transition-colors flex items-center">
                     <svg class="w-6 h-6 transition-transform group-hover:scale-110"
                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -155,8 +157,8 @@
                     </svg>
                     @if(isset($cartCount) && $cartCount > 0)
                     <span id="badge-cart-desktop"
-                          class="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full
-                                 bg-red-600 text-[10px] font-bold text-white shadow-md ring-2 ring-white
+                          class="absolute top-0 right-0 -mt-0.5 -mr-0.5 sm:-mt-1 sm:-mr-1 flex h-4 w-4 sm:h-5 sm:w-5 items-center justify-center rounded-full
+                                 bg-red-600 text-[9px] sm:text-[10px] font-bold text-white shadow-md ring-2 ring-white
                                  transform transition-transform group-hover:scale-110">
                         {{ $cartCount }}
                     </span>
@@ -165,38 +167,39 @@
                 @endif
 
                 @auth
-                {{-- ── Avatar Dropdown (desktop) — gaya persis konsumen ── --}}
-                <div class="hidden lg:block relative">
+                {{-- ── Avatar Dropdown (Mobile & Desktop Responsive) ── --}}
+                <div class="relative" x-data="{ dropdownOpen: false }">
 
-                    {{-- Tombol avatar circular --}}
-                    <button @click="dropdownOpen = !dropdownOpen"
-                            class="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden
-                                   border-2 border-transparent hover:border-green-300
-                                   ring-offset-2 focus:outline-none focus:ring-2 focus:ring-green-500
-                                   transition-all duration-300 hover:shadow-md hover:shadow-green-100
-                                   {{ $navbarPhotoUrl ? '' : 'bg-green-600 flex items-center justify-center' }}">
+                    {{-- Tombol avatar circular (bebas garis biru di semua browser) --}}
+                    <button type="button" @click="dropdownOpen = !dropdownOpen"
+                            class="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden
+                                   border-2 border-slate-200 hover:border-green-500
+                                   outline-none focus:outline-none focus:ring-0
+                                   transition-all duration-300 hover:shadow-md hover:shadow-green-100/50 active:scale-95
+                                   {{ $navbarPhotoUrl ? '' : 'bg-green-600 flex items-center justify-center' }}"
+                            style="outline: none !important; -webkit-tap-highlight-color: transparent !important;">
                         @if($navbarPhotoUrl)
                             <img src="{{ $navbarPhotoUrl }}" alt="Foto Profil"
-                                 class="w-full h-full object-cover block">
+                                 class="w-full h-full object-cover block pointer-events-none">
                         @else
-                            <span class="text-white font-bold text-base leading-none">{{ $userInitials }}</span>
+                            <span class="text-white font-bold text-sm sm:text-base leading-none select-none">{{ $userInitials }}</span>
                         @endif
                     </button>
 
-                    {{-- Dropdown — gaya identik konsumen (w-72, rounded-2xl) --}}
+                    {{-- Dropdown — responsive pada mobile (max-w-[calc(100vw-1.5rem)]) --}}
                     <div x-show="dropdownOpen"
                          x-transition:enter="transition ease-out duration-200"
-                         x-transition:enter-start="opacity-0 translate-y-2"
-                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
                          x-transition:leave="transition ease-in duration-150"
-                         x-transition:leave-start="opacity-100 translate-y-0"
-                         x-transition:leave-end="opacity-0 translate-y-2"
+                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-2 scale-95"
                          @click.away="dropdownOpen = false"
                          style="display:none"
-                         class="absolute right-0 mt-3 w-72 bg-white rounded-2xl shadow-xl border border-green-100 overflow-hidden z-50">
+                         class="absolute right-0 mt-3 w-72 max-w-[calc(100vw-1.5rem)] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-50 dropdown-menu-responsive">
 
                         {{-- Header dropdown — foto + nama + email + badge role --}}
-                        <div class="px-6 py-5 border-b border-green-50 bg-green-50/50">
+                        <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-green-50 bg-green-50/50">
                             <div class="flex items-center gap-3">
                                 <div class="flex-shrink-0 w-11 h-11 rounded-full overflow-hidden shadow-sm
                                             {{ $navbarPhotoUrl ? '' : 'bg-green-600 flex items-center justify-center' }}">
@@ -280,9 +283,9 @@
                 {{-- Tombol hamburger mobile — konsumen: di KANAN (buka menu dropdown) --}}
                 @if($isKonsumen)
                 <button @click="mobileOpen = !mobileOpen"
-                        class="lg:hidden p-2 text-slate-700 hover:text-green-700 transition-colors relative">
+                        class="lg:hidden p-1.5 sm:p-2 text-slate-700 hover:text-green-700 transition-colors relative">
                     <span id="badge-hamburger"
-                          class="hidden absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white animate-pulse"></span>
+                          class="hidden absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-red-600 ring-2 ring-white"></span>
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path x-show="!mobileOpen" stroke-linecap="round" stroke-linejoin="round"
                               stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/>

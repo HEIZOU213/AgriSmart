@@ -10,6 +10,8 @@ class KategoriProduk extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
+
     /**
      * Menentukan nama tabel yang terkait dengan model.
      *

@@ -21,27 +21,18 @@ class AdminAuthController extends Controller
             'password' => 'required'
         ]);
 
-        // 2. Cek Kredensial & Cek Role
-        // Asumsi kamu punya kolom 'role' di tabel users
+        // 2. Kredensial khusus ADMIN
         $credentials = $request->only('email', 'password');
+        $credentials['role'] = 'admin';
 
         if (Auth::attempt($credentials)) {
-            // Cek apakah dia benar-benar ADMIN
-            if (Auth::user()->role === 'admin') {
-                $request->session()->regenerate();
-                return redirect()->route('admin.dashboard');
-            } else {
-                // Kalau login berhasil tapi dia cuma Pekebun, tendang keluar
-                Auth::logout();
-                return back()->withErrors([
-                    'email' => 'Anda tidak memiliki akses ke area ini.',
-                ]);
-            }
+            $request->session()->regenerate();
+            return redirect()->route('admin.dashboard');
         }
 
         // 3. Jika Gagal Login
         return back()->withErrors([
-            'email' => 'Kredensial yang diberikan tidak cocok.',
+            'email' => 'Kredensial tidak cocok atau akun bukan admin.',
         ]);
     }
 }

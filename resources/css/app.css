@@ -25,3 +25,72 @@
 ::-webkit-scrollbar-thumb:hover {
     background: #15803d; 
 }
+
+/* ==========================================================================
+   GLOBAL DROPDOWN & FOCUS RESETS (HILANGKAN GARIS KELILING BIRU BROWSER)
+   ========================================================================== */
+
+/* Hilangkan garis biru default browser dan highlight biru saat tap di layar HP */
+*, button, select, input, textarea, a {
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+button:focus, button:focus-visible,
+select:focus, select:focus-visible,
+input:focus, input:focus-visible,
+textarea:focus, textarea:focus-visible,
+a:focus, a:focus-visible {
+    outline: none !important;
+    box-shadow: none;
+}
+
+/* ==========================================================================
+   STYLING DROPDOWN SELECT CUSTOM & RESPONSIVE
+   ========================================================================== */
+
+/* Dropdown native select agar seragam, modern, menarik, dan tidak kaku */
+select, .custom-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2316a34a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+    background-position: right 0.75rem center !important;
+    background-repeat: no-repeat !important;
+    background-size: 1.25em 1.25em !important;
+    padding-right: 2.5rem !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    cursor: pointer;
+    min-height: 42px;
+    background-color: #ffffff !important;
+    color: #1e293b;
+    transition: all 0.2s ease-in-out;
+}
+
+select:hover, .custom-select:hover {
+    border-color: #94a3b8;
+}
+
+select:focus, .custom-select:focus {
+    border-color: #16a34a !important;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15) !important;
+}
+
+select option, .custom-select option {
+    padding: 8px 12px;
+    font-weight: 500;
+    color: #1e293b;
+    background-color: #ffffff;
+}
+
+/* Prevent auto-zoom on mobile iOS & touch devices when tapping inputs & selects */
+@media (max-width: 640px) {
+    select, input:not([type="checkbox"]):not([type="radio"]), textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* Dropdown menu container styling helper agar selalu responsive pada layar HP */
+.dropdown-menu-responsive {
+    max-width: calc(100vw - 1.5rem) !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    word-break: break-word;
+}

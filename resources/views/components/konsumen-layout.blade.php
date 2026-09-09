@@ -11,7 +11,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>[x-cloak]{display:none!important}</style>
 </head>
-<body class="font-sans antialiased bg-gray-50 text-slate-800">
+<body class="font-sans antialiased bg-green-50 text-slate-800">
 
     {{-- Navbar terpadu (role konsumen) --}}
     <x-app-navbar role="konsumen" :cart-count="$cartCount ?? 0" />
@@ -55,6 +55,8 @@
         setInterval(checkNotifications, 3000);
     </script>
 
+<x-footer />
 </body>
 </html>
+
 

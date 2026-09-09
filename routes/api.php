@@ -16,7 +16,7 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\EdukasiController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\OrderController; 
+// OrderController removed (dead code - used non-existent models)
 use App\Http\Controllers\ChatController;       // Chat Umum
 use App\Http\Controllers\MarketChatController; // Chat Jual Beli
 use App\Http\Controllers\KontakController;     // Untuk Kontak Kami
@@ -54,6 +54,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // --- RUTE IOT UNTUK ESP32 (WAJIB PUBLIC) ---
 Route::post('/iot/receive', [IotController::class, 'receiveData']);
+Route::post('/iot/receive-data', [IotController::class, 'receiveData']);
 
 // Halaman Depan (Public Data)
 Route::get('/produk', [ProdukController::class, 'apiIndex']);       // List Produk
@@ -68,8 +69,7 @@ Route::post('/kontak', [KontakController::class, 'apiStore']); // Kirim Pesan Ko
 // ====================================================
 // 2. PROTECTED ROUTES (WAJIB LOGIN / BERTOKEN)
 // ====================================================
-// [PERBAIKAN] Tambahkan UserActivity di sini agar jalan setelah login divalidasi
-Route::middleware(['auth:sanctum', UserActivity::class])->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
 
     // --- USER INFO & LOGOUT ---
     Route::get('/user', function (Request $request) {
@@ -95,14 +95,16 @@ Route::middleware(['auth:sanctum', UserActivity::class])->group(function () {
 
     // --- CHECKOUT & ORDER HISTORY ---
     Route::post('/checkout', [CheckoutController::class, 'apiProcess']); // Proses Pesanan
-    Route::get('/orders', [OrderController::class, 'index']); // List Semua Order User Tersebut
-    Route::get('/orders/{id}', [OrderController::class, 'show']); // Detail Order
+    Route::get('/orders', [KonsumenPesananController::class, 'apiIndex']); // List Semua Order User
+    Route::get('/orders/{id}', [KonsumenPesananController::class, 'apiShow']); // Detail Order
+    Route::post('/orders/{id}/cancel', [KonsumenPesananController::class, 'apiCancel']); // Batalkan Order
+    Route::post('/orders/{id}/selesai', [KonsumenPesananController::class, 'apiSelesai']); // Konfirmasi Selesai Order
 
     // --- CHAT SYSTEM (MARKET & UMUM) ---
-    // Chat Umum
-    Route::get('/chat', [ChatController::class, 'apiIndex']); 
-    Route::get('/chat/{id}', [ChatController::class, 'apiGetMessages']); 
-    Route::post('/chat/send', [ChatController::class, 'apiSendMessage']); 
+    // Chat Umum & Market Chat
+    Route::get('/chat', [MarketChatController::class, 'getChatList']); 
+    Route::get('/chat/{receiver_id}', [MarketChatController::class, 'getMessages']); 
+    Route::post('/chat/send', [MarketChatController::class, 'sendMessage']); 
     
     // Market Chat (Sesuai Web - INI PENTING UNTUK MOBILE APP)
     // Mobile App akan akses endpoint ini untuk update Last Seen & Chat
@@ -118,7 +120,7 @@ Route::middleware(['auth:sanctum', UserActivity::class])->group(function () {
     // ====================================================
     // 3. ROLE: PETANI ROUTES
     // ====================================================
-    Route::middleware('role:petani')->group(function () {
+    Route::middleware('role:pekebun')->group(function () {
         
         // Dashboard Petani
         Route::get('/petani/dashboard', [PetaniDashboardController::class, 'index']);
@@ -149,7 +151,7 @@ Route::middleware(['auth:sanctum', UserActivity::class])->group(function () {
     // ====================================================
     // 4. ROLE: KONSUMEN ROUTES
     // ====================================================
-    Route::middleware('role:konsumen')->group(function () {
+    Route::middleware('role:user')->group(function () {
         
         // Route Cancel Order untuk Flutter
         Route::post('/orders/{id}/cancel', [KonsumenPesananController::class, 'apiCancel']);

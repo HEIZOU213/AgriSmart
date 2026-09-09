@@ -92,7 +92,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password), // Enkripsi password
             'no_telepon' => $request->no_telepon,
-            'role' => 'konsumen', // Default role user baru adalah konsumen
+            'role' => 'user', // Default role user baru adalah konsumen
         ]);
 
         // 3. Buat Token (Opsional, agar langsung login)
@@ -284,6 +284,7 @@ class AuthController extends Controller
         } else {
             // Buat User Baru persis seperti alur Socialite di routes/web.php
             $user = User::create([
+<<<<<<< HEAD
                 'name' => !empty($name) ? $name : explode('@', $email)[0],
                 'email' => $email,
                 'provider' => 'google',
@@ -293,6 +294,14 @@ class AuthController extends Controller
                 'role' => 'konsumen',
                 'password' => Hash::make($googleId . rand(1000, 9999)),
                 'no_telepon' => null,
+=======
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->google_id . rand(1000,9999)), // Password acak
+                'role' => 'user',
+                'no_telepon' => null, // Nanti user bisa update sendiri
+                // 'google_id' => $request->google_id, // Aktifkan jika ada kolom ini
+>>>>>>> 0c1a0f67919dc5e8522a69fda07cdb58a6e9c58a
             ]);
         }
 

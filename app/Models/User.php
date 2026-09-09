@@ -36,6 +36,7 @@ class User extends Authenticatable
 
         'otp',             // <-- Tambahan baru
         'otp_expires_at',  // <-- Tambahan baru
+        'saldo',
     ];
 
     /**
@@ -110,5 +111,28 @@ class User extends Authenticatable
         }
 
         return asset('storage/' . $this->foto_profil);
+    }
+
+    /**
+     * Otomatis normalisasi role ke: admin, pekebun, user
+     */
+    public function setRoleAttribute($value)
+    {
+        if ($value === 'petani' || $value === 'pekebun durian') {
+            $value = 'pekebun';
+        } elseif ($value === 'konsumen') {
+            $value = 'user';
+        }
+        $this->attributes['role'] = $value;
+    }
+
+    public function getRoleAttribute($value)
+    {
+        if ($value === 'petani' || $value === 'pekebun durian') {
+            return 'pekebun';
+        } elseif ($value === 'konsumen') {
+            return 'user';
+        }
+        return $value;
     }
 }

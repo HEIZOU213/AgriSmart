@@ -126,22 +126,6 @@
             overflow: hidden;
         }
 
-        /* ===================== HERO: PARTICLES ===================== */
-        .hero-particle {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle, #4ade80, #16a34a);
-            opacity: 0;
-            pointer-events: none;
-            animation: particle-drift var(--dur, 10s) ease-in-out infinite var(--delay, 0s);
-        }
-        @keyframes particle-drift {
-            0%   { transform: translateY(0) scale(1);   opacity: 0; }
-            15%  { opacity: var(--max-opacity, 0.5); }
-            85%  { opacity: var(--max-opacity, 0.5); }
-            100% { transform: translateY(-120px) scale(0.6); opacity: 0; }
-        }
-
         /* ===================== HERO: SPOTLIGHT CARD ===================== */
         .spotlight-card {
             position: relative;
@@ -338,10 +322,7 @@
     <main class="flex-1">
 
         <!-- ============================= SECTION: HERO ============================= -->
-        <section id="hero" class="hero-white-bg overflow-hidden min-h-[90vh] flex flex-col justify-center pt-24 pb-4 lg:pt-28 lg:pb-6">
-
-            <!-- Particle Field -->
-            <div id="hero-particles" aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden z-0"></div>
+        <section id="hero" class="hero-white-bg overflow-hidden min-h-[93vh] flex flex-col justify-center pt-24 pb-4 lg:pt-28 lg:pb-6">
 
             <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
 
@@ -367,25 +348,21 @@
                         <!-- Container Tombol Aksi -->
                         <div class="hero-anim-btns flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center lg:justify-start w-full sm:w-auto mb-8 lg:mb-10">
                             <!-- Tombol Utama: Mulai Sekarang -->
-                            <a href="{{ route('produk.index') }}"
+                            <a href="#fitur-unggulan"
                                 class="group/btn relative inline-flex justify-center items-center px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-extrabold rounded-xl shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:scale-105 transition-all duration-300 text-sm lg:text-base w-full sm:w-auto overflow-hidden">
                                 <span class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></span>
-                                <span class="relative z-10 flex items-center gap-2">
+                                <span class="relative z-10">
                                     Mulai Sekarang
-                                    <svg class="w-5 h-5 transform group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-                                    </svg>
                                 </span>
                             </a>
 
                             <!-- Tombol Sekunder: Tonton Video -->
                             <a href="#edukasi-preview"
-                                class="group/btn2 inline-flex justify-center items-center px-6 lg:px-8 py-3 lg:py-4 border-2 border-green-500 text-green-700 font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 hover:scale-105 transition-all duration-300 text-sm lg:text-base w-full sm:w-auto">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                class="group/btn2 inline-flex justify-center items-center gap-2 px-6 lg:px-8 py-3 lg:py-4 border-2 border-green-500 text-green-700 font-bold rounded-xl hover:bg-green-600 hover:text-white hover:border-green-600 hover:scale-105 transition-all duration-300 text-sm lg:text-base w-full sm:w-auto">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
                                 </svg>
-                                Tonton Video
+                                <span>Tonton Video</span>
                             </a>
                         </div>
 
@@ -497,25 +474,6 @@
                     tilt.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
                 });
             }
-
-
-            // ---- PARTICLE FIELD ----
-            const container = document.getElementById('hero-particles');
-            if (container) {
-                const count = 18;
-                for (let i = 0; i < count; i++) {
-                    const p = document.createElement('div');
-                    const size = (Math.random() * 6 + 3).toFixed(1);
-                    const left = (Math.random() * 100).toFixed(1);
-                    const top  = (Math.random() * 100).toFixed(1);
-                    const dur  = (Math.random() * 8 + 8).toFixed(1);
-                    const delay= (Math.random() * -12).toFixed(1);
-                    const op   = (Math.random() * 0.35 + 0.1).toFixed(2);
-                    p.className = 'hero-particle';
-                    p.style.cssText = `width:${size}px;height:${size}px;left:${left}%;top:${top}%;--dur:${dur}s;--delay:${delay}s;--max-opacity:${op};`;
-                    container.appendChild(p);
-                }
-            }
         })();
         </script>
 
@@ -541,8 +499,9 @@
             </div>
         </div>
 
-        <!-- ============================= SECTION: LAYANAN ============================= -->
-        <section id="layanan" class="py-16 sm:py-20 lg:py-32 overflow-hidden bg-[#F0FDF4]">
+        <!-- ============================= SECTION: FITUR UNGGULAN ============================= -->
+        <section id="fitur-unggulan" class="py-16 sm:py-20 lg:py-32 overflow-hidden bg-[#F0FDF4] scroll-mt-16">
+            <span id="layanan" class="scroll-mt-24"></span>
 
 
             <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
@@ -679,10 +638,6 @@
                     <!-- Badge panen durian -->
                     <span
                         class="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-emerald-50 text-green-700 text-[10px] md:text-[11px] font-bold uppercase tracking-widest border border-green-100 mb-3 md:mb-5 shadow-sm hover:shadow-md transition-shadow">
-                        <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                        </svg>
                         panen durian
                     </span>
                     <!-- Judul Section -->
@@ -826,11 +781,6 @@
                     <!-- Badge Pusat Pengetahuan -->
                     <span
                         class="inline-flex items-center gap-2 px-4 py-2 lg:px-5 lg:py-2.5 rounded-full bg-white text-green-700 text-xs font-bold uppercase tracking-widest border border-green-200 mb-4 lg:mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                        <svg class="w-4 h-4 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
-                            </path>
-                        </svg>
                         Pusat Pengetahuan
                     </span>
 
@@ -1302,8 +1252,3 @@
 </body>
 
 </html>
-
-
-
-
-

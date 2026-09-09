@@ -135,9 +135,9 @@
                             </a>
 
                             {{-- 3. KEMBALI KE DASHBOARD --}}
-                            @if($user->role === 'admin' || $user->role === 'petani')
+                            @if($user->role === 'admin' || in_array($user->role, ['pekebun', 'petani']))
                                 @php
-                                    $dashboardRoute = ($user->role === 'admin') ? route('admin.dashboard') : route('petani.dashboard');
+                                    $dashboardRoute = ($user->role === 'admin') ? route('admin.dashboard') : route('portal.index');
                                 @endphp
                                 <a href="{{ $dashboardRoute }}"
                                    class="flex items-center space-x-3 w-full px-4 py-3.5 rounded-2xl transition-all duration-300 nav-item-inactive hover:bg-green-50 text-green-600">
@@ -169,7 +169,7 @@
 
                 {{-- Flash Messages --}}
                 @if (session('status') === 'profile-updated')
-                    <div class="p-4 bg-green-50 border-l-4 border-green-600 text-green-700 rounded-r-xl shadow-sm flex items-center animate-pulse">
+                    <div class="p-4 bg-green-50 border-l-4 border-green-600 text-green-700 rounded-r-xl shadow-sm flex items-center">
                         <svg class="w-6 h-6 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <div>
                             <p class="font-bold text-sm">Berhasil!</p>
@@ -178,7 +178,7 @@
                     </div>
                 @endif
                 @if (session('status') === 'password-updated')
-                    <div class="p-4 bg-green-50 border-l-4 border-green-600 text-green-700 rounded-r-xl shadow-sm flex items-center animate-pulse">
+                    <div class="p-4 bg-green-50 border-l-4 border-green-600 text-green-700 rounded-r-xl shadow-sm flex items-center">
                         <svg class="w-6 h-6 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <div>
                             <p class="font-bold text-sm">Berhasil!</p>

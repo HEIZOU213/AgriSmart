@@ -365,7 +365,7 @@
         function updateStatusUI(status) {
             if (!status) return;
             if (status.is_online) {
-                ui.statusDot.className = "absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white bg-green-500 animate-pulse";
+                ui.statusDot.className = "absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white bg-green-500";
                 ui.statusText.className = "text-xs text-green-600 mt-1 font-bold";
                 ui.statusText.innerText = "Online";
             } else {

@@ -35,11 +35,32 @@
                 </div>
             </div>
 
-            {{-- Tombol Chat Penjual --}}
-            <div class="mt-6 pt-4 border-t border-gray-100">
+            {{-- Actions: Konfirmasi Selesai, Batal, & Chat Penjual --}}
+            <div class="mt-6 pt-4 border-t border-gray-100 flex flex-wrap items-center gap-3">
+                @if($pesanan->status == 'shipping')
+                    <form action="{{ route('konsumen.pesanan.selesai', $pesanan->id) }}" method="POST"
+                          onsubmit="return confirm('Apakah pesanan sudah Anda terima dengan baik? Tindakan ini akan menyelesaikan pesanan.');">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 transition shadow-sm hover:shadow">
+                            Konfirmasi Pesanan Diterima
+                        </button>
+                    </form>
+                @endif
+
+                @if($pesanan->status == 'pending')
+                    <form action="{{ route('pesanan.cancel', $pesanan->id) }}" method="POST"
+                          onsubmit="return confirm('Yakin ingin membatalkan pesanan? Stok produk akan dikembalikan.');">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-100 text-red-600 text-sm font-bold rounded-lg hover:bg-red-200 transition">
+                            Batalkan Pesanan
+                        </button>
+                    </form>
+                @endif
+
                 @php
                     // Ambil ID Penjual dari produk pertama di pesanan
-                    $sellerId = optional($pesanan->detailPesanan->first()->produk)->user_id;
+                    $sellerId = optional($pesanan->detailPesanan->first()?->produk)->user_id;
 
                     // Siapkan pesan otomatis dengan Nomor Pesanan
                     $chatText = "Halo, saya ingin bertanya mengenai pesanan #" . $pesanan->kode_pesanan;
@@ -47,17 +68,12 @@
 
                 @if($sellerId)
                     <a href="{{ route('chat.show', ['userId' => $sellerId, 'text' => $chatText, 'back_url' => url()->current()]) }}"
-                        class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-bold rounded-lg hover:bg-green-700 transition shadow-md">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-                            </path>
-                        </svg>
+                        class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm font-bold rounded-lg transition">
                         Chat Penjual
                     </a>
                 @else
                     <button disabled
-                        class="inline-flex items-center px-4 py-2 bg-gray-400 text-white text-sm font-bold rounded-lg cursor-not-allowed">
+                        class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-400 text-sm font-bold rounded-lg cursor-not-allowed">
                         Penjual Tidak Tersedia
                     </button>
                 @endif
@@ -68,29 +84,31 @@
             <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
                 <h3 class="text-sm font-bold text-gray-700">Produk Dibeli</h3>
             </div>
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-white">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase">Produk</th>
-                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase">Jml</th>
-                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-400 uppercase">Harga</th>
-                        <th class="px-6 py-3 text-right text-xs font-bold text-gray-400 uppercase">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-100">
-                    @foreach ($pesanan->detailPesanan as $detail)
+            <div class="overflow-x-auto">
+                <table class="min-w-full min-w-[500px] divide-y divide-gray-200">
+                    <thead class="bg-white">
                         <tr>
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">
-                                {{ $detail->produk->nama_produk ?? '[Dihapus]' }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500">{{ $detail->jumlah }}</td>
-                            <td class="px-6 py-4 text-sm text-gray-500 text-right">Rp
-                                {{ number_format($detail->harga_satuan, 0, ',', '.') }}</td>
-                            <td class="px-6 py-4 text-sm font-bold text-gray-900 text-right">Rp
-                                {{ number_format($detail->harga_satuan * $detail->jumlah, 0, ',', '.') }}</td>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase whitespace-nowrap">Produk</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-400 uppercase whitespace-nowrap">Jml</th>
+                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-400 uppercase whitespace-nowrap">Harga</th>
+                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-400 uppercase whitespace-nowrap">Subtotal</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        @foreach ($pesanan->detailPesanan as $detail)
+                            <tr>
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
+                                    {{ $detail->produk->nama_produk ?? '[Dihapus]' }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">{{ $detail->jumlah }}</td>
+                                <td class="px-6 py-4 text-sm text-gray-500 text-right whitespace-nowrap">Rp
+                                    {{ number_format($detail->harga_satuan, 0, ',', '.') }}</td>
+                                <td class="px-6 py-4 text-sm font-bold text-gray-900 text-right whitespace-nowrap">Rp
+                                    {{ number_format($detail->harga_satuan * $detail->jumlah, 0, ',', '.') }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </div>

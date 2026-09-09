@@ -53,7 +53,7 @@ class CartController extends Controller
     public function store(Request $request, $id)
     {
         // Cek Keamanan Role
-        if (Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'petani')) {
+        if (Auth::check() && (Auth::user()->role === 'admin' || Auth::user()->role === 'pekebun')) {
             return redirect()->back()->with('error', 'Hanya akun Konsumen yang boleh berbelanja.');
         }
 
@@ -153,9 +153,15 @@ class CartController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
+        $produk = Produk::find($request->product_id);
         $existingCart = Keranjang::where('user_id', Auth::id())
             ->where('produk_id', $request->product_id)
             ->first();
+
+        $currentQty = $existingCart ? $existingCart->jumlah : 0;
+        if (($currentQty + $request->qty) > $produk->stok) {
+            return response()->json(['success' => false, 'message' => 'Stok tidak mencukupi'], 400);
+        }
 
         if ($existingCart) {
             $existingCart->jumlah += $request->qty;
@@ -184,6 +190,11 @@ class CartController extends Controller
         $cart = Keranjang::where('user_id', Auth::id())->where('id', $id)->first();
         if (!$cart) {
             return response()->json(['success' => false, 'message' => 'Item tidak ditemukan'], 404);
+        }
+
+        $produk = Produk::find($cart->produk_id);
+        if ($produk && $request->qty > $produk->stok) {
+            return response()->json(['success' => false, 'message' => 'Stok tidak mencukupi (Max: ' . $produk->stok . ')'], 400);
         }
 
         $cart->jumlah = $request->qty;

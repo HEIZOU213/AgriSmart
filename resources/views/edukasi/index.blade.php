@@ -147,8 +147,7 @@
             <div class="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
                 <div class="text-center" data-aos="fade-up" data-aos-duration="1000">
                     <span
-                        class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-white/80 backdrop-blur-md text-green-700 text-xs sm:text-sm font-bold tracking-widest uppercase mb-6 border border-green-200/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
-                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        class="inline-block py-1.5 px-4 rounded-full bg-white/80 backdrop-blur-md text-green-700 text-xs sm:text-sm font-bold tracking-widest uppercase mb-6 border border-green-200/50 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all cursor-default">
                         Pusat Edukasi Budidaya Durian
                     </span>
                     <h2 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight">
@@ -211,7 +210,6 @@
                                         <div>
                                             <!-- Tanggal -->
                                             <div class="flex items-center gap-2 mb-3">
-                                                <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
                                                 <span class="text-[11px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">
                                                     {{ $item->updated_at->format('d M Y') }}
                                                 </span>

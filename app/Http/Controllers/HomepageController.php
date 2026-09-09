@@ -39,11 +39,11 @@ class HomepageController extends Controller
         $heroStats = Cache::remember('homepage_hero_stats', 600, function () {
             return [
                 // Jumlah user dengan role pekebun durian yang terdaftar
-                'jumlah_petani'  => User::where('role', 'petani')->count(),
+                'jumlah_petani'  => User::where('role', 'pekebun')->count(),
                 // Jumlah total produk yang tersedia
                 'jumlah_produk'  => Produk::count(),
-                // Jumlah pesanan yang sudah selesai / dikirim
-                'pesanan_selesai' => Pesanan::whereIn('status', ['selesai', 'dikirim', 'dikonfirmasi'])->count(),
+                // Jumlah pesanan yang sudah selesai / diproses / dikirim
+                'pesanan_selesai' => Pesanan::whereIn('status', ['paid', 'shipping', 'done'])->count(),
             ];
         });
 

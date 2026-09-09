@@ -11,12 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Perintah untuk MENGUBAH tabel 'users'
+        // Perintah untuk MENGUBAH tabel 'users' jika kolom belum ada
         Schema::table('users', function (Blueprint $table) {
-            // Sesuai ERD, kita tambahkan 3 kolom baru
-            $table->enum('role', ['petani', 'konsumen', 'admin'])->default('konsumen')->after('password');
-            $table->string('no_telepon')->nullable()->after('role');
-            $table->text('alamat')->nullable()->after('no_telepon');
+            if (!Schema::hasColumn('users', 'role')) {
+                $table->string('role', 50)->default('user')->after('password');
+            }
+            if (!Schema::hasColumn('users', 'no_telepon')) {
+                $table->string('no_telepon')->nullable()->after('role');
+            }
+            if (!Schema::hasColumn('users', 'alamat')) {
+                $table->text('alamat')->nullable()->after('no_telepon');
+            }
         });
     }
 

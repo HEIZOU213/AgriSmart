@@ -37,9 +37,17 @@ class EdukasiController extends Controller
                                 ->where('slug', $slug)
                                 ->firstOrFail();
 
+        // Ambil artikel edukasi terkait/terbaru lainnya
+        $artikelTerkait = KontenEdukasi::with(['kategoriEdukasi', 'user'])
+                                ->where('id', '!=', $edukasi->id)
+                                ->orderBy('created_at', 'desc')
+                                ->take(3)
+                                ->get();
+
         // Kirim data ke view 'edukasi.show'
         return view('edukasi.show', [
-            'edukasi' => $edukasi
+            'edukasi' => $edukasi,
+            'artikelTerkait' => $artikelTerkait,
         ]);
     }
 

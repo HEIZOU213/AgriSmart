@@ -36,10 +36,17 @@ class CustomAuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'konsumen', // Default role konsumen
+            'role' => 'user', // Default role konsumen
         ]);
 
-        // --- PERUBAHAN: LANGSUNG KIRIM OTP (Jangan Login Otomatis) ---
+        // --- PERUBAHAN: CEK APAKAH OTP AKTIF ---
+        // SEMENTARA DIPAKSA TRUE (BYPASS OTP)
+        if (!filter_var(env('OTP_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
+            // Jika OTP dimatikan, langsung login
+            Auth::login($user);
+            $request->session()->regenerate();
+            return redirect('/dashboard')->with('success', 'Registrasi berhasil!');
+        }
 
         // 2. Generate OTP
         $otp = rand(100000, 999999);
@@ -54,7 +61,7 @@ class CustomAuthController extends Controller
         try {
             Mail::to($user->email)->send(new OtpLoginMail($otp));
         } catch (\Exception $e) {
-            // Jika gagal kirim email, biarkan lanjut (user bisa minta ulang nanti)
+            \Log::warning('Failed to send OTP email: ' . $e->getMessage());
         }
 
         // 5. Simpan email di session agar halaman verifikasi tahu siapa ini
