@@ -170,6 +170,11 @@ class PesananController extends Controller
         ->orderBy('created_at', 'desc')
         ->get();
 
+        // Tandai pesanan baru sebagai sudah dilihat agar badge hilang
+        Pesanan::whereHas('detailPesanan', function ($query) use ($productIds) {
+            $query->whereIn('produk_id', $productIds);
+        })->where('is_seen', false)->update(['is_seen' => true]);
+
         return response()->json([
             'success' => true,
             'data' => $orders

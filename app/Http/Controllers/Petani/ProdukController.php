@@ -16,14 +16,54 @@ class ProdukController extends Controller
     /**
      * Menampilkan daftar produk milik pekebun durian yang sedang login.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $produk = Produk::where('user_id', Auth::id()) 
-                        ->with('kategoriProduk')
-                        ->orderBy('created_at', 'desc')
-                        ->paginate(10);
-                            
-        return view('petani.produk.index', ['produk' => $produk]);
+        $userId = Auth::id();
+
+        // 1. Stats Ringkasan Katalog Petani (sesuai Mobile)
+        $baseQuery = Produk::where('user_id', $userId);
+        $stats = [
+            'total_produk'       => (clone $baseQuery)->count(),
+            'ready_stock_count'  => (clone $baseQuery)->where(function($q) {
+                $q->where('tipe_produk', 'ready_stock')->orWhereNull('tipe_produk');
+            })->count(),
+            'booking_panen_count'=> (clone $baseQuery)->where('tipe_produk', 'booking_panen')->count(),
+            'total_stok'         => (clone $baseQuery)->sum('stok'),
+        ];
+
+        // 2. Query Produk dengan Filter
+        $query = Produk::where('user_id', $userId)->with('kategoriProduk');
+
+        // Filter Tipe Produk (Ready Stock vs Booking Panen)
+        if ($request->filled('tipe_produk') && $request->tipe_produk !== 'all') {
+            if ($request->tipe_produk === 'ready_stock') {
+                $query->where(function($q) {
+                    $q->where('tipe_produk', 'ready_stock')->orWhereNull('tipe_produk');
+                });
+            } else {
+                $query->where('tipe_produk', $request->tipe_produk);
+            }
+        }
+
+        // Filter Kategori
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_produk_id', $request->kategori_id);
+        }
+
+        // Pencarian Nama / Varietas Produk
+        if ($request->filled('q')) {
+            $keyword = $request->q;
+            $query->where('nama_produk', 'like', "%{$keyword}%");
+        }
+
+        $produk = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
+        $kategoriList = KategoriProduk::all();
+
+        return view('petani.produk.index', [
+            'produk'       => $produk,
+            'stats'        => $stats,
+            'kategoriList' => $kategoriList,
+        ]);
     }
 
     /**
@@ -52,22 +92,22 @@ class ProdukController extends Controller
                 ->with('error', 'Konfigurasi Midtrans wajib diisi sebelum menambahkan produk.');
         }
 
-        // 1. Validasi input (tetap sama)
+        // 1. Validasi input
         $request->validate([
-            'nama_produk' => 'required|string|max:255',
+            'nama_produk'        => 'required|string|max:255',
             'kategori_produk_id' => 'required|exists:kategori_produk,id',
-            'deskripsi' => 'nullable|string',
-            'harga' => 'required|numeric|min:0',
-            'stok' => 'required|integer|min:0',
-            'foto_produk' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'deskripsi'          => 'nullable|string',
+            'harga'              => 'required|numeric|min:0',
+            'stok'               => 'required|integer|min:0',
+            'foto_produk'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'tipe_produk'        => 'nullable|string|in:ready_stock,booking_panen',
+            'estimasi_panen'     => 'nullable|string|max:255',
         ]);
 
-        $path = null; // Inisialisasi path
+        $path = null;
 
-        // 2. --- [TAMBAHAN] LOGIKA UPLOAD FILE ---
+        // 2. Upload file foto produk
         if ($request->hasFile('foto_produk')) {
-            // Simpan file di 'storage/app/public/produk'
-            // dan 'path' akan berisi 'produk/namafile.jpg'
             $path = $request->file('foto_produk')->store('produk', 'public');
         }
 
@@ -83,7 +123,9 @@ class ProdukController extends Controller
         $produk->harga = $request->harga;
         $produk->satuan = $satuan;
         $produk->stok = $request->stok;
-        $produk->foto_produk = $path; // <-- 4. SIMPAN PATH FOTO
+        $produk->tipe_produk = $request->input('tipe_produk', 'ready_stock');
+        $produk->estimasi_panen = $request->input('estimasi_panen');
+        $produk->foto_produk = $path;
         $produk->save();
 
         return redirect()->route('petani.produk.index')
@@ -121,19 +163,20 @@ class ProdukController extends Controller
         $produk = Produk::where('user_id', Auth::id())->findOrFail($id);
 
         $request->validate([
-            'nama_produk' => 'required|string|max:255',
+            'nama_produk'        => 'required|string|max:255',
             'kategori_produk_id' => 'required|exists:kategori_produk,id',
-            'deskripsi' => 'nullable|string',
-            'harga' => 'required|numeric|min:0',
-            'stok' => 'required|integer|min:0',
-            'foto_produk' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'deskripsi'          => 'nullable|string',
+            'harga'              => 'required|numeric|min:0',
+            'stok'               => 'required|integer|min:0',
+            'foto_produk'        => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'tipe_produk'        => 'nullable|string|in:ready_stock,booking_panen',
+            'estimasi_panen'     => 'nullable|string|max:255',
         ]);
 
         $path = $produk->foto_produk; // Ambil path foto yang lama
 
         // 1. --- [TAMBAHAN] LOGIKA UPDATE FILE ---
         if ($request->hasFile('foto_produk')) {
-            
             // 2. Hapus foto lama jika ada
             if ($produk->foto_produk) {
                 Storage::disk('public')->delete($produk->foto_produk);
@@ -153,7 +196,9 @@ class ProdukController extends Controller
         $produk->harga = $request->harga;
         $produk->satuan = $satuan;
         $produk->stok = $request->stok;
-        $produk->foto_produk = $path; // <-- 5. SIMPAN PATH BARU (atau path lama jika tidak ganti)
+        $produk->tipe_produk = $request->input('tipe_produk', $produk->tipe_produk ?? 'ready_stock');
+        $produk->estimasi_panen = $request->input('estimasi_panen');
+        $produk->foto_produk = $path;
         $produk->save();
 
         return redirect()->route('petani.produk.index')

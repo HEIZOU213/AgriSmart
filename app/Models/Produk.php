@@ -78,10 +78,13 @@ class Produk extends Model
     }
 
     /**
-     * Apakah produk ini kategori Buah Durian (booking DP)?
+     * Apakah produk ini kategori Buah Durian (booking DP) atau bertipe booking_panen?
      */
     public function isBookingDurian(): bool
     {
+        if ($this->tipe_produk === 'booking_panen') {
+            return true;
+        }
         if ($this->kategoriProduk) {
             return $this->kategoriProduk->isBooking();
         }

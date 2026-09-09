@@ -212,8 +212,15 @@
                             </div>
                         @endif
                         <div class="min-w-0">
-                            <p class="text-xs font-bold text-slate-900 truncate">{{ $pr->nama_produk }}</p>
-                            <p class="text-[11px] font-bold text-emerald-600">Rp {{ number_format($pr->harga, 0, ',', '.') }}</p>
+                            <div class="flex items-center gap-1.5">
+                                <p class="text-xs font-bold text-slate-900 truncate">{{ $pr->nama_produk }}</p>
+                                @if($pr->tipe_produk === 'booking_panen')
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-800 flex-shrink-0">Booking Panen</span>
+                                @else
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 flex-shrink-0">Ready Stock</span>
+                                @endif
+                            </div>
+                            <p class="text-[11px] font-bold text-emerald-600 mt-0.5">Rp {{ number_format($pr->harga, 0, ',', '.') }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-3 flex-shrink-0">

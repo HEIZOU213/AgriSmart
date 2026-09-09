@@ -117,6 +117,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifikasi', [NotifikasiController::class, 'index']);
     Route::get('/keranjang/count', [KeranjangController::class, 'count']);
     Route::get('/notifikasi/count', [NotifikasiController::class, 'countUnread']);
+    Route::get('/cek-notifikasi', [ChatController::class, 'checkNotifications']);
+    Route::post('/pesanan/mark-seen', [ChatController::class, 'markOrdersSeen']);
 
     // ====================================================
     // 3. ROLE: PETANI ROUTES

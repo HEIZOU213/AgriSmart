@@ -137,11 +137,13 @@ class ChatController extends Controller
     // 6. API untuk cek notifikasi realtime (Support Pekebun & Konsumen)
     public function checkNotifications()
     {
-        $user = Auth::user();
+        $user = Auth::user() ?: request()->user();
         $data = [
+            'success' => true,
             'chat' => 0,
-            'pesanan' => 0,   // Khusus Pekebun
-            'keranjang' => 0  // Khusus Konsumen
+            'pesanan' => 0,   // Pekebun & Konsumen
+            'keranjang' => 0, // Khusus Konsumen
+            'latest_chat' => null,
         ];
 
         if ($user) {
@@ -150,26 +152,89 @@ class ChatController extends Controller
                 $data['chat'] = \App\Models\MarketChat::where('receiver_id', $user->id)
                     ->where('is_read', false)
                     ->count();
+
+                $latest = \App\Models\MarketChat::where('receiver_id', $user->id)
+                    ->where('is_read', false)
+                    ->with('sender:id,name,foto_profil')
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                if ($latest) {
+                    $data['latest_chat'] = [
+                        'id' => $latest->id,
+                        'sender_id' => $latest->sender_id,
+                        'sender_name' => $latest->sender ? $latest->sender->name : 'Pengguna AgriSmart',
+                        'message' => $latest->message,
+                        'created_at' => $latest->created_at ? $latest->created_at->toIso8601String() : date('c'),
+                    ];
+                }
             } catch (\Exception $e) {}
 
             // 2. Data Khusus Berdasarkan Role
             if ($user->role === 'pekebun') {
                 $petaniId = $user->id;
-                // Pesanan Masuk
+                // Pesanan Masuk untuk Pekebun (Pesanan baru yang belum dilihat atau berstatus pending/paid)
                 try {
-                    $data['pesanan'] = \App\Models\Pesanan::whereHas('detailPesanan.produk', function($q) use ($petaniId) {
-                        $q->where('user_id', $petaniId);
-                    })->where('status', 'pending')->where('is_seen', false)->count();
+                    $produkIds = \App\Models\Produk::where('user_id', $petaniId)->pluck('id');
+                    $data['pesanan'] = \App\Models\Pesanan::whereHas('detailPesanan', function($q) use ($produkIds) {
+                        $q->whereIn('produk_id', $produkIds);
+                    })->where(function($q) {
+                        $q->where('is_seen', false)
+                          ->orWhere('status', 'pending');
+                    })->count();
                 } catch (\Exception $e) {}
             } elseif ($user->role === 'user') {
                 // Hitung Isi Keranjang
                 try {
                     $data['keranjang'] = \App\Models\Keranjang::where('user_id', $user->id)->count();
                 } catch (\Exception $e) {}
+
+                // Pesanan untuk Konsumen (Pesanan belum dilihat atau notifikasi order belum dibaca)
+                try {
+                    $unseenPesanan = \App\Models\Pesanan::where('user_id', $user->id)
+                        ->where('is_seen', false)
+                        ->where('konsumen_arsip', false)
+                        ->count();
+
+                    $unreadNotif = \App\Models\Notifikasi::where('user_id', $user->id)
+                        ->where('is_read', false)
+                        ->count();
+
+                    $data['pesanan'] = max($unseenPesanan, $unreadNotif);
+                } catch (\Exception $e) {}
             }
         }
 
         return response()->json($data);
+    }
+
+    // 7. API Tandai Pesanan Sudah Dilihat (Clear Badge Pesanan)
+    public function markOrdersSeen()
+    {
+        $user = Auth::user() ?: request()->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+
+        try {
+            if ($user->role === 'pekebun') {
+                $petaniId = $user->id;
+                $produkIds = \App\Models\Produk::where('user_id', $petaniId)->pluck('id');
+                \App\Models\Pesanan::whereHas('detailPesanan', function($q) use ($produkIds) {
+                    $q->whereIn('produk_id', $produkIds);
+                })->where('is_seen', false)->update(['is_seen' => true]);
+            } else {
+                \App\Models\Pesanan::where('user_id', $user->id)
+                    ->where('is_seen', false)
+                    ->update(['is_seen' => true]);
+
+                \App\Models\Notifikasi::where('user_id', $user->id)
+                    ->where('is_read', false)
+                    ->update(['is_read' => true]);
+            }
+        } catch (\Exception $e) {}
+
+        return response()->json(['success' => true, 'message' => 'Pesanan berhasil ditandai telah dilihat']);
     }
 }
 

@@ -137,10 +137,20 @@ class PesananController extends Controller
      */
     public function apiIndex()
     {
-        $orders = Pesanan::where('user_id', Auth::id())
+        $userId = Auth::id();
+        $orders = Pesanan::where('user_id', $userId)
                     ->with('detailPesanan.produk')
                     ->orderBy('created_at', 'desc')
                     ->get();
+
+        // Tandai pesanan sebagai sudah dilihat dan notifikasi order sebagai sudah dibaca
+        Pesanan::where('user_id', $userId)
+            ->where('is_seen', false)
+            ->update(['is_seen' => true]);
+
+        \App\Models\Notifikasi::where('user_id', $userId)
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
 
         return response()->json([
             'success' => true,
