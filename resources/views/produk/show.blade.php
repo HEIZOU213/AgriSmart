@@ -405,28 +405,43 @@
                                     <p class="text-sm md:text-base">{{ $produk->deskripsi }}</p>
                                 </div>
                             </div>
-                            {{-- Keterangan & Ketentuan Pemesanan (Subtle / Tidak Mencolok) --}}
+                        </div>
+
+                        {{-- ACTION SECTION (Cart Form & Core Info) --}}
+                        <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-200 mt-auto">
+
+                            {{-- INTI KETENTUAN PEMESANAN (Ringkas & Langsung ke Inti) --}}
                             @if($isBooking)
-                                <div class="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-700 space-y-2">
-                                    <div class="flex items-center gap-2 font-bold text-slate-800">
-                                        <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                <div class="mb-4 bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
+                                    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-2">
+                                        <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                         </svg>
                                         <span>Ketentuan Pemesanan Buah Durian</span>
                                     </div>
-                                    <div class="text-slate-600 text-xs sm:text-sm space-y-1.5 leading-relaxed pl-6">
-                                        <p>• <strong>Minimal Pembelian:</strong> 2 {{ $produk->satuan ?? 'kg' }} sesuai ketentuan sistem pemesanan panen durian.</p>
-                                        <p>• <strong>Sistem Booking DP:</strong> Pembayaran awal DP tetap Rp 100.000 untuk penguncian kuota panen. Pelunasan dihitung sesuai berat riil saat buah dipanen.</p>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                            <span class="text-[10px] text-slate-400 font-semibold block">Minimal Pembelian:</span>
+                                            <span class="font-bold text-slate-800">2 {{ $produk->satuan ?? 'kg' }}</span>
+                                        </div>
+                                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                            <span class="text-[10px] text-slate-400 font-semibold block">DP Pemesanan</span>
+                                            <span class="font-bold text-green-700">Rp 100.000</span>
+                                        </div>
+                                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 {{ $produk->estimasi_panen ? '' : 'col-span-2' }}">
+                                            <span class="text-[10px] text-slate-400 font-semibold block">Pelunasan</span>
+                                            <span class="font-medium text-slate-700 text-[11px]">Sesuai timbangan panen</span>
+                                        </div>
                                         @if($produk->estimasi_panen)
-                                            <p>• <strong>Estimasi Jadwal Panen:</strong> <span class="font-semibold text-slate-800">{{ $produk->estimasi_panen }}</span></p>
+                                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                                <span class="text-[10px] text-slate-400 font-semibold block">Estimasi Panen</span>
+                                                <span class="font-bold text-slate-800 text-[11px] truncate block">{{ $produk->estimasi_panen }}</span>
+                                            </div>
                                         @endif
                                     </div>
                                 </div>
                             @endif
-                        </div>
 
-                        {{-- ACTION SECTION (Cart Form) --}}
-                        <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 mt-auto">
                             <form action="{{ route('cart.store', $produk->id) }}" method="POST">
                                 @csrf
                                 <div class="flex flex-col sm:flex-row items-end gap-4">
