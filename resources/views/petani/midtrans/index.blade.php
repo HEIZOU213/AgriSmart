@@ -21,6 +21,18 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 flex items-start gap-3 shadow-sm">
+                <svg class="w-5 h-5 text-rose-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <div>
+                    <h4 class="font-semibold text-rose-900">Validasi Kredensial Gagal</h4>
+                    <p class="text-sm mt-0.5 text-rose-700 leading-relaxed">{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800">
                 <p class="font-semibold mb-1">Terjadi kesalahan pengisian form:</p>
@@ -29,6 +41,34 @@
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
+            </div>
+        @endif
+
+        {{-- Status Kredensial Saat Ini --}}
+        @if($user->hasCustomMidtrans())
+            <div class="mb-6 p-5 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-xl {{ $user->isMidtransProduction() ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }} flex items-center justify-center flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-sm font-bold text-slate-800">Akun Midtrans Terdaftar</h3>
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold {{ $user->isMidtransProduction() ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800' }}">
+                                {{ $user->isMidtransProduction() ? 'Mode Live / Production' : 'Mode Sandbox / Testing' }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            Server Key: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">{{ substr($user->midtrans_server_key, 0, 14) }}...</code> | 
+                            Merchant ID: <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">{{ $user->midtrans_merchant_id ?: 'Otomatis' }}</code>
+                        </p>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100 sm:max-w-xs">
+                    Jika ada kesalahan kunci atau ingin berganti antara Sandbox &amp; Production, cukup perbarui isian di formulir bawah ini dan klik Simpan.
+                </div>
             </div>
         @endif
 
@@ -84,9 +124,12 @@
                            id="midtrans_client_key"
                            name="midtrans_client_key"
                            value="{{ old('midtrans_client_key', $user->midtrans_client_key) }}"
-                           placeholder="Contoh: SB-Mid-client-XXXXX atau Mid-client-XXXXX"
+                           placeholder="Contoh: SB-Mid-client-XXXXX (Sandbox) atau Mid-client-XXXXX (Production)"
                            class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition font-mono">
-                    <p class="text-xs text-slate-500 mt-1.5">Client Key bersifat publik untuk inisialisasi Midtrans Snap di browser pembeli.</p>
+                    <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span><strong>Sandbox:</strong> Berawalan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">SB-Mid-client-...</code> | <strong>Production:</strong> Berawalan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">Mid-client-...</code></span>
+                    </p>
                 </div>
 
                 <div>
@@ -104,9 +147,15 @@
                            id="midtrans_server_key"
                            name="midtrans_server_key"
                            value="{{ old('midtrans_server_key', $user->midtrans_server_key) }}"
-                           placeholder="Contoh: SB-Mid-server-XXXXX atau Mid-server-XXXXX"
+                           placeholder="Contoh: SB-Mid-server-XXXXX (Sandbox) atau Mid-server-XXXXX (Production)"
                            class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition font-mono">
-                    <p class="text-xs text-slate-500 mt-1.5">Server Key digunakan untuk meng-generate token transaksi & memvalidasi webhook notifikasi pembayaran dari Midtrans.</p>
+                    <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span><strong>Sandbox:</strong> Berawalan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">SB-Mid-server-...</code> | <strong>Production:</strong> Berawalan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">Mid-server-...</code></span>
+                    </p>
+                    <p class="text-xs text-indigo-600 font-medium mt-1">
+                        * Sistem akan otomatis mendeteksi mode Sandbox / Production dan memvalidasi ke server Midtrans saat disimpan.
+                    </p>
                 </div>
 
                 {{-- Environment Toggle --}}

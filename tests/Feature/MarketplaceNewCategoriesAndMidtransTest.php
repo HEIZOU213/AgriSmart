@@ -651,5 +651,115 @@ class MarketplaceNewCategoriesAndMidtransTest extends TestCase
         $order->refresh();
         $this->assertEquals('paid', $order->status);
     }
+
+    /**
+     * Test: Pekebun can fix/update Midtrans credentials and it auto-heals fallback snap tokens on pending orders.
+     */
+    public function test_pekebun_can_update_midtrans_credentials_and_auto_heal_pending_orders()
+    {
+        $pekebun = User::factory()->create([
+            'role' => 'pekebun',
+            'midtrans_server_key' => 'SB-Mid-server-OLD-WRONG',
+            'midtrans_client_key' => 'SB-Mid-client-OLD-WRONG',
+        ]);
+        $konsumen = User::factory()->create(['role' => 'user']);
+
+        $kategori = KategoriProduk::where('slug', 'buah-durian')->first();
+        $produk = Produk::create([
+            'user_id' => $pekebun->id,
+            'kategori_produk_id' => $kategori->id,
+            'nama_produk' => 'Durian Tembaga',
+            'harga' => 80000,
+            'stok' => 10,
+        ]);
+
+        // Order stuck with fallback snap token
+        $order = Pesanan::create([
+            'user_id' => $konsumen->id,
+            'kode_pesanan' => 'BKG-20260909-HEAL01',
+            'tipe_pesanan' => 'booking_durian',
+            'total_harga' => 80000,
+            'dp_amount' => 80000,
+            'snap_token' => 'FALLBACK-SNAP-abcdef123456',
+            'status' => 'pending',
+            'alamat_kirim' => 'Jl. Bengkalis No. 5',
+        ]);
+
+        DetailPesanan::create([
+            'pesanan_id' => $order->id,
+            'produk_id' => $produk->id,
+            'jumlah' => 1,
+            'harga_satuan' => 80000,
+        ]);
+
+        // Pekebun fixes/updates their Midtrans credentials
+        $response = $this->actingAs($pekebun)->post(route('petani.midtrans.update'), [
+            'midtrans_server_key' => 'SB-Mid-server-CORRECT-TEST',
+            'midtrans_client_key' => 'SB-Mid-client-CORRECT-TEST',
+            'midtrans_merchant_id' => 'G999888777',
+        ]);
+
+        $response->assertRedirect(route('petani.midtrans.index'));
+        $response->assertSessionHas('success');
+
+        $pekebun->refresh();
+        $this->assertEquals('SB-Mid-server-CORRECT-TEST', $pekebun->midtrans_server_key);
+        $this->assertEquals('SB-Mid-client-CORRECT-TEST', $pekebun->midtrans_client_key);
+        // Auto-detected sandbox
+        $this->assertFalse($pekebun->isMidtransProduction());
+
+        // The order's snap token should be auto-healed (no longer FALLBACK-SNAP)
+        $order->refresh();
+        $this->assertNotNull($order->snap_token);
+        $this->assertStringNotContainsString('FALLBACK-SNAP', $order->snap_token);
+    }
+
+    /**
+     * Test: Consumer can call refreshSnapToken to regenerate valid snap token.
+     */
+    public function test_consumer_can_refresh_snap_token()
+    {
+        $pekebun = User::factory()->create([
+            'role' => 'pekebun',
+            'midtrans_server_key' => 'SB-Mid-server-TESTKEY',
+        ]);
+        $konsumen = User::factory()->create(['role' => 'user']);
+
+        $kategori = KategoriProduk::where('slug', 'buah-durian')->first();
+        $produk = Produk::create([
+            'user_id' => $pekebun->id,
+            'kategori_produk_id' => $kategori->id,
+            'nama_produk' => 'Durian Duri Hitam',
+            'harga' => 150000,
+            'stok' => 5,
+        ]);
+
+        $order = Pesanan::create([
+            'user_id' => $konsumen->id,
+            'kode_pesanan' => 'BKG-20260909-REFRESH01',
+            'tipe_pesanan' => 'booking_durian',
+            'total_harga' => 150000,
+            'dp_amount' => 100000,
+            'snap_token' => 'FALLBACK-SNAP-oldtoken123',
+            'status' => 'pending',
+            'alamat_kirim' => 'Jl. Merdeka No. 9',
+        ]);
+
+        DetailPesanan::create([
+            'pesanan_id' => $order->id,
+            'produk_id' => $produk->id,
+            'jumlah' => 1,
+            'harga_satuan' => 150000,
+        ]);
+
+        $response = $this->actingAs($konsumen)->postJson(route('konsumen.pesanan.refresh-snap-token', $order->id));
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        $order->refresh();
+        $this->assertStringNotContainsString('FALLBACK-SNAP', $order->snap_token);
+    }
 }
 

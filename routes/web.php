@@ -290,6 +290,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/pesanan/{id}/cancel', [KonsumenPesanan::class, 'cancel'])->name('pesanan.cancel');
         Route::patch('/pesanan/{id}/selesai', [KonsumenPesanan::class, 'selesai'])->name('pesanan.selesai');
         Route::post('/pesanan/{id}/bayar-pelunasan', [KonsumenPesanan::class, 'bayarPelunasan'])->name('pesanan.bayar-pelunasan');
+        Route::post('/pesanan/{id}/refresh-snap-token', [KonsumenPesanan::class, 'refreshSnapToken'])->name('pesanan.refresh-snap-token');
     });
 
     // E-Kwitansi dengan QR Code (Bisa diakses oleh Konsumen pemilik, Pekebun penjual, & Admin)

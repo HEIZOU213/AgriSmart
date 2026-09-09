@@ -340,5 +340,73 @@ class PesananController extends Controller
 
         return redirect()->route('konsumen.pesanan.kwitansi', $pesanan->id);
     }
+
+    /**
+     * Refresh / Regenerate Snap Token untuk pesanan pending jika token lama kedaluwarsa atau fallback
+     */
+    public function refreshSnapToken(Request $request, $id)
+    {
+        $pesanan = Pesanan::with('detailPesanan.produk.user')
+            ->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$pesanan) {
+            return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan'], 404);
+        }
+
+        if ($pesanan->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Hanya pesanan berstatus pending yang dapat diperbarui token pembayarannya'], 400);
+        }
+
+        $seller = $pesanan->getPekebun();
+        $serverKey = $seller?->getMidtransServerKey();
+
+        if (empty($serverKey)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pekebun belum mengonfigurasi akun Midtrans.',
+            ], 422);
+        }
+
+        try {
+            $isProd = $seller->isMidtransProduction();
+            \Midtrans\Config::$serverKey = $serverKey;
+            \Midtrans\Config::$isProduction = $isProd;
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $pesanan->kode_pesanan,
+                    'gross_amount' => (int) $pesanan->total_harga,
+                ],
+                'customer_details' => [
+                    'first_name' => Auth::user()->name,
+                    'email' => Auth::user()->email,
+                ],
+            ];
+
+            if (app()->environment('testing')) {
+                $token = 'MOCK-SNAP-TOKEN-' . \Illuminate\Support\Str::random(12);
+            } else {
+                $token = \Midtrans\Snap::getSnapToken($params);
+            }
+            $pesanan->snap_token = $token;
+            $pesanan->save();
+
+            return response()->json([
+                'success' => true,
+                'snap_token' => $token,
+                'is_production' => $isProd,
+                'client_key' => $seller->getMidtransClientKey(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat token pembayaran Midtrans: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
 
