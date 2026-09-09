@@ -71,7 +71,7 @@
                         x-data="{
                             berat: {{ $pesanan->berat_aktual_kg ?? 0 }},
                             hargaPerKg: {{ $pesanan->detailPesanan->first()?->harga_satuan ?? 0 }},
-                            dpAmount: {{ (float) ($pesanan->dp_amount ?: min(100000, $pesanan->detailPesanan->first()?->harga_satuan ?? 100000)) }},
+                            dpAmount: {{ (float) ($pesanan->dp_amount ?: 100000) }},
                             get total() { return (this.berat * this.hargaPerKg) || 0; },
                             get sisa() { return Math.max(0, this.total - this.dpAmount); }
                          }">
@@ -87,7 +87,7 @@
                         <div class="text-xs space-y-2 mb-4 bg-emerald-50/70 p-3 rounded-xl border border-emerald-100">
                             <div class="flex justify-between">
                                 <span class="text-slate-600">DP Diterima:</span>
-                                <span class="font-bold text-emerald-800">Rp {{ number_format($pesanan->dp_amount ?: min(100000, $pesanan->detailPesanan->first()?->harga_satuan ?? 100000), 0, ',', '.') }}</span>
+                                <span class="font-bold text-emerald-800">Rp {{ number_format($pesanan->dp_amount ?: 100000, 0, ',', '.') }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-slate-600">Harga / Kg:</span>

@@ -40,6 +40,13 @@ class AuthController extends Controller
         // 3. Jika Berhasil, Buat Token
         try {
             $user = User::where('email', $request->email)->firstOrFail();
+
+            if ($user->role === 'admin') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Akun Admin dilarang mengakses API publik.',
+                ], 403);
+            }
             
             // INI YANG SERING BIKIN ERROR 500 KALAU MODEL USER BELUM DIEDIT
             $token = $user->createToken('auth_token')->plainTextToken;

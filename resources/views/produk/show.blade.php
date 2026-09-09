@@ -307,7 +307,7 @@
                                     </p>
                                     @if($produk->isBookingDurian())
                                         <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
-                                            DP Booking: Rp {{ number_format(min(100000, $produk->harga), 0, ',', '.') }}
+                                            DP Booking: Rp 100.000 (Min. 2 kg)
                                         </span>
                                     @endif
                                 </div>
@@ -317,10 +317,10 @@
                                 <div class="mb-4 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-1">
                                     <div class="flex items-center gap-1.5 font-bold text-amber-800">
                                         <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                                        Sistem Booking Buah Durian
+                                        Sistem Booking Buah Durian (Minimal 2 kg)
                                     </div>
                                     <p class="leading-relaxed">
-                                        Pemesanan buah durian ini menggunakan sistem booking DP (Rp {{ number_format(min(100000, $produk->harga), 0, ',', '.') }}). Saat panen, buah akan ditimbang oleh pekebun, total harga dihitung berdasarkan berat aktual (kg), dan E-Kwitansi dengan QR Code pelunasan akan diterbitkan otomatis.
+                                        Pemesanan buah durian ini menggunakan sistem booking DP tetap Rp 100.000 dengan minimal pemesanan 2 kg. Saat panen, buah akan ditimbang oleh pekebun, total harga dihitung berdasarkan berat aktual (kg), dan E-Kwitansi dengan QR Code pelunasan akan diterbitkan otomatis.
                                     </p>
                                 </div>
                             @endif
@@ -418,18 +418,25 @@
                                 @csrf
                                 <div class="flex flex-col sm:flex-row items-end gap-4">
 
+                                    @php
+                                        $minBookingQty = $produk->isBookingDurian() ? 2 : 1;
+                                    @endphp
                                     {{-- Input Jumlah --}}
                                     <div class="w-full sm:w-1/3">
                                         <label for="jumlah"
                                             class="block text-xs font-bold text-slate-500 uppercase mb-2">Jumlah
-                                            ({{ $produk->satuan ?? 'kg' }})</label>
+                                            ({{ $produk->satuan ?? 'kg' }})
+                                            @if($produk->isBookingDurian())
+                                                <span class="text-amber-600 font-semibold lowercase">(min. 2 kg)</span>
+                                            @endif
+                                        </label>
                                         <div class="relative flex items-center">
                                             <button type="button"
                                                 onclick="this.parentNode.querySelector('input[type=number]').stepDown()"
                                                 class="absolute left-0 w-10 h-full text-slate-500 hover:text-green-600 bg-transparent rounded-l-lg touch-manipulation">
                                                 -
                                             </button>
-                                            <input type="number" id="jumlah" name="jumlah" value="1" min="1"
+                                            <input type="number" id="jumlah" name="jumlah" value="{{ $minBookingQty }}" min="{{ $minBookingQty }}"
                                                 max="{{ $produk->stok }}"
                                                 class="w-full pl-10 pr-10 border-slate-300 rounded-xl shadow-sm focus:border-green-500 focus:ring-green-500 text-center font-bold text-lg h-12">
                                             <button type="button"

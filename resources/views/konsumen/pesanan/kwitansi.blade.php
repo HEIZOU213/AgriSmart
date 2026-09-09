@@ -208,7 +208,7 @@
 
                         <div class="flex justify-between items-center text-slate-600">
                             <span>Down Payment (DP):</span>
-                            <span class="font-mono font-semibold text-emerald-700">Rp {{ number_format($pesanan->dp_amount ?: min(100000, $pesanan->total_harga), 0, ',', '.') }}</span>
+                            <span class="font-mono font-semibold text-emerald-700">Rp {{ number_format($pesanan->dp_amount ?: 100000, 0, ',', '.') }}</span>
                         </div>
 
                         <div class="flex justify-between items-center text-slate-600">
@@ -244,7 +244,7 @@
 
                     {{-- Info Note --}}
                     <p class="text-[11px] text-slate-400 italic">
-                        * Catatan: Total harga akhir dihitung berdasarkan berat aktual buah durian saat dipanen dikurangi DP (Rp {{ number_format($pesanan->dp_amount ?: min(100000, $pesanan->total_harga), 0, ',', '.') }}) yang telah dibayarkan di awal.
+                        * Catatan: Total harga akhir dihitung berdasarkan berat aktual buah durian saat dipanen dikurangi DP (Rp {{ number_format($pesanan->dp_amount ?: 100000, 0, ',', '.') }}) yang telah dibayarkan di awal.
                     </p>
                 </div>
             </div>

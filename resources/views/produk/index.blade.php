@@ -432,7 +432,7 @@
                                     @if($item->isBookingDurian())
                                         <div class="mb-2">
                                             <span class="inline-block px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-800">
-                                                Booking DP {{ $item->harga < 100000 ? 'Rp ' . number_format($item->harga, 0, ',', '.') : 'Rp 100.000' }}
+                                                Booking DP Rp 100.000 (Min. 2 kg)
                                             </span>
                                         </div>
                                     @endif

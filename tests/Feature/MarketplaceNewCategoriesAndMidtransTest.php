@@ -135,7 +135,7 @@ class MarketplaceNewCategoriesAndMidtransTest extends TestCase
         $cart = Keranjang::create([
             'user_id' => $consumer->id,
             'produk_id' => $produkBuah->id,
-            'jumlah' => 1,
+            'jumlah' => 2,
         ]);
 
         $response = $this->actingAs($consumer)->post(route('checkout.store'), [
@@ -445,7 +445,7 @@ class MarketplaceNewCategoriesAndMidtransTest extends TestCase
         $resOtherScan->assertStatus(403);
     }
 
-    public function test_booking_durian_dp_adjusts_when_subtotal_under_100k()
+    public function test_booking_durian_dp_remains_fixed_100k_with_minimum_purchase()
     {
         $pekebun = User::factory()->create(['role' => 'pekebun']);
         $consumer = User::factory()->create(['role' => 'user']);
@@ -464,7 +464,7 @@ class MarketplaceNewCategoriesAndMidtransTest extends TestCase
         $cart = Keranjang::create([
             'user_id' => $consumer->id,
             'produk_id' => $produk->id,
-            'jumlah' => 1,
+            'jumlah' => 2,
         ]);
 
         $response = $this->actingAs($consumer)->post(route('checkout.store'), [
@@ -477,10 +477,10 @@ class MarketplaceNewCategoriesAndMidtransTest extends TestCase
         $order = Pesanan::where('user_id', $consumer->id)->latest()->first();
         $this->assertNotNull($order);
         $this->assertTrue($order->isBookingDurian());
-        // Subtotal is 50,000 (< 100,000) so DP adjusts to 50,000
-        $this->assertEquals(50000, (int)$order->dp_amount);
-        $this->assertEquals(50000, (int)$order->total_harga);
-        $this->assertEquals(50000, (int)$order->seller_income);
+        // DP remains fixed at 100,000
+        $this->assertEquals(100000, (int)$order->dp_amount);
+        $this->assertEquals(100000, (int)$order->total_harga);
+        $this->assertEquals(100000, (int)$order->seller_income);
     }
 
     public function test_booking_durian_timbangan_with_adjusted_dp_and_zero_remaining_balance_marks_as_paid()
@@ -760,6 +760,92 @@ class MarketplaceNewCategoriesAndMidtransTest extends TestCase
 
         $order->refresh();
         $this->assertStringNotContainsString('FALLBACK-SNAP', $order->snap_token);
+    }
+
+    /**
+     * Test: Durian booking requires minimum 2 kg purchase and charges fixed Rp 100.000 DP.
+     */
+    public function test_buah_durian_booking_enforces_minimum_two_kg_purchase()
+    {
+        $pekebun = User::factory()->create([
+            'role' => 'pekebun',
+            'midtrans_server_key' => 'TEST-SERVER-KEY-123',
+        ]);
+        $consumer = User::factory()->create(['role' => 'user']);
+
+        $buahCat = KategoriProduk::where('slug', 'buah-durian')->first();
+        $produk = Produk::create([
+            'user_id' => $pekebun->id,
+            'kategori_produk_id' => $buahCat->id,
+            'nama_produk' => 'Durian Montong Super',
+            'harga' => 85000,
+            'stok' => 20,
+            'satuan' => 'kg',
+        ]);
+
+        // 1. Attempt checkout with 1 kg via web store -> should be rejected
+        $cart1 = Keranjang::create([
+            'user_id' => $consumer->id,
+            'produk_id' => $produk->id,
+            'jumlah' => 1,
+        ]);
+
+        $failResponse = $this->actingAs($consumer)->post(route('checkout.store'), [
+            'alamat_kirim' => 'Jl. Durian No. 1',
+            'selected_cart_ids' => [$cart1->id],
+        ]);
+        $failResponse->assertRedirect(route('cart.index'));
+        $failResponse->assertSessionHas('error');
+
+        // 2. Attempt checkout with 1 kg via API -> should return 400
+        $apiFailResponse = $this->actingAs($consumer)->postJson('/api/checkout', [
+            'alamat_pengiriman' => 'Jl. Durian No. 1',
+            'payment_method' => 'midtrans',
+            'cart_ids' => [$cart1->id],
+        ]);
+        $apiFailResponse->assertStatus(400);
+        $apiFailResponse->assertJsonFragment(['success' => false]);
+
+        // 3. Checkout with 2 kg -> should succeed with fixed DP Rp 100.000
+        $cart1->update(['jumlah' => 2]);
+
+        $successResponse = $this->actingAs($consumer)->post(route('checkout.store'), [
+            'alamat_kirim' => 'Jl. Durian No. 1',
+            'selected_cart_ids' => [$cart1->id],
+        ]);
+        $successResponse->assertRedirect(route('konsumen.pesanan.index'));
+
+        $order = Pesanan::where('user_id', $consumer->id)->latest()->first();
+        $this->assertNotNull($order);
+        $this->assertTrue($order->isBookingDurian());
+        $this->assertEquals(100000, (int)$order->dp_amount);
+        $this->assertEquals(100000, (int)$order->total_harga);
+    }
+
+    /**
+     * Test: Midtrans environment is determined purely by the checkbox, not by key prefix.
+     */
+    public function test_midtrans_environment_checkbox_without_prefix_dependency()
+    {
+        $pekebun = User::factory()->create(['role' => 'pekebun']);
+
+        // 1. Key has NO prefix, but checkbox is unchecked (false) -> Sandbox
+        $this->actingAs($pekebun)->post(route('petani.midtrans.update'), [
+            'midtrans_server_key' => 'CUSTOM-KEY-WITHOUT-PREFIX-1',
+            'midtrans_client_key' => 'CUSTOM-CLIENT-KEY-1',
+            'midtrans_is_production' => '0',
+        ]);
+        $pekebun->refresh();
+        $this->assertFalse($pekebun->isMidtransProduction());
+
+        // 2. Key starts with 'SB-', but checkbox IS checked (true) -> Production
+        $this->actingAs($pekebun)->post(route('petani.midtrans.update'), [
+            'midtrans_server_key' => 'SB-Mid-server-CUSTOM',
+            'midtrans_client_key' => 'SB-Mid-client-CUSTOM',
+            'midtrans_is_production' => '1',
+        ]);
+        $pekebun->refresh();
+        $this->assertTrue($pekebun->isMidtransProduction());
     }
 }
 

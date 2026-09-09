@@ -226,6 +226,14 @@
                                                                 {{ $item->nama_produk }}
                                                             </a>
 
+                                                            @if(!empty($item->is_booking))
+                                                                <div class="mt-1">
+                                                                    <span class="inline-block px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-800">
+                                                                        Booking DP Rp 100.000 (Min. 2 kg)
+                                                                    </span>
+                                                                </div>
+                                                            @endif
+
                                                             <div class="mt-0.5 sm:mt-1 flex items-center gap-1">
                                                                 <span class="text-[9px] sm:text-[10px] text-slate-500">Stok:</span>
                                                                 <span
@@ -259,7 +267,9 @@
 
                                                                 <input type="number" name="quantities[{{ $item->id }}]"
                                                                     id="qty-{{ $item->id }}"
-                                                                    value="{{ min($item->jumlah, ($item->stok ?? 0)) }}"
+                                                                    value="{{ max($item->min_qty ?? 1, min($item->jumlah, ($item->stok ?? 0))) }}"
+                                                                    min="{{ $item->min_qty ?? 1 }}"
+                                                                    data-min="{{ $item->min_qty ?? 1 }}"
                                                                     data-max="{{ $item->stok ?? 0 }}"
                                                                     data-name="{{ $item->nama_produk }}"
                                                                     class="qty-input w-8 h-6 sm:w-10 sm:h-7 text-center text-xs sm:text-sm font-medium text-slate-700 border-none focus:ring-0 p-0">
@@ -730,7 +740,8 @@
                     const input = document.getElementById(`qty-${id}`);
                     if (!input) return;
 
-                    let val = parseInt(input.value) || 1;
+                    const minQty = parseInt(input.dataset.min) || 1;
+                    let val = parseInt(input.value) || minQty;
 
                     const maxStock = parseInt(input.dataset.max);
                     const productName = input.dataset.name;
@@ -744,7 +755,11 @@
                         }
                         val++;
                     } else {
-                        if (val > 1) val--;
+                        if (val > minQty) {
+                            val--;
+                        } else {
+                            return;
+                        }
                     }
 
                     input.value = val;
@@ -756,14 +771,15 @@
 
             document.querySelectorAll('.qty-input').forEach(input => {
                 input.addEventListener('change', function () {
+                    const minQty = parseInt(this.dataset.min) || 1;
                     let val = parseInt(this.value);
                     const id = this.id.replace('qty-', '');
 
                     const maxStock = parseInt(this.dataset.max);
                     const productName = this.dataset.name;
 
-                    if (isNaN(val) || val < 1) {
-                        val = 1;
+                    if (isNaN(val) || val < minQty) {
+                        val = minQty;
                     }
 
                     if (val > maxStock) {

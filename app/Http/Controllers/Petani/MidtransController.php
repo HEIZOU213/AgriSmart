@@ -43,15 +43,8 @@ class MidtransController extends Controller
         $clientKey = isset($validated['midtrans_client_key']) ? trim($validated['midtrans_client_key']) : null;
         $merchantId = isset($validated['midtrans_merchant_id']) ? trim($validated['midtrans_merchant_id']) : null;
 
-        // Auto-detect Production vs Sandbox berdasarkan awalan kunci jika checkbox tidak dicentang
-        $isProduction = $request->has('midtrans_is_production');
-        if (!empty($serverKey)) {
-            if (str_starts_with($serverKey, 'Mid-')) {
-                $isProduction = true;
-            } elseif (str_starts_with($serverKey, 'SB-') && !$request->has('midtrans_is_production')) {
-                $isProduction = false;
-            }
-        }
+        // Penentuan Production vs Sandbox murni dari centang checkbox pengguna
+        $isProduction = $request->boolean('midtrans_is_production');
 
         // Verifikasi ke API Midtrans jika bukan testing dan kunci diisi
         if (!app()->environment('testing') && !empty($serverKey)) {

@@ -102,6 +102,12 @@ class CheckoutController extends Controller
 
                 $totalPerPetani = 0;
                 foreach ($items as $item) {
+                    $itemIsBookingDurian = $item->produk && ($item->produk->isBookingDurian() || $item->produk->kategoriProduk?->slug === 'buah-durian');
+                    if ($itemIsBookingDurian && $item->jumlah < 2) {
+                        DB::rollBack();
+                        return redirect()->route('cart.index')->with('error', 'Minimal pemesanan untuk Buah Durian (' . $item->produk->nama_produk . ') adalah 2 kg.');
+                    }
+
                     if ($item->produk->stok < $item->jumlah) {
                         DB::rollBack();
                         return redirect()->route('cart.index')->with('error', 'Stok produk ' . $item->produk->nama_produk . ' habis!');
@@ -113,7 +119,7 @@ class CheckoutController extends Controller
                 $adminFee = 0;
 
                 if ($isBookingDurian) {
-                    $dpAmount = min(100000, $totalPerPetani); // DP flat Rp 100.000 atau menyesuaikan jika total pesanan < Rp 100.000
+                    $dpAmount = 100000; // DP flat wajib Rp 100.000 dengan minimal pembelian 2 kg
                     $sellerIncome = $dpAmount;
                     $grossAmount = $dpAmount;
                     $kodePesanan = 'BKG-' . date('Ymd') . '-' . strtoupper(Str::random(6));
@@ -352,6 +358,15 @@ class CheckoutController extends Controller
                 $totalPerPetani = 0;
                 foreach ($items as $item) {
                     // Cek Stok
+                    $itemIsBookingDurian = $item->produk && ($item->produk->isBookingDurian() || $item->produk->kategoriProduk?->slug === 'buah-durian');
+                    if ($itemIsBookingDurian && $item->jumlah < 2) {
+                        DB::rollBack();
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Minimal pemesanan untuk Buah Durian (' . $item->produk->nama_produk . ') adalah 2 kg.'
+                        ], 400);
+                    }
+
                     if ($item->produk->stok < $item->jumlah) {
                         DB::rollBack(); // Batalkan semua jika ada 1 stok kurang
                         return response()->json([
@@ -367,7 +382,7 @@ class CheckoutController extends Controller
                 $adminFee = 0; // Zero admin fee
 
                 if ($isBookingDurian) {
-                    $dpAmount = min(100000, $totalPerPetani); // DP flat Rp 100.000 atau menyesuaikan jika total pesanan < Rp 100.000
+                    $dpAmount = 100000; // DP flat wajib Rp 100.000 dengan minimal pembelian 2 kg
                     $grandTotal = $dpAmount + $ongkir;
                     $sellerIncome = $dpAmount;
                     $prefix = 'BKG-';

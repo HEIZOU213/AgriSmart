@@ -21,7 +21,7 @@ class CartController extends Controller
         // 1. Ambil data dengan Eager Loading 'produk.user' agar hemat query database
         // Kita butuh data 'user' (penjual) dari produk untuk grouping
         $cartItems = Keranjang::where('user_id', $userId)
-            ->with(['produk.user'])
+            ->with(['produk.user', 'produk.kategoriProduk'])
             ->get();
 
         // 2. LOGIKA GROUPING (Dipindahkan dari Blade ke sini)
@@ -29,6 +29,7 @@ class CartController extends Controller
         $groupedCart = $cartItems->map(function ($item) {
             $produk = $item->produk;
             $penjual = $produk->user ? $produk->user->name : 'AgriSmart Seller';
+            $isBooking = $produk->isBookingDurian() || $produk->kategoriProduk?->slug === 'buah-durian';
 
             return (object) [
                 'id' => $produk->id, // ID Produk
@@ -39,7 +40,9 @@ class CartController extends Controller
                 'jumlah' => $item->jumlah,
                 'foto' => $produk->foto_produk,
                 'satuan' => $produk->satuan ?? 'kg',
-                'stok' => $produk->stok
+                'stok' => $produk->stok,
+                'is_booking' => $isBooking,
+                'min_qty' => $isBooking ? 2 : 1,
             ];
         })->groupBy('nama_penjual');
 
@@ -57,9 +60,15 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Hanya akun Konsumen yang boleh berbelanja.');
         }
 
-        $produk = Produk::findOrFail($id);
+        $produk = Produk::with('kategoriProduk')->findOrFail($id);
         $userId = Auth::id();
-        $jumlahDiminta = $request->input('jumlah', 1);
+        $isBookingDurian = $produk->isBookingDurian() || $produk->kategoriProduk?->slug === 'buah-durian';
+        $minQty = $isBookingDurian ? 2 : 1;
+        $jumlahDiminta = (int) $request->input('jumlah', $minQty);
+
+        if ($jumlahDiminta < $minQty) {
+            $jumlahDiminta = $minQty;
+        }
 
         // Validasi Stok Awal
         if ($jumlahDiminta > $produk->stok) {
@@ -100,7 +109,9 @@ class CartController extends Controller
         }
 
         $produk = $item->produk;
-        $qtyBaru = $request->quantity;
+        $qtyBaru = (int) $request->quantity;
+        $isBookingDurian = $produk && ($produk->isBookingDurian() || $produk->kategoriProduk?->slug === 'buah-durian');
+        $minQty = $isBookingDurian ? 2 : 1;
 
         // Validasi Stok
         if ($qtyBaru > $produk->stok) {
@@ -110,8 +121,11 @@ class CartController extends Controller
             ], 400);
         }
 
-        if ($qtyBaru < 1) {
-            return response()->json(['success' => false, 'message' => 'Minimal pembelian 1'], 400);
+        if ($qtyBaru < $minQty) {
+            return response()->json([
+                'success' => false,
+                'message' => "Minimal pembelian {$minQty} " . ($isBookingDurian ? 'kg' : '')
+            ], 400);
         }
 
         // Simpan Perubahan
@@ -153,13 +167,22 @@ class CartController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        $produk = Produk::find($request->product_id);
+        $produk = Produk::with('kategoriProduk')->find($request->product_id);
+        $isBookingDurian = $produk && ($produk->isBookingDurian() || $produk->kategoriProduk?->slug === 'buah-durian');
+        $minQty = $isBookingDurian ? 2 : 1;
+
         $existingCart = Keranjang::where('user_id', Auth::id())
             ->where('produk_id', $request->product_id)
             ->first();
 
         $currentQty = $existingCart ? $existingCart->jumlah : 0;
-        if (($currentQty + $request->qty) > $produk->stok) {
+        $newTotalQty = $currentQty + (int) $request->qty;
+
+        if ($newTotalQty < $minQty) {
+            return response()->json(['success' => false, 'message' => "Minimal pemesanan untuk Buah Durian adalah {$minQty} kg."], 400);
+        }
+
+        if ($newTotalQty > $produk->stok) {
             return response()->json(['success' => false, 'message' => 'Stok tidak mencukupi'], 400);
         }
 
@@ -187,12 +210,19 @@ class CartController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        $cart = Keranjang::where('user_id', Auth::id())->where('id', $id)->first();
+        $cart = Keranjang::with('produk.kategoriProduk')->where('user_id', Auth::id())->where('id', $id)->first();
         if (!$cart) {
             return response()->json(['success' => false, 'message' => 'Item tidak ditemukan'], 404);
         }
 
-        $produk = Produk::find($cart->produk_id);
+        $produk = $cart->produk;
+        $isBookingDurian = $produk && ($produk->isBookingDurian() || $produk->kategoriProduk?->slug === 'buah-durian');
+        $minQty = $isBookingDurian ? 2 : 1;
+
+        if ((int) $request->qty < $minQty) {
+            return response()->json(['success' => false, 'message' => "Minimal pembelian {$minQty} " . ($isBookingDurian ? 'kg' : '')], 400);
+        }
+
         if ($produk && $request->qty > $produk->stok) {
             return response()->json(['success' => false, 'message' => 'Stok tidak mencukupi (Max: ' . $produk->stok . ')'], 400);
         }

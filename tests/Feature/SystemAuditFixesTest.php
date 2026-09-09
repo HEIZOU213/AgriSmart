@@ -12,6 +12,9 @@ use App\Models\KategoriProduk;
 use App\Models\KategoriEdukasi;
 use App\Models\KontenEdukasi;
 use App\Models\Device;
+use App\Models\Bibit;
+use App\Models\PohonDurian;
+use App\Models\Keranjang;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SystemAuditFixesTest extends TestCase
@@ -730,6 +733,161 @@ class SystemAuditFixesTest extends TestCase
             'debug_user_id',
             'debug_user_name',
             'debug_user_email',
+        ]);
+    }
+
+    public function test_petani_pesanan_show_blocks_unauthorized_idor_access()
+    {
+        $pekebunOwner = User::factory()->create(['role' => 'pekebun']);
+        $pekebunIntruder = User::factory()->create(['role' => 'pekebun']);
+        $konsumen = User::factory()->create(['role' => 'user']);
+
+        $kategori = KategoriProduk::firstOrCreate(['slug' => 'buah-durian'], ['nama_kategori' => 'Buah Durian']);
+        $produk = Produk::create([
+            'user_id' => $pekebunOwner->id,
+            'kategori_produk_id' => $kategori->id,
+            'nama_produk' => 'Durian Musang King',
+            'harga' => 150000,
+            'stok' => 10,
+            'deskripsi' => 'Durian pilihan kualitas terbaik.',
+            'foto_produk' => 'sample.jpg',
+            'kategori' => 'buah_durian',
+        ]);
+
+        $pesanan = Pesanan::create([
+            'user_id' => $konsumen->id,
+            'kode_pesanan' => 'INV-OWNER-001',
+            'total_harga' => 150000,
+            'status' => 'pending',
+            'alamat_kirim' => 'Jl. Kebun Durian',
+        ]);
+
+        DetailPesanan::create([
+            'pesanan_id' => $pesanan->id,
+            'produk_id' => $produk->id,
+            'jumlah' => 1,
+            'harga_satuan' => 150000,
+            'subtotal' => 150000,
+        ]);
+
+        // Pekebun Owner can view
+        $this->actingAs($pekebunOwner)->get("/petani/pesanan/{$pesanan->id}")->assertOk();
+
+        // Pekebun Intruder is blocked with 403
+        $this->actingAs($pekebunIntruder)->get("/petani/pesanan/{$pesanan->id}")->assertStatus(403);
+    }
+
+    public function test_pembibitan_monitoring_and_jadwal_blocks_cross_user_bibit()
+    {
+        $userA = User::factory()->create(['role' => 'pekebun']);
+        $userB = User::factory()->create(['role' => 'pekebun']);
+
+        $bibitA = Bibit::create([
+            'user_id' => $userA->id,
+            'kode_bibit' => 'BIB-TEST-A',
+            'nama_varietas' => 'Musang King',
+            'jumlah' => 5,
+            'status' => 'aktif',
+            'kondisi' => 'sehat',
+        ]);
+
+        // User B attempts to record monitoring on User A's bibit
+        $responseMon = $this->actingAs($userB)->post('/portal/pembibitan/monitoring', [
+            'bibit_id' => $bibitA->id,
+            'tinggi_cm' => 25,
+            'kondisi' => 'sehat',
+            'tanggal' => now()->toDateString(),
+        ]);
+        $responseMon->assertSessionHasErrors('bibit_id');
+
+        // User B attempts to schedule perawatan on User A's bibit
+        $responseJadwal = $this->actingAs($userB)->post('/portal/pembibitan/jadwal', [
+            'bibit_id' => $bibitA->id,
+            'jenis_perawatan' => 'Penyiraman',
+            'tanggal_jadwal' => now()->addDays(1)->toDateString(),
+        ]);
+        $responseJadwal->assertSessionHasErrors('bibit_id');
+    }
+
+    public function test_pertumbuhan_monitoring_and_jadwal_blocks_cross_user_pohon()
+    {
+        $userA = User::factory()->create(['role' => 'pekebun']);
+        $userB = User::factory()->create(['role' => 'pekebun']);
+
+        $pohonA = PohonDurian::create([
+            'user_id' => $userA->id,
+            'kode_pohon' => 'PD-TEST-A',
+            'nama_varietas' => 'Bawor',
+            'fase' => 'vegetatif',
+            'kondisi' => 'sehat',
+        ]);
+
+        // User B attempts to record monitoring on User A's pohon
+        $responseMon = $this->actingAs($userB)->post('/portal/pertumbuhan/monitoring', [
+            'pohon_id' => $pohonA->id,
+            'tinggi_cm' => 150,
+            'kondisi' => 'sehat',
+            'tanggal' => now()->toDateString(),
+        ]);
+        $responseMon->assertSessionHasErrors('pohon_id');
+
+        // User B attempts to schedule perawatan on User A's pohon
+        $responseJadwal = $this->actingAs($userB)->post('/portal/pertumbuhan/jadwal', [
+            'pohon_id' => $pohonA->id,
+            'jenis_perawatan' => 'Pemupukan NPK',
+            'tanggal_jadwal' => now()->addDays(2)->toDateString(),
+        ]);
+        $responseJadwal->assertSessionHasErrors('pohon_id');
+    }
+
+    public function test_api_auth_login_rejects_admin_role()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+            'email' => 'admin_api_test@agrismart.id',
+            'password' => bcrypt('password123'),
+        ]);
+
+        $response = $this->postJson('/api/login', [
+            'email' => $admin->email,
+            'password' => 'password123',
+        ]);
+
+        $response->assertStatus(403);
+        $response->assertJson([
+            'success' => false,
+            'message' => 'Akun Admin dilarang mengakses API publik.',
+        ]);
+    }
+
+    public function test_api_keranjang_count_returns_user_cart_count()
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $pekebun = User::factory()->create(['role' => 'pekebun']);
+
+        $kategori = KategoriProduk::firstOrCreate(['slug' => 'buah-durian'], ['nama_kategori' => 'Buah Durian']);
+        $produk = Produk::create([
+            'user_id' => $pekebun->id,
+            'kategori_produk_id' => $kategori->id,
+            'nama_produk' => 'Durian Montong',
+            'harga' => 100000,
+            'stok' => 5,
+            'deskripsi' => 'Durian montong segar.',
+            'foto_produk' => 'montong.jpg',
+            'kategori' => 'buah_durian',
+        ]);
+
+        Keranjang::create([
+            'user_id' => $user->id,
+            'produk_id' => $produk->id,
+            'jumlah' => 2,
+        ]);
+
+        $response = $this->actingAs($user)->getJson('/api/keranjang/count');
+        $response->assertOk();
+        $response->assertJson([
+            'success' => true,
+            'count' => 1,
         ]);
     }
 }

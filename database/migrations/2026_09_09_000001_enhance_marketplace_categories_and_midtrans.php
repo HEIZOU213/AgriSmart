@@ -77,6 +77,9 @@ return new class extends Migration
             if (!Schema::hasColumn('pesanan', 'kwitansi_qr_payload')) {
                 $table->text('kwitansi_qr_payload')->nullable()->after('kwitansi_nomor');
             }
+            if (!Schema::hasColumn('pesanan', 'is_seen')) {
+                $table->boolean('is_seen')->default(false)->after('kwitansi_qr_payload');
+            }
         });
 
         // Seed or update standard categories
@@ -143,6 +146,7 @@ return new class extends Migration
                 'pelunasan_paid_at',
                 'kwitansi_nomor',
                 'kwitansi_qr_payload',
+                'is_seen',
             ]);
         });
 

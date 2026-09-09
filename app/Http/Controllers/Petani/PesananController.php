@@ -60,6 +60,18 @@ class PesananController extends Controller
                           ->with(['user', 'detailPesanan.produk'])
                           ->firstOrFail();
 
+        $petaniId = Auth::id();
+        $hasAnyDetails = DetailPesanan::where('pesanan_id', $id)->exists();
+        if ($hasAnyDetails) {
+            $produkIds = Produk::where('user_id', $petaniId)->pluck('id');
+            $orderHasPetaniProduct = DetailPesanan::where('pesanan_id', $id)
+                                                  ->whereIn('produk_id', $produkIds)
+                                                  ->exists();
+            if (Auth::user()->role !== 'admin' && !$orderHasPetaniProduct) {
+                abort(403, 'Akses ditolak. Anda tidak memiliki akses ke pesanan ini.');
+            }
+        }
+
         // Tandai sudah dilihat (Pastikan kolom is_seen ada di DB)
         if ($pesanan->status == 'pending' && $pesanan->is_seen == 0) {
             $pesanan->update(['is_seen' => true]);
@@ -293,7 +305,7 @@ class PesananController extends Controller
         $detail = $pesanan->detailPesanan->first();
         $hargaPerKg = $pesanan->harga_per_kg ?: ($detail?->harga_satuan ?: ($detail?->produk?->harga ?: 0));
         $totalSetelahTimbang = $berat * $hargaPerKg;
-        $dpAmount = $pesanan->dp_amount > 0 ? (float) $pesanan->dp_amount : min(100000.00, (float) $totalSetelahTimbang);
+        $dpAmount = $pesanan->dp_amount > 0 ? (float) $pesanan->dp_amount : 100000.00;
         $sisaPelunasan = max(0, $totalSetelahTimbang - $dpAmount);
 
         $kwitansiNomor = $pesanan->kwitansi_nomor ?: $pesanan->generateKwitansiNomor();
@@ -422,6 +434,23 @@ class PesananController extends Controller
             ], 404);
         }
 
+        $user = $request->user() ?: Auth::user();
+        if ($user && $user->role !== 'admin') {
+            $hasAnyDetails = DetailPesanan::where('pesanan_id', $pesanan->id)->exists();
+            if ($hasAnyDetails) {
+                $productIds = Produk::where('user_id', $user->id)->pluck('id');
+                $orderHasProduct = DetailPesanan::where('pesanan_id', $pesanan->id)
+                                                ->whereIn('produk_id', $productIds)
+                                                ->exists();
+                if (!$orderHasProduct) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Akses ditolak. Pesanan ini bukan produk dari kebun Anda.'
+                    ], 403);
+                }
+            }
+        }
+
         // 5. Hitung nilai keuangan pesanan secara akurat
         $total = (double) ($pesanan->total_setelah_timbang > 0 ? $pesanan->total_setelah_timbang : $pesanan->total_harga);
         $isBooking = $pesanan->isBookingDurian();
@@ -429,7 +458,7 @@ class PesananController extends Controller
 
         if ($isBooking) {
             $type = 'booking_durian';
-            $dpAmount = (double) ($pesanan->dp_amount > 0 ? $pesanan->dp_amount : min(100000, $total));
+            $dpAmount = (double) ($pesanan->dp_amount > 0 ? $pesanan->dp_amount : 100000.00);
             $remaining = (double) ($pesanan->sisa_pelunasan !== null ? $pesanan->sisa_pelunasan : max(0, $total - $dpAmount));
             $needsSettlement = ($remaining > 0 && !in_array($pesanan->status, ['paid', 'selesai', 'done']));
             $isDpPaid = true;
@@ -496,11 +525,25 @@ class PesananController extends Controller
      */
     public function apiSettleOrder(Request $request, $id)
     {
-        return DB::transaction(function () use ($id) {
+        return DB::transaction(function () use ($request, $id) {
             $pesanan = Pesanan::with('detailPesanan.produk')->find($id);
 
             if (!$pesanan) {
                 return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan'], 404);
+            }
+
+            $user = $request->user() ?: Auth::user();
+            if ($user && $user->role !== 'admin') {
+                $hasAnyDetails = DetailPesanan::where('pesanan_id', $id)->exists();
+                if ($hasAnyDetails) {
+                    $productIds = Produk::where('user_id', $user->id)->pluck('id');
+                    $orderHasProduct = DetailPesanan::where('pesanan_id', $id)
+                                                    ->whereIn('produk_id', $productIds)
+                                                    ->exists();
+                    if (!$orderHasProduct) {
+                        return response()->json(['success' => false, 'message' => 'Akses ditolak. Pesanan bukan terkait produk Anda.'], 403);
+                    }
+                }
             }
 
             $pesanan->status = 'selesai';

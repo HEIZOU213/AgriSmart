@@ -309,7 +309,10 @@ class PertumbuhanController extends Controller
     public function monitoringStore(Request $request)
     {
         $data = $request->validate([
-            'pohon_id'         => 'required|exists:pohon_durian,id',
+            'pohon_id'         => [
+                'required',
+                Rule::exists('pohon_durian', 'id')->where(fn ($q) => $q->where('user_id', Auth::id())),
+            ],
             'tinggi_cm'        => 'nullable|numeric|min:0',
             'diameter_batang'  => 'nullable|numeric|min:0',
             'jumlah_cabang'    => 'nullable|integer|min:0',
@@ -339,7 +342,10 @@ class PertumbuhanController extends Controller
     {
         abort_if($monitoring->user_id !== Auth::id(), 403);
         $data = $request->validate([
-            'pohon_id'         => 'required|exists:pohon_durian,id',
+            'pohon_id'         => [
+                'required',
+                Rule::exists('pohon_durian', 'id')->where(fn ($q) => $q->where('user_id', Auth::id())),
+            ],
             'tinggi_cm'        => 'nullable|numeric|min:0',
             'diameter_batang'  => 'nullable|numeric|min:0',
             'jumlah_cabang'    => 'nullable|integer|min:0',
@@ -376,7 +382,10 @@ class PertumbuhanController extends Controller
     public function jadwalStore(Request $request)
     {
         $data = $request->validate([
-            'pohon_id'        => 'required|exists:pohon_durian,id',
+            'pohon_id'        => [
+                'required',
+                Rule::exists('pohon_durian', 'id')->where(fn ($q) => $q->where('user_id', Auth::id())),
+            ],
             'jenis_perawatan' => 'required|string|max:150',
             'tanggal_jadwal'  => 'required|date',
             'catatan'         => 'nullable|string',
@@ -403,7 +412,10 @@ class PertumbuhanController extends Controller
     {
         abort_if($jadwal->user_id !== Auth::id(), 403);
         $data = $request->validate([
-            'pohon_id'        => 'required|exists:pohon_durian,id',
+            'pohon_id'        => [
+                'required',
+                Rule::exists('pohon_durian', 'id')->where(fn ($q) => $q->where('user_id', Auth::id())),
+            ],
             'jenis_perawatan' => 'required|string|max:150',
             'tanggal_jadwal'  => 'required|date',
             'status'          => 'required|in:pending,selesai,batal',

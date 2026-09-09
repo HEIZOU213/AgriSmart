@@ -124,12 +124,9 @@
                            id="midtrans_client_key"
                            name="midtrans_client_key"
                            value="{{ old('midtrans_client_key', $user->midtrans_client_key) }}"
-                           placeholder="Contoh: SB-Mid-client-XXXXX (Sandbox) atau Mid-client-XXXXX (Production)"
+                           placeholder="Masukkan Client Key dari dashboard Midtrans Anda"
                            class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition font-mono">
-                    <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
-                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span><strong>Sandbox:</strong> Berawalan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">SB-Mid-client-...</code> | <strong>Production:</strong> Berawalan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">Mid-client-...</code></span>
-                    </p>
+                    <p class="text-xs text-slate-500 mt-1.5">Client Key digunakan oleh browser konsumen untuk memuat jendela pembayaran Midtrans Snap.</p>
                 </div>
 
                 <div>
@@ -147,27 +144,28 @@
                            id="midtrans_server_key"
                            name="midtrans_server_key"
                            value="{{ old('midtrans_server_key', $user->midtrans_server_key) }}"
-                           placeholder="Contoh: SB-Mid-server-XXXXX (Sandbox) atau Mid-server-XXXXX (Production)"
+                           placeholder="Masukkan Server Key dari dashboard Midtrans Anda"
                            class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition font-mono">
-                    <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
-                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span><strong>Sandbox:</strong> Berawalan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">SB-Mid-server-...</code> | <strong>Production:</strong> Berawalan <code class="bg-slate-100 px-1 py-0.5 rounded text-[11px]">Mid-server-...</code></span>
-                    </p>
-                    <p class="text-xs text-indigo-600 font-medium mt-1">
-                        * Sistem akan otomatis mendeteksi mode Sandbox / Production dan memvalidasi ke server Midtrans saat disimpan.
-                    </p>
+                    <p class="text-xs text-slate-500 mt-1.5">Server Key digunakan untuk meng-generate token transaksi & memvalidasi webhook notifikasi pembayaran dari Midtrans.</p>
                 </div>
 
                 {{-- Environment Toggle --}}
                 <div class="pt-2 border-t border-slate-100">
-                    <label class="relative flex items-start gap-3 cursor-pointer p-4 rounded-xl border border-slate-200 hover:bg-slate-50 transition">
+                    <label class="relative flex items-start gap-3 cursor-pointer p-4 rounded-xl border-2 {{ old('midtrans_is_production', $user->midtrans_is_production) ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-200 hover:bg-slate-50' }} transition">
                         <input type="checkbox"
                                name="midtrans_is_production"
                                value="1"
                                {{ old('midtrans_is_production', $user->midtrans_is_production) ? 'checked' : '' }}
                                class="mt-1 w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                         <div>
-                            <span class="block text-sm font-semibold text-slate-800">Gunakan Mode Production (Live)</span>
+                            <span class="block text-sm font-bold text-slate-800">Aktifkan Mode Production (Live Akun Asli)</span>
+                            <span class="block text-xs text-slate-500 mt-0.5 leading-relaxed">
+                                <strong>Centang opsi ini</strong> jika akun Midtrans Anda adalah akun <strong>Production (Live)</strong>. <br>
+                                <strong>Biarkan TIDAK DICENTANG (Kosong)</strong> jika akun Midtrans Anda adalah akun <strong>Sandbox (Uji Coba / Testing)</strong>.
+                            </span>
+                        </div>
+                    </label>
+                </div>
                             <span class="block text-xs text-slate-500 mt-0.5">
                                 Centang opsi ini jika kredensial di atas adalah akun Live/Production resmi Midtrans. Jika tidak dicentang, sistem akan menggunakan mode Sandbox (Testing).
                             </span>
