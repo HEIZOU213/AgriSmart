@@ -3,12 +3,10 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue; // <--- 1. TAMBAHAN PENTING
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-// 2. TAMBAHKAN 'implements ShouldQueue' DI SINI
-class OtpLoginMail extends Mailable implements ShouldQueue
+class OtpLoginMail extends Mailable
 {
     use Queueable, SerializesModels;
 
