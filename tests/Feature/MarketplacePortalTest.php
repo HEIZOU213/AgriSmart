@@ -311,36 +311,6 @@ class MarketplacePortalTest extends TestCase
         $response->assertSee('chat/detail/' . $this->konsumen->id);
     }
 
-    public function test_pekebun_can_request_withdrawal_if_balance_is_sufficient()
-    {
-        // Saldo awal pekebun: 500.000
-        $response = $this->actingAs($this->pekebun)
-            ->post(route('petani.dompet.store'), [
-                'jumlah'   => 100000,
-                'bank'     => 'BCA',
-                'rekening' => '8880192837',
-            ]);
-
-        $response->assertSessionHas('success');
-        $this->assertEquals(400000, $this->pekebun->fresh()->saldo);
-        $this->assertDatabaseHas('withdrawals', [
-            'user_id'        => $this->pekebun->id,
-            'jumlah'         => 100000,
-            'nama_bank'      => 'BCA',
-            'nomor_rekening' => '8880192837',
-            'status'         => 'pending',
-        ]);
-
-        // Attempting to withdraw more than saldo
-        $overResponse = $this->actingAs($this->pekebun)
-            ->post(route('petani.dompet.store'), [
-                'jumlah'   => 900000,
-                'bank'     => 'BRI',
-                'rekening' => '1234567890',
-            ]);
-
-        $overResponse->assertSessionHas('error', 'Saldo tidak mencukupi!');
-    }
 
     public function test_consumer_can_browse_marketplace_add_to_cart_and_view_checkout()
     {

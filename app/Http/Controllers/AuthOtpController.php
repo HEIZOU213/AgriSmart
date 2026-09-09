@@ -45,8 +45,7 @@ class AuthOtpController extends Controller
         }
 
         // --- LOGIKA OTP ENABLED/DISABLED ---
-        // SEMENTARA DIPAKSA TRUE (BYPASS OTP) AGAR BISA LOGIN
-        if (!filter_var(env('OTP_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
+        if (!filter_var(config('auth.otp_enabled', false), FILTER_VALIDATE_BOOLEAN)) {
             // Jika OTP dimatikan, langsung login
             Auth::login($user);
             $request->session()->regenerate();
@@ -76,7 +75,7 @@ class AuthOtpController extends Controller
     public function showVerifyForm()
     {
         // Proteksi jika OTP dimatikan tapi user mencoba akses manual route ini
-        if (!filter_var(env('OTP_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
+        if (!filter_var(config('auth.otp_enabled', false), FILTER_VALIDATE_BOOLEAN)) {
             return redirect()->route('login');
         }
 
@@ -126,7 +125,7 @@ class AuthOtpController extends Controller
     public function resendOtp()
     {
         $email = session('otp_email');
-        if (!$email || !filter_var(env('OTP_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
+        if (!$email || !filter_var(config('auth.otp_enabled', false), FILTER_VALIDATE_BOOLEAN)) {
             return response()->json(['status' => 'error', 'message' => 'Akses ditolak.'], 401);
         }
 

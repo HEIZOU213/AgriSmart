@@ -310,28 +310,6 @@ class SystemAuditFixesTest extends TestCase
         ]);
     }
 
-    public function test_admin_approving_withdrawal_creates_notification_for_pekebun()
-    {
-        $admin = User::factory()->create(['role' => 'admin']);
-        $pekebun = User::factory()->create(['role' => 'pekebun', 'saldo' => 500000]);
-
-        $withdraw = \App\Models\Withdrawal::create([
-            'user_id' => $pekebun->id,
-            'jumlah' => 100000,
-            'nama_bank' => 'BCA',
-            'nomor_rekening' => '1234567890',
-            'status' => 'pending',
-        ]);
-
-        $response = $this->actingAs($admin)->patch(route('admin.withdraw.approve', $withdraw->id));
-        $response->assertSessionHas('success');
-        $this->assertEquals('approved', $withdraw->fresh()->status);
-
-        $this->assertDatabaseHas('notifikasis', [
-            'user_id' => $pekebun->id,
-            'type' => 'success',
-        ]);
-    }
 
     public function test_public_edukasi_show_renders_with_real_footer_and_related_articles()
     {
@@ -589,59 +567,25 @@ class SystemAuditFixesTest extends TestCase
         $this->assertEquals('pending', $pesanan->fresh()->status);
     }
 
-    public function test_admin_product_update_does_not_mass_assign_unallowed_fields()
+    public function test_admin_dashboard_displays_marketplace_transaction_volume()
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $originalOwner = User::factory()->create(['role' => 'pekebun']);
-        $kategori = KategoriProduk::create(['nama_kategori' => 'Kategori Asli', 'slug' => 'kategori-asli']);
+        $buyer = User::factory()->create(['role' => 'user']);
 
-        $produk = Produk::create([
-            'user_id' => $originalOwner->id,
-            'kategori_produk_id' => $kategori->id,
-            'nama_produk' => 'Durian Montong Asli',
-            'harga' => 120000,
-            'stok' => 10,
-            'deskripsi' => 'Deskripsi Asli',
+        Pesanan::create([
+            'user_id' => $buyer->id,
+            'kode_pesanan' => 'INV-VOL-01',
+            'total_harga' => 350000,
+            'status' => 'paid',
+            'alamat_kirim' => 'Jl. Kebun Durian',
         ]);
 
-        $response = $this->actingAs($admin)->put(route('admin.products.update', $produk->id), [
-            'nama_produk' => 'Durian Montong Edited',
-            'harga' => 130000,
-            'stok' => 12,
-            'deskripsi' => 'Deskripsi Baru',
-            'kategori_produk_id' => $kategori->id,
-            'user_id' => 99999, // Malicious mass-assignment injection
-        ]);
-
-        $response->assertSessionHas('success');
-        $this->assertEquals($originalOwner->id, $produk->fresh()->user_id);
-        $this->assertEquals('Durian Montong Edited', $produk->fresh()->nama_produk);
-    }
-
-    public function test_admin_withdraw_index_works_with_ansi_sql_case()
-    {
-        $admin = User::factory()->create(['role' => 'admin']);
-        $pekebun = User::factory()->create(['role' => 'pekebun']);
-
-        \App\Models\Withdrawal::create([
-            'user_id' => $pekebun->id,
-            'jumlah' => 50000,
-            'nama_bank' => 'Mandiri',
-            'nomor_rekening' => '0987654321',
-            'status' => 'approved',
-        ]);
-
-        \App\Models\Withdrawal::create([
-            'user_id' => $pekebun->id,
-            'jumlah' => 75000,
-            'nama_bank' => 'BCA',
-            'nomor_rekening' => '1234567890',
-            'status' => 'pending',
-        ]);
-
-        $response = $this->actingAs($admin)->get(route('admin.withdraw.index'));
+        $response = $this->actingAs($admin)->get(route('admin.dashboard'));
         $response->assertOk();
-        $response->assertViewHas('requests');
+        $response->assertViewHas('stats', function ($stats) {
+            return isset($stats['volume_transaksi']) && $stats['volume_transaksi'] == 350000;
+        });
+        $response->assertSee('Volume Transaksi Marketplace');
     }
 
     public function test_pembibitan_tanam_blocks_cross_user_lahan()

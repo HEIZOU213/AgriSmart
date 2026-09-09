@@ -34,49 +34,9 @@ test('legacy roles petani and konsumen are normalized automatically', function (
     expect($userKonsumen->role)->toBe('user');
 });
 
-test('admin approving withdrawal keeps held saldo and does not double deduct', function () {
+test('obsolete admin withdraw and product management routes return 404 not found', function () {
     $admin = User::factory()->create(['role' => 'admin']);
-    // Pekebun balance after request was submitted (e.g. initial 500k, requested 150k, remaining 350k)
-    $pekebun = User::factory()->create(['role' => 'pekebun', 'saldo' => 350000]);
 
-    $withdraw = Withdrawal::create([
-        'user_id' => $pekebun->id,
-        'jumlah' => 150000,
-        'status' => 'pending',
-        'nama_bank' => 'BCA',
-        'nomor_rekening' => '1234567890',
-    ]);
-
-    $response = $this->actingAs($admin)->patch("/admin/withdraw/{$withdraw->id}/approve");
-
-    $response->assertSessionHas('success');
-    $withdraw->refresh();
-    $pekebun->refresh();
-
-    expect($withdraw->status)->toBe('approved');
-    // Saldo must remain 350000, not double-deducted to 200000
-    expect((int) $pekebun->saldo)->toBe(350000);
-});
-
-test('admin rejecting withdrawal refunds saldo back to pekebun', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
-    $pekebun = User::factory()->create(['role' => 'pekebun', 'saldo' => 350000]);
-
-    $withdraw = Withdrawal::create([
-        'user_id' => $pekebun->id,
-        'jumlah' => 150000,
-        'status' => 'pending',
-        'nama_bank' => 'BCA',
-        'nomor_rekening' => '1234567890',
-    ]);
-
-    $response = $this->actingAs($admin)->patch("/admin/withdraw/{$withdraw->id}/reject");
-
-    $response->assertSessionHas('success');
-    $withdraw->refresh();
-    $pekebun->refresh();
-
-    expect($withdraw->status)->toBe('rejected');
-    // Saldo is refunded back: 350000 + 150000 = 500000
-    expect((int) $pekebun->saldo)->toBe(500000);
+    $this->actingAs($admin)->get('/admin/withdraw')->assertNotFound();
+    $this->actingAs($admin)->get('/admin/products')->assertNotFound();
 });

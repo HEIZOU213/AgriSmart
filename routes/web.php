@@ -32,16 +32,13 @@ use App\Http\Middleware\UserActivity;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\KontenEdukasiController as AdminKontenEdukasi;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
-use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\WithdrawController;
 
 // Petani
 use App\Http\Controllers\Petani\DashboardController as PetaniDashboard;
 use App\Http\Controllers\Petani\ProdukController as PetaniProduk;
 use App\Http\Controllers\Petani\PesananController as PetaniPesananController;
-use App\Http\Controllers\Petani\DompetController;
 use App\Http\Controllers\Petani\MidtransController as PetaniMidtransController;
 use App\Http\Controllers\Petani\ScanController as PetaniScanController;
 
@@ -263,10 +260,6 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('users', AdminUserController::class);
         Route::get('/inbox', [KontakController::class, 'index'])->name('kontak.index');
         Route::delete('/inbox/{id}', [KontakController::class, 'destroy'])->name('kontak.destroy');
-        Route::resource('products', AdminProductController::class)->except(['create', 'store', 'show']);
-        Route::get('/withdraw', [WithdrawController::class, 'index'])->name('withdraw.index');
-        Route::patch('/withdraw/{id}/approve', [WithdrawController::class, 'approve'])->name('withdraw.approve');
-        Route::patch('/withdraw/{id}/reject', [WithdrawController::class, 'reject'])->name('withdraw.reject');
     });
 
     // 2. PETANI ROUTES (existing — tetap dipertahankan)
@@ -279,8 +272,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/midtrans', [PetaniMidtransController::class, 'update'])->name('midtrans.update');
         Route::get('/scan', [PetaniScanController::class, 'index'])->name('scan.index');
         Route::post('/scan/verify', [PetaniScanController::class, 'verify'])->name('scan.verify');
-        Route::get('/dompet', [DompetController::class, 'index'])->name('dompet.index');
-        Route::post('/dompet', [DompetController::class, 'store'])->name('dompet.store');
+        Route::get('/dompet', fn() => redirect()->route('petani.midtrans.index')->with('info', 'Sistem dompet internal sudah tidak digunakan. Pembayaran dari konsumen kini langsung masuk ke akun Midtrans Anda.'))->name('dompet.index');
         Route::get('/iot', fn() => redirect()->route('layanan.index'))->name('iot.index');
     });
 
