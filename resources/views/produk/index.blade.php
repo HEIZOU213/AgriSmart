@@ -121,37 +121,9 @@
                     </p>
                 </div>
 
-                <!-- ========== TIPE PRODUK TABS & FILTER FORM ========== -->
+                <!-- ========== SEARCH & FILTER FORM ========== -->
                 <div class="max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-                    
-                    {{-- 1. Switcher Tab: Semua, Ready Stock, Booking Panen --}}
-                    @php
-                        $curTipe = request('tipe_produk', 'all');
-                    @endphp
-                    <div class="flex items-center justify-center gap-2 mb-4 overflow-x-auto pb-1">
-                        <a href="{{ route('produk.index', array_merge(request()->except(['page', 'tipe_produk']), ['tipe_produk' => 'all'])) }}"
-                           class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ $curTipe === 'all' ? 'bg-green-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200' }}">
-                            Semua Produk ({{ $countTotal ?? 0 }})
-                        </a>
-                        <a href="{{ route('produk.index', array_merge(request()->except(['page', 'tipe_produk']), ['tipe_produk' => 'ready_stock'])) }}"
-                           class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 {{ $curTipe === 'ready_stock' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200' }}">
-                            <span class="w-2 h-2 rounded-full {{ $curTipe === 'ready_stock' ? 'bg-white' : 'bg-emerald-500' }}"></span>
-                            Ready Stock ({{ $countReadyStock ?? 0 }})
-                        </a>
-                        <a href="{{ route('produk.index', array_merge(request()->except(['page', 'tipe_produk']), ['tipe_produk' => 'booking_panen'])) }}"
-                           class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap flex items-center gap-1.5 {{ $curTipe === 'booking_panen' ? 'bg-amber-600 text-white shadow-md' : 'bg-white text-amber-700 hover:bg-amber-50 border border-amber-200' }}">
-                            <span class="w-2 h-2 rounded-full {{ $curTipe === 'booking_panen' ? 'bg-white' : 'bg-amber-500' }}"></span>
-                            Booking Panen ({{ $countBookingPanen ?? 0 }})
-                        </a>
-                    </div>
-
                     <form action="{{ route('produk.index') }}" method="GET" class="space-y-3">
-                        @if(request('tipe_produk') && request('tipe_produk') !== 'all')
-                            <input type="hidden" name="tipe_produk" value="{{ request('tipe_produk') }}">
-                        @endif
-                        @if(request('subkategori'))
-                            <input type="hidden" name="subkategori" value="{{ request('subkategori') }}">
-                        @endif
 
                         <!-- Search Input -->
                         <div class="w-full" x-data="{ search: '{{ request('q') }}' }">
@@ -218,14 +190,14 @@
                                         x-transition:leave-end="transform opacity-0 scale-95"
                                         class="{{ $dropdownClass }}">
 
-                                        <div @click="selected = 'Semua Kategori'; val = ''; open = false; $nextTick(() => { $el.closest('form').submit() })"
+                                        <div @click="selected = 'Semua Kategori'; val = ''; open = false"
                                             class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === '' }">
                                             Semua Kategori
                                         </div>
 
                                         @if (isset($kategoris))
                                             @foreach ($kategoris as $kategori)
-                                                <div @click="selected = '{{ $kategori->nama_kategori }}'; val = '{{ $kategori->id }}'; open = false; $nextTick(() => { $el.closest('form').submit() })"
+                                                <div @click="selected = '{{ $kategori->nama_kategori }}'; val = '{{ $kategori->id }}'; open = false"
                                                     class="{{ $itemClass }}"
                                                     :class="{ '{{ $activeItemClass }}': val == '{{ $kategori->id }}' }">
                                                     {{ $kategori->nama_kategori }}
@@ -261,15 +233,15 @@
                                         x-transition:leave-end="transform opacity-0 scale-95"
                                         class="{{ $dropdownClass }}">
 
-                                        <div @click="selected = 'Urutkan Harga'; val = ''; open = false; $nextTick(() => { $el.closest('form').submit() })"
+                                        <div @click="selected = 'Urutkan Harga'; val = ''; open = false"
                                             class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === '' }">
                                             Urutkan Harga (Default)
                                         </div>
-                                        <div @click="selected = 'Termurah'; val = 'asc'; open = false; $nextTick(() => { $el.closest('form').submit() })"
+                                        <div @click="selected = 'Termurah'; val = 'asc'; open = false"
                                             class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === 'asc' }">
                                             Termurah
                                         </div>
-                                        <div @click="selected = 'Termahal'; val = 'desc'; open = false; $nextTick(() => { $el.closest('form').submit() })"
+                                        <div @click="selected = 'Termahal'; val = 'desc'; open = false"
                                             class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === 'desc' }">
                                             Termahal
                                         </div>
@@ -302,15 +274,15 @@
                                         x-transition:leave-end="transform opacity-0 scale-95"
                                         class="{{ $dropdownClass }}">
 
-                                        <div @click="selected = 'Status Stok'; val = ''; open = false; $nextTick(() => { $el.closest('form').submit() })"
+                                        <div @click="selected = 'Status Stok'; val = ''; open = false"
                                             class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === '' }">
                                             Semua Status
                                         </div>
-                                        <div @click="selected = 'Tersedia'; val = 'tersedia'; open = false; $nextTick(() => { $el.closest('form').submit() })"
+                                        <div @click="selected = 'Tersedia'; val = 'tersedia'; open = false"
                                             class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === 'tersedia' }">
                                             Tersedia
                                         </div>
-                                        <div @click="selected = 'Habis'; val = 'habis'; open = false; $nextTick(() => { $el.closest('form').submit() })"
+                                        <div @click="selected = 'Habis'; val = 'habis'; open = false"
                                             class="{{ $itemClass }}" :class="{ '{{ $activeItemClass }}': val === 'habis' }">
                                             Habis
                                         </div>
@@ -319,70 +291,16 @@
                             </div>
                         </div>
 
-                        {{-- 2. Subkategori Quick Pills (Sesuai Mobile) --}}
-                        <div class="space-y-2 pt-2 border-t border-slate-200/70 text-left">
-                            {{-- Baris 1: Durian Segar (Durian Biasa & Durian Premium) --}}
-                            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1 mr-1 flex-shrink-0">
-                                    🍈 Durian Segar:
-                                </span>
-                                <a href="{{ route('produk.index', array_merge(request()->except(['subkategori', 'page']), ['subkategori' => 'Durian Biasa'])) }}"
-                                   class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ request('subkategori') === 'Durian Biasa' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:border-emerald-500 hover:text-emerald-600' }}">
-                                    Durian Biasa
-                                </a>
-                                <a href="{{ route('produk.index', array_merge(request()->except(['subkategori', 'page']), ['subkategori' => 'Durian Premium'])) }}"
-                                   class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ request('subkategori') === 'Durian Premium' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:border-emerald-500 hover:text-emerald-600' }}">
-                                    Durian Premium ⭐
-                                </a>
-                            </div>
-
-                            {{-- Baris 2: Olahan Durian (Lempuk, Dodol, Tempoyak, Pancake, Keripik Biji) --}}
-                            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
-                                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1 mr-1 flex-shrink-0">
-                                    🥞 Olahan Durian:
-                                </span>
-                                @php
-                                    $olahanSubs = [
-                                        'Lempuk Durian' => 'Lempuk Durian',
-                                        'Dodol Durian' => 'Dodol Durian',
-                                        'Tempoyak' => 'Tempoyak',
-                                        'Pancake Durian' => 'Pancake Durian',
-                                        'Keripik Biji Durian' => 'Keripik Biji Durian',
-                                    ];
-                                @endphp
-                                @foreach($olahanSubs as $subKey => $subLabel)
-                                    <a href="{{ route('produk.index', array_merge(request()->except(['subkategori', 'page']), ['subkategori' => $subKey])) }}"
-                                       class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all {{ request('subkategori') === $subKey ? 'bg-amber-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:border-amber-500 hover:text-amber-600' }}">
-                                        {{ $subLabel }}
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
-
                         <!-- ========== ACTIVE FILTER TAGS ========== -->
-                        @if (request('kategori') || request('harga') || request('stok') || (request('tipe_produk') && request('tipe_produk') !== 'all') || request('subkategori') || request('q'))
+                        @if (request('kategori') || request('harga') || request('stok'))
                             <div class="flex flex-wrap items-center justify-center gap-2 pt-1 animate-fade-in-up">
-                                <span class="text-[10px] font-medium text-slate-400 mr-1 uppercase tracking-wide">Filter Aktif:</span>
+                                <span class="text-[10px] font-medium text-slate-400 mr-1 uppercase tracking-wide">Filter:</span>
 
                                 @php
                                     $tagClass = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-white border border-gray-200 text-xs font-medium text-slate-600 shadow-sm';
                                     $closeBtnClass = 'text-slate-400 hover:text-green-600 transition-colors ml-0.5';
                                     $closeIcon = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
                                 @endphp
-
-                                @if (request('tipe_produk') && request('tipe_produk') !== 'all')
-                                    <div class="{{ $tagClass }}">
-                                        <span>Tipe: {{ request('tipe_produk') === 'booking_panen' ? 'Booking Panen' : 'Ready Stock' }}</span>
-                                        <button type="button" onclick="removeFilter('tipe_produk')" class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
-                                    </div>
-                                @endif
-
-                                @if (request('subkategori'))
-                                    <div class="{{ $tagClass }}">
-                                        <span>Sub: {{ request('subkategori') }}</span>
-                                        <button type="button" onclick="removeFilter('subkategori')" class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
-                                    </div>
-                                @endif
 
                                 @if (request('kategori'))
                                     @php
@@ -405,13 +323,6 @@
                                     <div class="{{ $tagClass }}">
                                         <span>{{ request('stok') == 'tersedia' ? 'Stok Ada' : 'Habis' }}</span>
                                         <button type="button" onclick="removeFilter('stok')" class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
-                                    </div>
-                                @endif
-
-                                @if (request('q'))
-                                    <div class="{{ $tagClass }}">
-                                        <span>Cari: "{{ Str::limit(request('q'), 15) }}"</span>
-                                        <button type="button" onclick="removeFilter('q')" class="{{ $closeBtnClass }}">{!! $closeIcon !!}</button>
                                     </div>
                                 @endif
 
@@ -499,21 +410,6 @@
                                         </div>
                                     @endif
 
-                                    <!-- Tipe Penjualan Badge -->
-                                    <div class="absolute top-2 left-2 sm:top-3 sm:left-3 z-10">
-                                        @if($item->tipe_produk === 'booking_panen')
-                                            <span class="inline-flex items-center gap-1 bg-amber-500/95 backdrop-blur-sm px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-[8px] sm:text-[10px] font-bold text-white shadow-md uppercase tracking-wide">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                                Booking Panen
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1 bg-emerald-600/95 backdrop-blur-sm px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-[8px] sm:text-[10px] font-bold text-white shadow-md uppercase tracking-wide">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                                Ready Stock
-                                            </span>
-                                        @endif
-                                    </div>
-
                                     <!-- Category Badge -->
                                     <div class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-green-600 px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg text-[8px] sm:text-[10px] font-bold text-white shadow-md uppercase tracking-wide">
                                         {{ $item->kategoriProduk->nama_kategori ?? 'Umum' }}
@@ -528,34 +424,12 @@
                                     </h3>
 
                                     <!-- Stock Information -->
-                                    <div class="flex items-center justify-between mb-2 sm:mb-3 bg-slate-50 rounded-lg px-2 sm:px-3 py-1 sm:py-2">
+                                    <div class="flex items-center justify-between mb-2 sm:mb-4 bg-slate-50 rounded-lg px-2 sm:px-3 py-1 sm:py-2">
                                         <span class="text-[10px] sm:text-xs text-slate-600 font-medium">Stok</span>
                                         <span class="text-[10px] sm:text-sm font-bold {{ ($item->stok ?? 0) > 0 ? 'text-green-600' : 'text-red-500' }}">
-                                            {{ $item->stok ?? 0 }} {{ $item->satuan_display }}
+                                            {{ $item->stok ?? 0 }} {{ $item->satuan ?? '' }}
                                         </span>
                                     </div>
-
-                                    @if($item->tipe_produk === 'booking_panen' || $item->isBookingDurian())
-                                        <div class="mb-3 space-y-1">
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-800">
-                                                <svg class="w-3 h-3 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-                                                DP Booking: Rp 100.000 (Min. 2 kg)
-                                            </span>
-                                            @if($item->estimasi_panen)
-                                                <div class="text-[10px] text-amber-800 font-semibold flex items-center gap-1">
-                                                    <svg class="w-3 h-3 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                                    <span>Panen: {{ $item->estimasi_panen }}</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @else
-                                        <div class="mb-3">
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                                                <svg class="w-3 h-3 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                                Stok Siap Kirim
-                                            </span>
-                                        </div>
-                                    @endif
 
                                     <!-- Price & Cart Button -->
                                     <div class="flex items-center justify-between gap-2">
@@ -564,7 +438,7 @@
                                             <p class="text-base sm:text-2xl font-bold text-slate-900 truncate">
                                                 Rp {{ number_format($item->harga, 0, ',', '.') }}
                                             </p>
-                                            <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 truncate">/ {{ $item->satuan_display }}</p>
+                                            <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 truncate">/ {{ $item->satuan ?? 'kg' }}</p>
                                         </div>
 
                                         <!-- View Details Button -->
