@@ -46,7 +46,8 @@ class ForgotPasswordController extends Controller
         try {
             Mail::to($user->email)->send(new OtpResetPasswordMail($otp));
         } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'Gagal mengirim email OTP. Silakan coba lagi.'])->withInput();
+            \Log::error('Gagal mengirim email OTP reset: ' . $e->getMessage());
+            return back()->withErrors(['email' => 'Gagal mengirim email OTP: ' . $e->getMessage()])->withInput();
         }
 
         // Simpan email di session untuk tahap verifikasi

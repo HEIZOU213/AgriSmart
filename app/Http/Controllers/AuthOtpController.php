@@ -65,7 +65,8 @@ class AuthOtpController extends Controller
         try {
             Mail::to($user->email)->send(new OtpLoginMail($otp));
         } catch (\Exception $e) {
-            return back()->withErrors(['email' => 'Gagal mengirim email OTP. Silakan coba lagi.']);
+            \Log::error('Gagal mengirim email OTP login: ' . $e->getMessage());
+            return back()->withErrors(['email' => 'Gagal mengirim email OTP: ' . $e->getMessage()]);
         }
 
         return redirect()->route('otp.verify');

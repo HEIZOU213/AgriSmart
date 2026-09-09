@@ -40,6 +40,12 @@ return new class extends Migration
             if (!Schema::hasColumn('produk', 'satuan')) {
                 $table->string('satuan')->default('pcs')->after('harga');
             }
+            if (!Schema::hasColumn('produk', 'tipe_produk')) {
+                $table->string('tipe_produk')->default('ready_stock')->after('stok');
+            }
+            if (!Schema::hasColumn('produk', 'estimasi_panen')) {
+                $table->string('estimasi_panen')->nullable()->after('tipe_produk');
+            }
         });
 
         Schema::table('pesanan', function (Blueprint $table) {
@@ -151,7 +157,7 @@ return new class extends Migration
         });
 
         Schema::table('produk', function (Blueprint $table) {
-            $table->dropColumn(['satuan']);
+            $table->dropColumn(['satuan', 'tipe_produk', 'estimasi_panen']);
         });
 
         Schema::table('users', function (Blueprint $table) {
