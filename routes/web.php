@@ -42,6 +42,8 @@ use App\Http\Controllers\Petani\DashboardController as PetaniDashboard;
 use App\Http\Controllers\Petani\ProdukController as PetaniProduk;
 use App\Http\Controllers\Petani\PesananController as PetaniPesananController;
 use App\Http\Controllers\Petani\DompetController;
+use App\Http\Controllers\Petani\MidtransController as PetaniMidtransController;
+use App\Http\Controllers\Petani\ScanController as PetaniScanController;
 
 // Konsumen
 use App\Http\Controllers\Konsumen\PesananController as KonsumenPesanan;
@@ -272,6 +274,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [PetaniDashboard::class, 'index'])->name('dashboard');
         Route::resource('produk', PetaniProduk::class);
         Route::resource('pesanan', PetaniPesananController::class)->only(['index', 'show', 'update']);
+        Route::post('/pesanan/{id}/timbangan', [PetaniPesananController::class, 'inputTimbangan'])->name('pesanan.timbangan');
+        Route::get('/midtrans', [PetaniMidtransController::class, 'index'])->name('midtrans.index');
+        Route::post('/midtrans', [PetaniMidtransController::class, 'update'])->name('midtrans.update');
+        Route::get('/scan', [PetaniScanController::class, 'index'])->name('scan.index');
+        Route::post('/scan/verify', [PetaniScanController::class, 'verify'])->name('scan.verify');
         Route::get('/dompet', [DompetController::class, 'index'])->name('dompet.index');
         Route::post('/dompet', [DompetController::class, 'store'])->name('dompet.store');
         Route::get('/iot', fn() => redirect()->route('layanan.index'))->name('iot.index');
@@ -282,7 +289,13 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('pesanan', KonsumenPesanan::class)->only(['index', 'show', 'destroy']);
         Route::put('/pesanan/{id}/cancel', [KonsumenPesanan::class, 'cancel'])->name('pesanan.cancel');
         Route::patch('/pesanan/{id}/selesai', [KonsumenPesanan::class, 'selesai'])->name('pesanan.selesai');
+        Route::post('/pesanan/{id}/bayar-pelunasan', [KonsumenPesanan::class, 'bayarPelunasan'])->name('pesanan.bayar-pelunasan');
     });
+
+    // E-Kwitansi dengan QR Code (Bisa diakses oleh Konsumen pemilik, Pekebun penjual, & Admin)
+    Route::get('/konsumen/pesanan/{id}/kwitansi', [KonsumenPesanan::class, 'kwitansi'])
+        ->middleware('auth')
+        ->name('konsumen.pesanan.kwitansi');
 
     // ====================================================
     // PORTAL ROUTES (role: petani)

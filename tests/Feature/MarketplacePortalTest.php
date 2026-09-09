@@ -30,6 +30,7 @@ class MarketplacePortalTest extends TestCase
             'name'  => 'Pak Tani Durian',
             'role'  => 'pekebun',
             'saldo' => 500000,
+            'midtrans_server_key' => 'SB-Mid-server-TEST',
         ]);
 
         $this->konsumen = User::factory()->create([
@@ -112,7 +113,7 @@ class MarketplacePortalTest extends TestCase
         $response->assertSee('Durian Musang King Grade A');
         $response->assertSee('INV-TEST-001');
         $response->assertSee('INV-TEST-002');
-        $response->assertSee('500.000'); // Saldo formatted
+        $response->assertSee('Midtrans Gateway');
 
         // Assert view data contains required stats keys
         $response->assertViewHas('stats', function ($stats) {
@@ -429,5 +430,54 @@ class MarketplacePortalTest extends TestCase
         $this->assertEquals('cancelled', $order->fresh()->status);
         // Stock should be restored (7 + 3 = 10)
         $this->assertEquals(10, $produk->fresh()->stok);
+    }
+
+    /**
+     * Test: Pekebun WITHOUT Midtrans cannot access product creation page or store products.
+     */
+    public function test_pekebun_without_midtrans_cannot_create_product()
+    {
+        // Create a pekebun without midtrans_server_key
+        $pekebunNoMidtrans = User::factory()->create([
+            'name' => 'Pak Tani Tanpa Midtrans',
+            'role' => 'pekebun',
+            'midtrans_server_key' => null,
+        ]);
+
+        // Attempt to access create page — should redirect to midtrans config
+        $response = $this->actingAs($pekebunNoMidtrans)->get(route('petani.produk.create'));
+        $response->assertRedirect(route('petani.midtrans.index'));
+        $response->assertSessionHas('error');
+
+        // Attempt to store product — should also redirect
+        $response = $this->actingAs($pekebunNoMidtrans)->post(route('petani.produk.store'), [
+            'nama_produk' => 'Durian Montong',
+            'kategori_produk_id' => $this->kategori->id,
+            'harga' => 150000,
+            'stok' => 10,
+        ]);
+        $response->assertRedirect(route('petani.midtrans.index'));
+        $response->assertSessionHas('error');
+    }
+
+    /**
+     * Test: Pekebun WITH Midtrans can successfully access product creation.
+     */
+    public function test_pekebun_with_midtrans_can_access_create_product()
+    {
+        // The $this->pekebun already has midtrans_server_key set in setUp()
+        $response = $this->actingAs($this->pekebun)->get(route('petani.produk.create'));
+        $response->assertStatus(200);
+        $response->assertSee('Tambah Produk');
+    }
+
+    /**
+     * Test: DompetController index now redirects to Midtrans page.
+     */
+    public function test_dompet_index_redirects_to_midtrans()
+    {
+        $response = $this->actingAs($this->pekebun)->get(route('petani.dompet.index'));
+        $response->assertRedirect(route('petani.midtrans.index'));
+        $response->assertSessionHas('info');
     }
 }

@@ -299,14 +299,31 @@
                                 </div>
                                 <div class="text-left sm:text-right w-full sm:w-auto">
                                     <p class="text-xs md:text-sm text-slate-400 mb-1">Harga per
-                                        {{ $produk->satuan ?? 'kg' }}
+                                        {{ $produk->satuan_display }}
                                     </p>
                                     <p
                                         class="product-price text-2xl md:text-3xl font-bold text-green-600 tracking-tight">
                                         Rp {{ number_format($produk->harga, 0, ',', '.') }}
                                     </p>
+                                    @if($produk->isBookingDurian())
+                                        <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                            DP Booking: Rp {{ number_format(min(100000, $produk->harga), 0, ',', '.') }}
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
+
+                            @if($produk->isBookingDurian())
+                                <div class="mb-4 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-1">
+                                    <div class="flex items-center gap-1.5 font-bold text-amber-800">
+                                        <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                                        Sistem Booking Buah Durian
+                                    </div>
+                                    <p class="leading-relaxed">
+                                        Pemesanan buah durian ini menggunakan sistem booking DP (Rp {{ number_format(min(100000, $produk->harga), 0, ',', '.') }}). Saat panen, buah akan ditimbang oleh pekebun, total harga dihitung berdasarkan berat aktual (kg), dan E-Kwitansi dengan QR Code pelunasan akan diterbitkan otomatis.
+                                    </p>
+                                </div>
+                            @endif
 
                             {{-- Separator --}}
                             <div class="h-px bg-slate-100 w-full mb-4 md:mb-6"></div>

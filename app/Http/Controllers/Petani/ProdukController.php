@@ -28,9 +28,15 @@ class ProdukController extends Controller
 
     /**
      * Menampilkan form untuk membuat produk baru.
+     * Pekebun WAJIB mengisi konfigurasi Midtrans sebelum bisa menambah produk.
      */
     public function create()
     {
+        if (!Auth::user()->hasCustomMidtrans()) {
+            return redirect()->route('petani.midtrans.index')
+                ->with('error', 'Anda harus mengisi konfigurasi akun Midtrans terlebih dahulu sebelum dapat menambahkan produk. Pembayaran konsumen akan langsung masuk ke akun Midtrans Anda.');
+        }
+
         $kategori = KategoriProduk::all();
         return view('petani.produk.create', ['kategori' => $kategori]);
     }
@@ -40,6 +46,12 @@ class ProdukController extends Controller
      */
     public function store(Request $request)
     {
+        // Guard: Midtrans wajib dikonfigurasi
+        if (!Auth::user()->hasCustomMidtrans()) {
+            return redirect()->route('petani.midtrans.index')
+                ->with('error', 'Konfigurasi Midtrans wajib diisi sebelum menambahkan produk.');
+        }
+
         // 1. Validasi input (tetap sama)
         $request->validate([
             'nama_produk' => 'required|string|max:255',
@@ -59,6 +71,9 @@ class ProdukController extends Controller
             $path = $request->file('foto_produk')->store('produk', 'public');
         }
 
+        $kategori = KategoriProduk::find($request->kategori_produk_id);
+        $satuan = $request->input('satuan') ?: ($kategori?->satuan_default ?? 'pcs');
+
         // 3. Buat dan simpan data
         $produk = new Produk();
         $produk->user_id = Auth::id();
@@ -66,6 +81,7 @@ class ProdukController extends Controller
         $produk->nama_produk = $request->nama_produk;
         $produk->deskripsi = $request->deskripsi;
         $produk->harga = $request->harga;
+        $produk->satuan = $satuan;
         $produk->stok = $request->stok;
         $produk->foto_produk = $path; // <-- 4. SIMPAN PATH FOTO
         $produk->save();
@@ -128,10 +144,14 @@ class ProdukController extends Controller
         }
 
         // 4. Update data produk
+        $kategori = KategoriProduk::find($request->kategori_produk_id);
+        $satuan = $request->input('satuan') ?: ($produk->satuan ?: ($kategori?->satuan_default ?? 'pcs'));
+
         $produk->kategori_produk_id = $request->kategori_produk_id;
         $produk->nama_produk = $request->nama_produk;
         $produk->deskripsi = $request->deskripsi;
         $produk->harga = $request->harga;
+        $produk->satuan = $satuan;
         $produk->stok = $request->stok;
         $produk->foto_produk = $path; // <-- 5. SIMPAN PATH BARU (atau path lama jika tidak ganti)
         $produk->save();
@@ -192,6 +212,15 @@ class ProdukController extends Controller
      */
     public function apiStore(Request $request)
     {
+        // Guard: Midtrans wajib dikonfigurasi
+        $user = $request->user() ?: Auth::user();
+        if (!$user || !$user->hasCustomMidtrans()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda harus mengisi konfigurasi akun Midtrans terlebih dahulu sebelum dapat menambahkan produk.'
+            ], 422);
+        }
+
         $rules = [
             'nama_produk' => 'required|string|max:255',
             'kategori_produk_id' => 'required|exists:kategori_produk,id',

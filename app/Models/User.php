@@ -37,6 +37,12 @@ class User extends Authenticatable
         'otp',             // <-- Tambahan baru
         'otp_expires_at',  // <-- Tambahan baru
         'saldo',
+
+        // --- MIDTRANS CREDENTIALS PER PEKEBUN ---
+        'midtrans_server_key',
+        'midtrans_client_key',
+        'midtrans_merchant_id',
+        'midtrans_is_production',
     ];
 
     /**
@@ -62,6 +68,7 @@ class User extends Authenticatable
 
             // --- WAJIB ADA AGAR BISA DIHITUNG WAKTU ---
             'last_seen' => 'datetime',
+            'midtrans_is_production' => 'boolean',
         ];
     }
 
@@ -134,5 +141,28 @@ class User extends Authenticatable
             return 'user';
         }
         return $value;
+    }
+
+    public function hasCustomMidtrans(): bool
+    {
+        return !empty($this->midtrans_server_key);
+    }
+
+    public function getMidtransServerKey(): ?string
+    {
+        return $this->midtrans_server_key ?: config('services.midtrans.server_key');
+    }
+
+    public function getMidtransClientKey(): ?string
+    {
+        return $this->midtrans_client_key ?: config('services.midtrans.client_key');
+    }
+
+    public function isMidtransProduction(): bool
+    {
+        if ($this->midtrans_server_key) {
+            return (bool) $this->midtrans_is_production;
+        }
+        return (bool) config('services.midtrans.is_production', false);
     }
 }

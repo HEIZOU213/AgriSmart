@@ -425,9 +425,17 @@
                                     <div class="flex items-center justify-between mb-2 sm:mb-4 bg-slate-50 rounded-lg px-2 sm:px-3 py-1 sm:py-2">
                                         <span class="text-[10px] sm:text-xs text-slate-600 font-medium">Stok</span>
                                         <span class="text-[10px] sm:text-sm font-bold {{ ($item->stok ?? 0) > 0 ? 'text-green-600' : 'text-red-500' }}">
-                                            {{ $item->stok ?? 0 }} {{ $item->satuan ?? '' }}
+                                            {{ $item->stok ?? 0 }} {{ $item->satuan_display }}
                                         </span>
                                     </div>
+
+                                    @if($item->isBookingDurian())
+                                        <div class="mb-2">
+                                            <span class="inline-block px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-800">
+                                                Booking DP {{ $item->harga < 100000 ? 'Rp ' . number_format($item->harga, 0, ',', '.') : 'Rp 100.000' }}
+                                            </span>
+                                        </div>
+                                    @endif
 
                                     <!-- Price & Cart Button -->
                                     <div class="flex items-center justify-between gap-2">
@@ -436,7 +444,7 @@
                                             <p class="text-base sm:text-2xl font-bold text-slate-900 truncate">
                                                 Rp {{ number_format($item->harga, 0, ',', '.') }}
                                             </p>
-                                            <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 truncate">/ {{ $item->satuan ?? 'kg' }}</p>
+                                            <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5 truncate">/ {{ $item->satuan_display }}</p>
                                         </div>
 
                                         <!-- View Details Button -->

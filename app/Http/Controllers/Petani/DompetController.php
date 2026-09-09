@@ -9,14 +9,11 @@ use App\Models\Withdrawal;
 
 class DompetController extends Controller
 {
-    // Halaman Dompet
+    // Halaman Dompet (deprecated — dialihkan ke halaman Midtrans)
     public function index()
     {
-        $petani = Auth::user();
-        // Ambil riwayat penarikan
-        $riwayat = Withdrawal::where('user_id', $petani->id)->latest()->get();
-        
-        return view('petani.dompet.index', compact('petani', 'riwayat'));
+        return redirect()->route('petani.midtrans.index')
+            ->with('info', 'Sistem dompet internal sudah tidak digunakan. Pembayaran dari konsumen kini langsung masuk ke akun Midtrans Anda.');
     }
 
     // Proses Tarik Dana

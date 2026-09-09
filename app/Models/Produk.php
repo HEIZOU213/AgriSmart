@@ -34,6 +34,7 @@ class Produk extends Model
         'nama_produk',
         'deskripsi',
         'harga',
+        'satuan',
         'stok',
         'foto_produk',
         'tipe_produk',        // 'ready_stock' atau 'booking_panen'
@@ -63,5 +64,27 @@ class Produk extends Model
     public function detailPesanan(): HasMany
     {
         return $this->hasMany(DetailPesanan::class);
+    }
+
+    /**
+     * Satuan display text (misal: 'kg', 'bibit', 'pcs')
+     */
+    public function getSatuanDisplayAttribute(): string
+    {
+        if (!empty($this->satuan)) {
+            return $this->satuan;
+        }
+        return $this->kategoriProduk?->satuan_default ?? 'pcs';
+    }
+
+    /**
+     * Apakah produk ini kategori Buah Durian (booking DP)?
+     */
+    public function isBookingDurian(): bool
+    {
+        if ($this->kategoriProduk) {
+            return $this->kategoriProduk->isBooking();
+        }
+        return false;
     }
 }

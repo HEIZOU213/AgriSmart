@@ -26,14 +26,50 @@
                 </div>
                 <div>
                     <dt class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Tagihan</dt>
-                    <dd class="mt-1 text-lg font-bold text-green-600">Rp
-                        {{ number_format($pesanan->total_harga, 0, ',', '.') }}</dd>
+                    <dd class="mt-1 text-lg font-bold text-green-600">
+                        Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}
+                        @if($pesanan->isBookingDurian())
+                            <span class="block text-xs font-semibold text-emerald-700 mt-0.5">
+                                (DP Tetap: Rp {{ number_format($pesanan->dp_amount ?: 100000, 0, ',', '.') }})
+                            </span>
+                        @endif
+                    </dd>
                 </div>
                 <div>
                     <dt class="text-xs font-bold text-gray-400 uppercase tracking-wider">Alamat Kirim</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ $pesanan->alamat_kirim }}</dd>
                 </div>
             </div>
+
+            {{-- Durian Booking Status Banner --}}
+            @if($pesanan->isBookingDurian())
+                <div class="mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <span class="inline-block px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-200 text-emerald-900 uppercase">
+                                Booking Buah Durian
+                            </span>
+                            <h4 class="font-bold text-emerald-950 mt-1">Status Penimbangan & Pelunasan</h4>
+                            <p class="text-xs text-emerald-800 mt-0.5">
+                                @if($pesanan->berat_aktual_kg)
+                                    Durian telah dipanen & ditimbang: <strong>{{ $pesanan->berat_aktual_kg }} Kg</strong>.
+                                    Total: <strong>Rp {{ number_format($pesanan->total_setelah_timbang, 0, ',', '.') }}</strong> | 
+                                    Sisa Pelunasan: <strong class="text-amber-700">Rp {{ number_format($pesanan->sisa_pelunasan, 0, ',', '.') }}</strong>
+                                @else
+                                    DP sebesar Rp {{ number_format($pesanan->dp_amount ?: 100000, 0, ',', '.') }} berhasil dibayarkan. Sedang menunggu panen & penimbangan oleh pekebun.
+                                @endif
+                            </p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <a href="{{ route('konsumen.pesanan.kwitansi', $pesanan->id) }}"
+                               class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                Buka E-Kwitansi & QR
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             {{-- Actions: Konfirmasi Selesai, Batal, & Chat Penjual --}}
             <div class="mt-6 pt-4 border-t border-gray-100 flex flex-wrap items-center gap-3">
