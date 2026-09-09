@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $device->name }} - Monitoring AgriSmart</title>
+    <x-favicon />
 
     {{-- FONT: Plus Jakarta Sans --}}
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
@@ -53,6 +54,8 @@
 
 <body
     class="font-sans antialiased text-slate-700 bg-slate-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white overflow-x-hidden">
+
+    <x-preloader />
 
     {{-- NAVBAR --}}
     <x-navbar />

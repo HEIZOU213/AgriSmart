@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Masuk - AgriSmart</title>
+    <x-favicon />
 
     {{-- FONT: Plus Jakarta Sans --}}
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
@@ -53,6 +54,7 @@
 {{-- Hapus 'h-screen' dan 'overflow-hidden' agar scrollbar browser berfungsi normal --}}
 
 <body class="bg-white h-screen overflow-hidden selection:bg-green-500 selection:text-white antialiased">
+    <x-preloader />
 
     {{-- WRAPPER UTAMA --}}
     <div class="flex flex-col lg:flex-row w-full relative">

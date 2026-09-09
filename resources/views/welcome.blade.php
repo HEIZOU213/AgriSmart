@@ -20,7 +20,7 @@
     <link rel="canonical" href="{{ url()->current() }}">
 
     <!-- Favicon & Title -->
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <x-favicon />
     <title>{{ config('app.name', 'AgriSmart') }}</title>
 
     <!-- ============================= FONTS & LIBRARIES ============================= -->
@@ -307,6 +307,9 @@
 
 <body
     class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
+
+    <!-- Preloader Website -->
+    <x-preloader />
 
     <!-- ============================= BACKGROUND LOGO ANIMATION ============================= -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-10">

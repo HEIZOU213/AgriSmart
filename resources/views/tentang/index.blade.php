@@ -18,7 +18,7 @@
     <meta property="og:image" content="{{ asset('images/hero1.png') }}">
 
     <!-- ========== FAVICON DAN TITLE ========== -->
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <x-favicon />
     <title>Tentang AgriSmart - Platform Perkebunan Durian Cerdas</title>
 
     <!-- ========== FONT MODERN: Plus Jakarta Sans ========== -->
@@ -130,6 +130,8 @@
 
 <body
     class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
+
+    <x-preloader />
 
     <!-- ========== NAVBAR COMPONENT ========== -->
     <x-navbar />

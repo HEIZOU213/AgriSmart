@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Konfirmasi Checkout - {{ config('app.name', 'AgriSmart') }}</title>
+    <x-favicon />
 
     <!-- ==================== STYLESHEETS & FONTS ==================== -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
@@ -47,6 +48,8 @@
 
 <body
     class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
+
+    <x-preloader />
 
     <!-- ==================== NAVBAR COMPONENT ==================== -->
     <x-navbar />

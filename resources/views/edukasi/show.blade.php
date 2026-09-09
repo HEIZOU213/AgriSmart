@@ -17,7 +17,7 @@
         <meta property="og:image" content="{{ asset('images/nav-logo.png') }}">
     @endif
 
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <x-favicon />
     <title>{{ $edukasi->judul }} - {{ config('app.name', 'AgriSmart') }}</title>
 
     {{-- FONTS: Plus Jakarta Sans --}}
@@ -135,6 +135,8 @@
 </head>
 
 <body class="font-sans antialiased text-slate-700 bg-slate-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white overflow-x-hidden">
+
+    <x-preloader />
 
     {{-- NAVBAR RESMI SISTEM --}}
     <x-navbar />

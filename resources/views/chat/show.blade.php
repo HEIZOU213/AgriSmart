@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Chat - {{ $receiver->name }}</title>
+    <x-favicon />
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -63,6 +64,7 @@
 </head>
 
 <body class="font-sans antialiased bg-green-50 h-screen w-full overflow-hidden flex flex-col text-slate-700">
+    <x-preloader />
     <div class="w-full h-full">
         <div class="mx-auto max-w-1xl h-full">
             <div class="bg-white overflow-hidden flex flex-col h-full border-x border-slate-200 relative shadow-lg">
