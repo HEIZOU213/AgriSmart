@@ -72,9 +72,9 @@ class ProdukController extends Controller
      */
     public function create()
     {
-        if (!Auth::user()->getMidtransServerKey()) {
+        if (!Auth::user()->hasCustomMidtrans()) {
             return redirect()->route('petani.midtrans.index')
-                ->with('error', 'Konfigurasi pembayaran sistem atau akun Midtrans belum tersedia.');
+                ->with('error', 'Anda harus mengisi konfigurasi akun Midtrans terlebih dahulu sebelum dapat menambahkan produk. Pembayaran konsumen akan langsung masuk ke akun Midtrans Anda.');
         }
 
         $kategori = KategoriProduk::all();
@@ -86,10 +86,10 @@ class ProdukController extends Controller
      */
     public function store(Request $request)
     {
-        // Guard: Midtrans wajib dikonfigurasi (Akun sendiri atau Default Sistem)
-        if (!Auth::user()->getMidtransServerKey()) {
+        // Guard: Midtrans wajib dikonfigurasi
+        if (!Auth::user()->hasCustomMidtrans()) {
             return redirect()->route('petani.midtrans.index')
-                ->with('error', 'Konfigurasi pembayaran Midtrans belum aktif di sistem atau akun Anda.');
+                ->with('error', 'Konfigurasi Midtrans wajib diisi sebelum menambahkan produk.');
         }
 
         // 1. Validasi input
@@ -257,19 +257,12 @@ class ProdukController extends Controller
      */
     public function apiStore(Request $request)
     {
-        // Guard: Midtrans wajib dikonfigurasi (Akun sendiri atau Default Sistem)
         $user = $request->user() ?: Auth::user();
         if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Sesi login telah berakhir. Silakan login kembali.'
             ], 401);
-        }
-        if (empty($user->getMidtransServerKey())) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Konfigurasi pembayaran Midtrans belum aktif di sistem. Silakan hubungi admin.'
-            ], 422);
         }
 
         $rules = [
