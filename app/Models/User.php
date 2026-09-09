@@ -161,6 +161,15 @@ class User extends Authenticatable
     public function isMidtransProduction(): bool
     {
         if ($this->midtrans_server_key) {
+            $key = trim($this->midtrans_server_key);
+            // Midtrans sandbox keys always start with SB-
+            if (str_starts_with($key, 'SB-')) {
+                return false;
+            }
+            // Midtrans production keys always start with Mid-
+            if (str_starts_with($key, 'Mid-')) {
+                return true;
+            }
             return (bool) $this->midtrans_is_production;
         }
         return (bool) config('services.midtrans.is_production', false);
