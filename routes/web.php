@@ -537,21 +537,30 @@ Route::get('/link-storage', function () {
             'status' => 'success',
             'message' => 'Link storage sudah ada di: ' . $link,
             'target' => $target,
+            'fallback_active' => true,
         ]);
     }
 
-    if (@symlink($target, $link)) {
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Berhasil membuat symlink storage ke: ' . $link,
-            'target' => $target,
-        ]);
+    if (function_exists('symlink')) {
+        try {
+            if (@symlink($target, $link)) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Berhasil membuat symlink storage ke: ' . $link,
+                    'target' => $target,
+                    'fallback_active' => true,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Lanjut ke pesan info
+        }
     }
 
     return response()->json([
         'status' => 'info',
-        'message' => 'Server cPanel tidak mengizinkan fungsi symlink(), tetapi jangan khawatir, route fallback /storage/ sudah aktif sehingga seluruh gambar tetap muncul otomatis!',
+        'message' => 'Fungsi symlink() dinonaktifkan oleh penyedia hosting (kebijakan keamanan standar shared hosting). Jangan khawatir! Fallback route /storage/ sudah aktif 100% sehingga semua gambar produk, edukasi, dan profil tetap otomatis muncul di browser.',
         'target' => $target,
         'link' => $link,
+        'fallback_active' => true,
     ]);
 });
