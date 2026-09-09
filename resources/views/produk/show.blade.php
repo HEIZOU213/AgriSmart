@@ -312,11 +312,6 @@
                                         class="product-price text-2xl md:text-3xl font-bold text-green-600 tracking-tight">
                                         Rp {{ number_format($produk->harga, 0, ',', '.') }}
                                     </p>
-                                    @if($isBooking)
-                                        <span class="inline-block mt-1 text-[11px] font-medium text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
-                                            DP Booking Rp 100.000 • Min. {{ $minQty }} {{ $produk->satuan ?? 'kg' }}
-                                        </span>
-                                    @endif
                                 </div>
                             </div>
 
