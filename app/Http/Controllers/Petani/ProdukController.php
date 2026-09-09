@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage; // <-- 1. IMPORT FACADE STORAGE
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
 
 class ProdukController extends Controller
 {
@@ -290,23 +292,64 @@ class ProdukController extends Controller
         }
 
         try {
-            $user = $request->user();
+            $user = $request->user() ?: Auth::user();
             $data = $request->except(['foto_produk']);
             $data['user_id'] = $user->id; // Set Pemilik Produk
-            $data['tipe_produk'] = $request->input('tipe_produk', 'ready_stock');
-            $data['estimasi_panen'] = $request->input('estimasi_panen');
-            if (empty($data['satuan'])) {
-                $kategori = KategoriProduk::find($data['kategori_produk_id']);
-                $data['satuan'] = $kategori?->satuan_default ?? 'pcs';
+
+            // 1. Self-healing schema: pastikan kolom baru ada di tabel produk
+            if (!Schema::hasColumn('produk', 'tipe_produk')) {
+                try {
+                    Schema::table('produk', function (Blueprint $table) {
+                        $table->string('tipe_produk')->default('ready_stock')->nullable()->after('stok');
+                    });
+                    $data['tipe_produk'] = $request->input('tipe_produk', 'ready_stock');
+                } catch (\Throwable $th) {
+                    unset($data['tipe_produk']);
+                }
+            } else {
+                $data['tipe_produk'] = $request->input('tipe_produk', 'ready_stock');
             }
 
-            // Upload Foto jika ada
+            if (!Schema::hasColumn('produk', 'estimasi_panen')) {
+                try {
+                    Schema::table('produk', function (Blueprint $table) {
+                        $table->string('estimasi_panen')->nullable()->after('tipe_produk');
+                    });
+                    $data['estimasi_panen'] = $request->input('estimasi_panen');
+                } catch (\Throwable $th) {
+                    unset($data['estimasi_panen']);
+                }
+            } else {
+                $data['estimasi_panen'] = $request->input('estimasi_panen');
+            }
+
+            if (!Schema::hasColumn('produk', 'satuan')) {
+                try {
+                    Schema::table('produk', function (Blueprint $table) {
+                        $table->string('satuan')->default('pcs')->nullable()->after('harga');
+                    });
+                    $kategori = KategoriProduk::find($data['kategori_produk_id'] ?? null);
+                    $data['satuan'] = $data['satuan'] ?? ($kategori?->satuan_default ?? 'pcs');
+                } catch (\Throwable $th) {
+                    unset($data['satuan']);
+                }
+            } else {
+                if (empty($data['satuan'])) {
+                    $kategori = KategoriProduk::find($data['kategori_produk_id'] ?? null);
+                    $data['satuan'] = $kategori?->satuan_default ?? 'pcs';
+                }
+            }
+
+            // 2. Upload Foto jika ada
             if ($request->hasFile('foto_produk')) {
+                try {
+                    Storage::disk('public')->makeDirectory('produk');
+                } catch (\Throwable $e) {}
                 $path = $request->file('foto_produk')->store('produk', 'public');
                 $data['foto_produk'] = $path;
             }
 
-            // Simpan ke Database
+            // 3. Simpan ke Database
             $produk = Produk::create($data);
             $produk->load(['user', 'kategoriProduk']);
 
@@ -372,15 +415,21 @@ class ProdukController extends Controller
             $produk->harga       = $request->harga;
             $produk->stok        = $request->stok;
             $produk->kategori_produk_id = $request->kategori_produk_id;
-            if ($request->has('tipe_produk')) {
+            if ($request->has('tipe_produk') && Schema::hasColumn('produk', 'tipe_produk')) {
                 $produk->tipe_produk = $request->tipe_produk;
             }
-            if ($request->has('estimasi_panen')) {
+            if ($request->has('estimasi_panen') && Schema::hasColumn('produk', 'estimasi_panen')) {
                 $produk->estimasi_panen = $request->estimasi_panen;
+            }
+            if ($request->has('satuan') && Schema::hasColumn('produk', 'satuan')) {
+                $produk->satuan = $request->satuan;
             }
 
             // Cek Apakah Ada Gambar Baru?
             if ($request->hasFile('foto_produk')) {
+                try {
+                    Storage::disk('public')->makeDirectory('produk');
+                } catch (\Throwable $e) {}
                 // Hapus gambar lama jika ada (opsional, biar server gak penuh)
                 if ($produk->foto_produk && Storage::disk('public')->exists($produk->foto_produk)) {
                     Storage::disk('public')->delete($produk->foto_produk);

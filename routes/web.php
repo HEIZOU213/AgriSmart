@@ -568,11 +568,29 @@ Route::get('/link-storage', function () {
 // 5. Helper satu-klik untuk menjalankan migrasi database di cPanel (tanpa perlu SSH)
 Route::get('/run-migrate', function () {
     try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('produk')) {
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('produk', 'satuan')) {
+                \Illuminate\Support\Facades\Schema::table('produk', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('satuan')->default('pcs')->nullable()->after('harga');
+                });
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('produk', 'tipe_produk')) {
+                \Illuminate\Support\Facades\Schema::table('produk', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('tipe_produk')->default('ready_stock')->nullable()->after('stok');
+                });
+            }
+            if (!\Illuminate\Support\Facades\Schema::hasColumn('produk', 'estimasi_panen')) {
+                \Illuminate\Support\Facades\Schema::table('produk', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('estimasi_panen')->nullable()->after('tipe_produk');
+                });
+            }
+        }
+
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $output = \Illuminate\Support\Facades\Artisan::output();
         return response()->json([
             'status' => 'success',
-            'message' => 'Migrasi database berhasil dijalankan!',
+            'message' => 'Migrasi dan perbaikan schema database berhasil dijalankan!',
             'output' => $output,
         ]);
     } catch (\Throwable $e) {

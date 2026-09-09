@@ -17,12 +17,19 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        // 1. Cek login
-        if (!Auth::check()) {
+        // 1. Cek login (Dukung session web Auth::user() maupun token API $request->user())
+        $user = $request->user() ?: Auth::user();
+        if (!$user) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sesi login tidak valid atau telah berakhir.'
+                ], 401);
+            }
             abort(403, 'ANDA TIDAK PUNYA AKSES KE HALAMAN INI.');
         }
 
-        $userRole = Auth::user()->role;
+        $userRole = $user->role;
         // Normalisasi alias legacy jika ada
         if ($userRole === 'petani') $userRole = 'pekebun';
         if ($userRole === 'konsumen') $userRole = 'user';
@@ -40,6 +47,12 @@ class CheckRole
 
         // 3. Cek apakah role user termasuk dalam role yang diizinkan
         if (!in_array($userRole, $allowedRoles)) {
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Akses ditolak: role Anda (' . $userRole . ') tidak memiliki izin untuk fitur ini.'
+                ], 403);
+            }
             abort(403, 'ANDA TIDAK PUNYA AKSES KE HALAMAN INI.');
         }
 
