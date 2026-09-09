@@ -145,7 +145,7 @@
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div class="w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] lg:w-[800px] lg:h-[800px] opacity-5">
                     <div class="w-full h-full animate-[spin_30s_linear_infinite]">
-                        <img src="images/nav-logo.png" alt="Background Decorative" class="w-full h-full object-contain">
+                        <img src="{{ asset('images/nav-logo.png') }}" alt="Background Decorative" class="w-full h-full object-contain">
                     </div>
                 </div>
             </div>
@@ -189,7 +189,7 @@
                         <!-- Main Image -->
                         <div
                             class="relative rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white group">
-                            <img src="images/hero1.png" alt="Tim AgriSmart"
+                            <img src="{{ asset('images/hero1.png') }}" alt="Tim AgriSmart"
                                 class="w-full h-auto object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-105">
 
                             <!-- Overlay Gradient Effect -->

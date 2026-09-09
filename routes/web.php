@@ -64,7 +64,7 @@ Route::get('/tentang', [AboutController::class, 'index'])->name('tentang.index')
 Route::get('/edukasi', [EdukasiController::class, 'index'])->name('edukasi.index');
 Route::get('/edukasi/{slug}', [EdukasiController::class, 'show'])->name('edukasi.show');
 Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
-Route::get('/produk/{id}', [ProdukController::class, 'show'])->name('produk.show');
+Route::get('/produk/{id}', [ProdukController::class, 'show'])->whereNumber('id')->name('produk.show');
 
 // --- LAYANAN SMART GARDEN IOT (FRONTEND BARU) ---
 Route::get('/layanan/smart-garden', [IotController::class, 'serviceIndex'])->name('layanan.index');
@@ -432,4 +432,153 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
+});
+
+/*
+|--------------------------------------------------------------------------
+| ASSET & STORAGE FALLBACK ROUTES (CPANEL HOSTING COMPATIBILITY)
+|--------------------------------------------------------------------------
+| Memastikan semua gambar static, asset build Vite, dan gambar storage
+| tetap muncul sempurna di cPanel hosting agrismart.my.id
+*/
+
+// 1. Fallback untuk file storage jika symlink cPanel belum ada / terputus
+Route::get('/storage/{path}', function ($path) {
+    $cleanPath = str_replace(['..', "\0"], '', $path);
+
+    if (!\Illuminate\Support\Facades\Storage::disk('public')->exists($cleanPath)) {
+        abort(404);
+    }
+
+    $filePath = \Illuminate\Support\Facades\Storage::disk('public')->path($cleanPath);
+
+    if (is_dir($filePath)) {
+        abort(404);
+    }
+
+    $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $mimeType = match ($extension) {
+        'png' => 'image/png',
+        'jpg', 'jpeg' => 'image/jpeg',
+        'webp' => 'image/webp',
+        'gif' => 'image/gif',
+        'svg' => 'image/svg+xml',
+        'pdf' => 'application/pdf',
+        default => mime_content_type($filePath) ?: 'application/octet-stream',
+    };
+
+    return response()->file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*');
+
+// 2. Fallback untuk file images static jika belum disalin ke public_html
+Route::get('/images/{path}', function ($path) {
+    $cleanPath = str_replace(['..', "\0"], '', $path);
+
+    $filePath = public_path('images/' . $cleanPath);
+    if (!file_exists($filePath) || is_dir($filePath)) {
+        $filePath = base_path('public/images/' . $cleanPath);
+    }
+
+    if (!file_exists($filePath) || is_dir($filePath)) {
+        abort(404);
+    }
+
+    $mimeType = mime_content_type($filePath) ?: 'application/octet-stream';
+
+    return response()->file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->where('path', '.*');
+
+// 3. Fallback untuk asset Vite build jika belum disalin ke public_html
+Route::get('/build/{path}', function ($path) {
+    $cleanPath = str_replace(['..', "\0"], '', $path);
+
+    $filePath = public_path('build/' . $cleanPath);
+    if (!file_exists($filePath) || is_dir($filePath)) {
+        $filePath = base_path('public/build/' . $cleanPath);
+    }
+
+    if (!file_exists($filePath) || is_dir($filePath)) {
+        abort(404);
+    }
+
+    $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $mimeType = match ($extension) {
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'json' => 'application/json',
+        'svg' => 'image/svg+xml',
+        'png' => 'image/png',
+        'jpg', 'jpeg' => 'image/jpeg',
+        'webp' => 'image/webp',
+        'gif' => 'image/gif',
+        'ico' => 'image/x-icon',
+        default => mime_content_type($filePath) ?: 'application/octet-stream',
+    };
+
+    return response()->file($filePath, [
+        'Content-Type' => $mimeType,
+        'Cache-Control' => 'public, max-age=31536000, immutable',
+    ]);
+})->where('path', '.*');
+
+// 4. Helper satu-klik untuk membuat symlink storage di cPanel
+Route::get('/link-storage', function () {
+    $target = storage_path('app/public');
+    $link = public_path('storage');
+
+    if (file_exists($link)) {
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Link storage sudah ada di: ' . $link,
+            'target' => $target,
+            'fallback_active' => true,
+        ]);
+    }
+
+    if (function_exists('symlink')) {
+        try {
+            if (@symlink($target, $link)) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Berhasil membuat symlink storage ke: ' . $link,
+                    'target' => $target,
+                    'fallback_active' => true,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Lanjut ke pesan info
+        }
+    }
+
+    return response()->json([
+        'status' => 'info',
+        'message' => 'Fungsi symlink() dinonaktifkan oleh penyedia hosting (kebijakan keamanan standar shared hosting). Jangan khawatir! Fallback route /storage/ sudah aktif 100% sehingga semua gambar produk, edukasi, dan profil tetap otomatis muncul di browser.',
+        'target' => $target,
+        'link' => $link,
+        'fallback_active' => true,
+    ]);
+});
+
+// 5. Helper satu-klik untuk menjalankan migrasi database di cPanel (tanpa perlu SSH)
+Route::get('/run-migrate', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Migrasi database berhasil dijalankan!',
+            'output' => $output,
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal menjalankan migrasi: ' . $e->getMessage(),
+        ], 500);
+    }
 });

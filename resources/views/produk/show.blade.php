@@ -4,8 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $produk->nama_produk }} - AgriSmart</title>
     <x-favicon />
+    <title>{{ $produk->nama_produk }} - AgriSmart</title>
 
     {{-- FONTS: Plus Jakarta Sans --}}
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
@@ -278,23 +278,8 @@
                                 </div>
                             @endif
 
-                            {{-- Badge Tipe Penjualan --}}
-                            <div class="absolute top-3 left-3 md:top-4 md:left-4 z-10">
-                                @if($produk->tipe_produk === 'booking_panen' || $produk->isBookingDurian())
-                                    <span class="px-3 py-1 md:px-4 md:py-1.5 bg-amber-500/95 text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow-md flex items-center gap-1.5 backdrop-blur-sm">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                        Booking Panen
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 md:px-4 md:py-1.5 bg-emerald-600/95 text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow-md flex items-center gap-1.5 backdrop-blur-sm">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                        Ready Stock
-                                    </span>
-                                @endif
-                            </div>
-
                             {{-- Badge Kategori --}}
-                            <div class="absolute top-3 right-3 md:top-4 md:right-4 z-10">
+                            <div class="absolute top-3 left-3 md:top-4 md:left-4">
                                 <span
                                     class="px-3 py-1 md:px-4 md:py-1.5 bg-green-600 text-white text-xs font-bold uppercase tracking-wider rounded-lg shadow-md">
                                     {{ $produk->kategoriProduk->nama_kategori ?? 'Umum' }}
@@ -314,52 +299,17 @@
                                         class="product-title text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 tracking-tight leading-snug break-words">
                                         {{ $produk->nama_produk }}
                                     </h1>
-                                    @if($produk->tipe_produk === 'booking_panen' || $produk->isBookingDurian())
-                                        <div class="mt-1.5 flex items-center gap-2">
-                                            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-md">
-                                                <svg class="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-                                                Pre-Order Pohon Kebun
-                                            </span>
-                                        </div>
-                                    @endif
                                 </div>
                                 <div class="text-left sm:text-right w-full sm:w-auto">
                                     <p class="text-xs md:text-sm text-slate-400 mb-1">Harga per
-                                        {{ $produk->satuan_display }}
+                                        {{ $produk->satuan ?? 'kg' }}
                                     </p>
                                     <p
                                         class="product-price text-2xl md:text-3xl font-bold text-green-600 tracking-tight">
                                         Rp {{ number_format($produk->harga, 0, ',', '.') }}
                                     </p>
-                                    @if($produk->tipe_produk === 'booking_panen' || $produk->isBookingDurian())
-                                        <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
-                                            DP Booking: Rp 100.000 (Min. 2 kg)
-                                        </span>
-                                    @else
-                                        <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                                            Stok Siap Kirim
-                                        </span>
-                                    @endif
                                 </div>
                             </div>
-
-                            @if($produk->tipe_produk === 'booking_panen' || $produk->isBookingDurian())
-                                <div class="mb-4 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-2">
-                                    <div class="flex items-center gap-1.5 font-bold text-amber-800">
-                                        <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                                        Sistem Booking Buah Durian (Minimal 2 kg)
-                                    </div>
-                                    @if($produk->estimasi_panen)
-                                        <div class="flex items-center gap-2 text-xs font-bold text-amber-950 bg-amber-100/80 px-3 py-1.5 rounded-lg">
-                                            <svg class="w-4 h-4 text-amber-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                            <span>Jadwal Panen Resmi Kebun: <span class="font-extrabold text-amber-900 underline decoration-amber-500">{{ $produk->estimasi_panen }}</span></span>
-                                        </div>
-                                    @endif
-                                    <p class="leading-relaxed text-amber-800">
-                                        Pemesanan buah durian ini menggunakan sistem booking DP tetap Rp 100.000 dengan minimal pemesanan 2 kg. Saat panen raya kebun, buah akan ditimbang oleh pekebun, total harga dihitung berdasarkan berat aktual (kg), dan E-Kwitansi dengan QR Code pelunasan akan diterbitkan otomatis.
-                                    </p>
-                                </div>
-                            @endif
 
                             {{-- Separator --}}
                             <div class="h-px bg-slate-100 w-full mb-4 md:mb-6"></div>
@@ -454,25 +404,18 @@
                                 @csrf
                                 <div class="flex flex-col sm:flex-row items-end gap-4">
 
-                                    @php
-                                        $minBookingQty = $produk->isBookingDurian() ? 2 : 1;
-                                    @endphp
                                     {{-- Input Jumlah --}}
                                     <div class="w-full sm:w-1/3">
                                         <label for="jumlah"
                                             class="block text-xs font-bold text-slate-500 uppercase mb-2">Jumlah
-                                            ({{ $produk->satuan ?? 'kg' }})
-                                            @if($produk->isBookingDurian())
-                                                <span class="text-amber-600 font-semibold lowercase">(min. 2 kg)</span>
-                                            @endif
-                                        </label>
+                                            ({{ $produk->satuan ?? 'kg' }})</label>
                                         <div class="relative flex items-center">
                                             <button type="button"
                                                 onclick="this.parentNode.querySelector('input[type=number]').stepDown()"
                                                 class="absolute left-0 w-10 h-full text-slate-500 hover:text-green-600 bg-transparent rounded-l-lg touch-manipulation">
                                                 -
                                             </button>
-                                            <input type="number" id="jumlah" name="jumlah" value="{{ $minBookingQty }}" min="{{ $minBookingQty }}"
+                                            <input type="number" id="jumlah" name="jumlah" value="1" min="1"
                                                 max="{{ $produk->stok }}"
                                                 class="w-full pl-10 pr-10 border-slate-300 rounded-xl shadow-sm focus:border-green-500 focus:ring-green-500 text-center font-bold text-lg h-12">
                                             <button type="button"

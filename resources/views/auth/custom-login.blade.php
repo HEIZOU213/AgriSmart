@@ -249,7 +249,7 @@
 
             {{-- Subtle Background Image --}}
             <div class="absolute inset-0 opacity-10">
-                <img src="images/logo2.png" alt="AgriSmart Pattern" class="w-full h-full object-cover">
+                <img src="{{ asset('images/logo2.png') }}" alt="AgriSmart Pattern" class="w-full h-full object-cover">
             </div>
 
             {{-- Teks Sambutan di Kanan --}}

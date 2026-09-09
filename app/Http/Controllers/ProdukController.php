@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Produk;
 use App\Models\KategoriProduk; // Pastikan model ini di-import
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class ProdukController extends Controller
 {
@@ -13,6 +16,18 @@ class ProdukController extends Controller
      */
     public function index(Request $request)
     {
+        // Cek ketersediaan kolom tipe_produk secara dinamis (Self-healing jika migrasi tertunda)
+        $hasTipeProduk = false;
+        try {
+            $hasTipeProduk = Schema::hasColumn('produk', 'tipe_produk');
+            if (!$hasTipeProduk) {
+                Artisan::call('migrate', ['--force' => true]);
+                $hasTipeProduk = Schema::hasColumn('produk', 'tipe_produk');
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Migrate/Schema check on produk: ' . $e->getMessage());
+        }
+
         // Query dasar dengan Eager Loading agar performa lebih cepat
         $query = Produk::with(['user', 'kategoriProduk']);
 
@@ -40,8 +55,8 @@ class ProdukController extends Controller
             }
         }
 
-        // 2b. Filter Tipe Produk (ready_stock vs booking_panen)
-        if ($request->filled('tipe_produk') && $request->tipe_produk !== 'all') {
+        // 2b. Filter Tipe Produk (ready_stock vs booking_panen) - hanya jika kolom tersedia
+        if ($hasTipeProduk && $request->filled('tipe_produk') && $request->tipe_produk !== 'all') {
             if ($request->tipe_produk === 'ready_stock') {
                 $query->where(function($q) {
                     $q->where('tipe_produk', 'ready_stock')->orWhereNull('tipe_produk');
@@ -120,14 +135,27 @@ class ProdukController extends Controller
         $daftarProduk = $query->paginate(12)->withQueryString(); // withQueryString() agar filter tetap ada saat pindah halaman
 
         // Ambil data kategori untuk dropdown filter di view
-        $kategoris = KategoriProduk::all();
+        $kategoris = collect();
+        if (Schema::hasTable('kategori_produk')) {
+            $kategoris = KategoriProduk::all();
+        }
 
-        // Ringkasan Tipe Produk
-        $countReadyStock = Produk::where(function($q) {
-            $q->where('tipe_produk', 'ready_stock')->orWhereNull('tipe_produk');
-        })->count();
-        $countBookingPanen = Produk::where('tipe_produk', 'booking_panen')->count();
+        // Ringkasan Tipe Produk (aman dari error SQL jika kolom belum termigrasi)
         $countTotal = Produk::count();
+        $countReadyStock = $countTotal;
+        $countBookingPanen = 0;
+
+        if ($hasTipeProduk) {
+            try {
+                $countReadyStock = Produk::where(function($q) {
+                    $q->where('tipe_produk', 'ready_stock')->orWhereNull('tipe_produk');
+                })->count();
+                $countBookingPanen = Produk::where('tipe_produk', 'booking_panen')->count();
+            } catch (\Throwable $e) {
+                $countReadyStock = $countTotal;
+                $countBookingPanen = 0;
+            }
+        }
 
         return view('produk.index', compact('daftarProduk', 'kategoris', 'countReadyStock', 'countBookingPanen', 'countTotal'));
     }
@@ -175,7 +203,8 @@ class ProdukController extends Controller
         }
 
         // 3b. Filter Tipe Produk (ready_stock vs booking_panen)
-        if ($request->has('tipe_produk') && !empty($request->tipe_produk) && $request->tipe_produk !== 'all') {
+        $hasTipeProduk = Schema::hasColumn('produk', 'tipe_produk');
+        if ($hasTipeProduk && $request->has('tipe_produk') && !empty($request->tipe_produk) && $request->tipe_produk !== 'all') {
             if ($request->tipe_produk === 'ready_stock') {
                 $query->where(function($q) {
                     $q->where('tipe_produk', 'ready_stock')->orWhereNull('tipe_produk');

@@ -108,7 +108,13 @@ PERUBAHAN 1:
                         </svg>
                         <ul class="space-y-0.5">
                             @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
+                                <li>
+                                    @if ($error === 'validation.unique' || str_contains(strtolower($error), 'unique') || str_contains(strtolower($error), 'already been taken'))
+                                        Alamat email ini sudah terdaftar. Silakan gunakan email lain atau masuk ke akun Anda.
+                                    @else
+                                        {{ $error }}
+                                    @endif
+                                </li>
                             @endforeach
                         </ul>
                     </div>
@@ -286,7 +292,7 @@ PERUBAHAN 1:
             class="hidden lg:flex fixed top-0 right-0 w-1/2 h-screen relative bg-white items-center justify-center overflow-hidden z-20">
             <div class="absolute inset-0 bg-gradient-to-tr from-green-50/50 to-white"></div>
             <div class="absolute inset-0 opacity-10">
-                <img src="images/logo2.png" alt="AgriSmart Pattern" class="w-full h-full object-cover">
+                <img src="{{ asset('images/logo2.png') }}" alt="AgriSmart Pattern" class="w-full h-full object-cover">
             </div>
             <div class="relative z-10 max-w-md px-6 lg:px-10 xl:px-12 text-center" data-aos="fade-up"
                 data-aos-delay="200">
