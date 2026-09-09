@@ -432,7 +432,4 @@ Route::middleware(['auth'])->group(function () {
         });
     });
 
-    // Realtime Notifikasi (Polling Web)
-    Route::get('/api/cek-notifikasi', [ChatController::class, 'checkNotifications'])->name('api.cek-notifikasi');
-
 });

@@ -13,9 +13,9 @@ use Carbon\Carbon;
 class MarketChatController extends Controller
 {
     // ... (Fungsi getChatList TETAP SAMA) ...
-    public function getChatList()
+    public function getChatList(Request $request = null)
     {
-        // ... (Kode Lama, Tidak Berubah) ...
+        $request = $request ?: request();
         $myId = Auth::id();
         $allChats = MarketChat::where('sender_id', $myId)
             ->orWhere('receiver_id', $myId)
@@ -49,17 +49,33 @@ class MarketChatController extends Controller
                                  ->where('is_read', false)
                                  ->count();
 
+            $timeFormatted = '';
+            if ($lastChat->created_at) {
+                $cDate = $lastChat->created_at->copy()->timezone('Asia/Jakarta');
+                if ($cDate->isToday()) {
+                    $timeFormatted = $cDate->format('H:i');
+                } elseif ($cDate->isYesterday()) {
+                    $timeFormatted = 'Kemarin ' . $cDate->format('H:i');
+                } elseif ($cDate->greaterThan(now()->subDays(7))) {
+                    $days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                    $timeFormatted = $days[$cDate->dayOfWeek] . ' ' . $cDate->format('H:i');
+                } else {
+                    $timeFormatted = $cDate->format('d/m/y H:i');
+                }
+            }
+
             return [
                 'user_id' => $otherUser->id,
                 'name' => $otherUser->name,
                 'foto_profil' => $otherUser->foto_profil, 
                 'last_message' => $lastChat->message,
-                'time' => $lastChat->created_at->format('H:i'),
+                'time' => $timeFormatted,
+                'created_at' => $lastChat->created_at ? $lastChat->created_at->toIso8601String() : null,
                 'unread_count' => $unreadCount,
             ];
         })->values();
 
-        if (request()->wantsJson() || request()->is('api/*')) {
+        if ($request->wantsJson() || $request->is('api/*') || request()->wantsJson() || request()->is('api/*')) {
             return response()->json([
                 'success' => true,
                 'data' => $formattedList,

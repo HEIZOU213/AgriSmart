@@ -125,7 +125,7 @@
                 </a>
 
                 <a href="{{ url('/chat') }}"
-                   class="relative px-3 py-2 rounded-lg font-semibold transition-all duration-300 group overflow-hidden
+                   class="relative px-3 py-2 rounded-lg font-semibold transition-all duration-300 group
                           {{ request()->is('chat*') ? 'text-green-700' : 'text-slate-600 hover:text-green-700' }}">
                     <span class="relative flex items-center gap-2 text-sm lg:text-base whitespace-nowrap">
                         <svg class="w-4 h-4 opacity-70 group-hover:opacity-100 transition-opacity"

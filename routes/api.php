@@ -64,6 +64,9 @@ Route::get('/edukasi/{slug}', [EdukasiController::class, 'apiShow']); // Detail 
 // Kontak Kami
 Route::post('/kontak', [KontakController::class, 'apiStore']); // Kirim Pesan Kontak
 
+// Realtime Notifikasi (Bisa diakses Guest / Terautentikasi Sanctum atau Web)
+Route::get('/cek-notifikasi', [ChatController::class, 'checkNotifications']);
+
 
 // ====================================================
 // 2. PROTECTED ROUTES (WAJIB LOGIN / BERTOKEN)
@@ -116,7 +119,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notifikasi', [NotifikasiController::class, 'index']);
     Route::get('/keranjang/count', [KeranjangController::class, 'count']);
     Route::get('/notifikasi/count', [NotifikasiController::class, 'countUnread']);
-    Route::get('/cek-notifikasi', [ChatController::class, 'checkNotifications']);
     Route::post('/pesanan/mark-seen', [ChatController::class, 'markOrdersSeen']);
 
     // ====================================================

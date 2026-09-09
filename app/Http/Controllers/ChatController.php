@@ -137,7 +137,7 @@ class ChatController extends Controller
     // 6. API untuk cek notifikasi realtime (Support Pekebun & Konsumen)
     public function checkNotifications()
     {
-        $user = Auth::user() ?: request()->user();
+        $user = auth('sanctum')->user() ?: auth('web')->user() ?: Auth::user() ?: request()->user();
         $data = [
             'success' => true,
             'chat' => 0,
