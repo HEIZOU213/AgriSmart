@@ -19,12 +19,24 @@ class CartController extends Controller
         $userId = Auth::id();
 
         // 1. Ambil data dengan Eager Loading 'produk.user' agar hemat query database
-        // Kita butuh data 'user' (penjual) dari produk untuk grouping
         $cartItems = Keranjang::where('user_id', $userId)
             ->with(['produk.user', 'produk.kategoriProduk'])
             ->get();
 
-        // 2. LOGIKA GROUPING (Dipindahkan dari Blade ke sini)
+        // 2. Normalisasi item keranjang agar selalu memenuhi minimal pembelian ketentuan
+        foreach ($cartItems as $cItem) {
+            $prod = $cItem->produk;
+            if ($prod) {
+                $isBookingItem = $prod->isBookingDurian() || $prod->kategoriProduk?->slug === 'buah-durian';
+                $minReq = $isBookingItem ? 2 : 1;
+                if ($cItem->jumlah < $minReq) {
+                    $cItem->jumlah = $minReq;
+                    $cItem->save();
+                }
+            }
+        }
+
+        // 3. LOGIKA GROUPING (Dipindahkan dari Blade ke sini)
         // Kita ubah format data agar siap pakai di View
         $groupedCart = $cartItems->map(function ($item) {
             $produk = $item->produk;
@@ -67,7 +79,7 @@ class CartController extends Controller
         $jumlahDiminta = (int) $request->input('jumlah', $minQty);
 
         if ($jumlahDiminta < $minQty) {
-            $jumlahDiminta = $minQty;
+            return redirect()->back()->with('error', "Minimal pembelian untuk {$produk->nama_produk} adalah {$minQty} " . ($produk->satuan ?? 'kg') . '.');
         }
 
         // Validasi Stok Awal

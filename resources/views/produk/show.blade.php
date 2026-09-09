@@ -301,6 +301,10 @@
                                     </h1>
                                 </div>
                                 <div class="text-left sm:text-right w-full sm:w-auto">
+                                    @php
+                                        $isBooking = $produk->isBookingDurian() || $produk->kategoriProduk?->slug === 'buah-durian';
+                                        $minQty = $isBooking ? 2 : 1;
+                                    @endphp
                                     <p class="text-xs md:text-sm text-slate-400 mb-1">Harga per
                                         {{ $produk->satuan ?? 'kg' }}
                                     </p>
@@ -398,8 +402,41 @@
                             </div>
                         </div>
 
-                        {{-- ACTION SECTION (Cart Form) --}}
-                        <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 mt-auto">
+                        {{-- ACTION SECTION (Cart Form & Core Info) --}}
+                        <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-200 mt-auto">
+
+                            {{-- INTI KETENTUAN PEMESANAN (Ringkas & Langsung ke Inti) --}}
+                            @if($isBooking)
+                                <div class="mb-4 bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
+                                    <div class="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-2">
+                                        <svg class="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span>Ketentuan Pemesanan Buah Durian</span>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                            <span class="text-[10px] text-slate-400 font-semibold block">Minimal Pembelian:</span>
+                                            <span class="font-bold text-slate-800">2 {{ $produk->satuan ?? 'kg' }}</span>
+                                        </div>
+                                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                            <span class="text-[10px] text-slate-400 font-semibold block">DP Pemesanan</span>
+                                            <span class="font-bold text-green-700">Rp 100.000</span>
+                                        </div>
+                                        <div class="bg-slate-50 p-2 rounded-lg border border-slate-100 {{ $produk->estimasi_panen ? '' : 'col-span-2' }}">
+                                            <span class="text-[10px] text-slate-400 font-semibold block">Pelunasan</span>
+                                            <span class="font-medium text-slate-700 text-[11px]">Sesuai timbangan panen</span>
+                                        </div>
+                                        @if($produk->estimasi_panen)
+                                            <div class="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                                <span class="text-[10px] text-slate-400 font-semibold block">Estimasi Panen</span>
+                                                <span class="font-bold text-slate-800 text-[11px] truncate block">{{ $produk->estimasi_panen }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+
                             <form action="{{ route('cart.store', $produk->id) }}" method="POST">
                                 @csrf
                                 <div class="flex flex-col sm:flex-row items-end gap-4">
@@ -407,19 +444,23 @@
                                     {{-- Input Jumlah --}}
                                     <div class="w-full sm:w-1/3">
                                         <label for="jumlah"
-                                            class="block text-xs font-bold text-slate-500 uppercase mb-2">Jumlah
-                                            ({{ $produk->satuan ?? 'kg' }})</label>
+                                            class="block text-xs font-bold text-slate-500 uppercase mb-2">
+                                            Jumlah ({{ $produk->satuan ?? 'kg' }})
+                                            @if($minQty > 1)
+                                                <span class="text-slate-400 font-normal lowercase">(min. {{ $minQty }})</span>
+                                            @endif
+                                        </label>
                                         <div class="relative flex items-center">
                                             <button type="button"
-                                                onclick="this.parentNode.querySelector('input[type=number]').stepDown()"
+                                                onclick="var el = this.parentNode.querySelector('input[type=number]'); if (parseInt(el.value) > parseInt(el.min)) el.stepDown();"
                                                 class="absolute left-0 w-10 h-full text-slate-500 hover:text-green-600 bg-transparent rounded-l-lg touch-manipulation">
                                                 -
                                             </button>
-                                            <input type="number" id="jumlah" name="jumlah" value="1" min="1"
+                                            <input type="number" id="jumlah" name="jumlah" value="{{ $minQty }}" min="{{ $minQty }}"
                                                 max="{{ $produk->stok }}"
                                                 class="w-full pl-10 pr-10 border-slate-300 rounded-xl shadow-sm focus:border-green-500 focus:ring-green-500 text-center font-bold text-lg h-12">
                                             <button type="button"
-                                                onclick="this.parentNode.querySelector('input[type=number]').stepUp()"
+                                                onclick="var el = this.parentNode.querySelector('input[type=number]'); if (parseInt(el.value) < parseInt(el.max)) el.stepUp();"
                                                 class="absolute right-0 w-10 h-full text-slate-500 hover:text-green-600 bg-transparent rounded-r-lg touch-manipulation">
                                                 +
                                             </button>
@@ -450,10 +491,15 @@
 
                                 {{-- Status Stok --}}
                                 <div
-                                    class="mt-4 flex items-center justify-between sm:justify-start sm:gap-4 text-sm font-medium text-slate-600">
+                                    class="mt-4 flex flex-wrap items-center justify-between sm:justify-start sm:gap-4 text-sm font-medium text-slate-600">
                                     <span>
                                         {{ $produk->stok > 0 ? 'Tersedia: ' . $produk->stok . ' ' . ($produk->satuan ?? 'kg') : 'Stok Habis' }}
                                     </span>
+                                    @if($isBooking)
+                                        <span class="text-xs text-slate-500">
+                                            • Minimal pemesanan: {{ $minQty }} {{ $produk->satuan ?? 'kg' }}
+                                        </span>
+                                    @endif
                                 </div>
                             </form>
                         </div>

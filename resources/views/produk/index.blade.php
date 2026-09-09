@@ -423,12 +423,27 @@
                                         {{ $item->nama_produk }}
                                     </h3>
 
-                                    <!-- Stock Information -->
-                                    <div class="flex items-center justify-between mb-2 sm:mb-4 bg-slate-50 rounded-lg px-2 sm:px-3 py-1 sm:py-2">
-                                        <span class="text-[10px] sm:text-xs text-slate-600 font-medium">Stok</span>
-                                        <span class="text-[10px] sm:text-sm font-bold {{ ($item->stok ?? 0) > 0 ? 'text-green-600' : 'text-red-500' }}">
-                                            {{ $item->stok ?? 0 }} {{ $item->satuan ?? '' }}
-                                        </span>
+                                    @php
+                                        $itemIsBooking = $item->isBookingDurian() || $item->kategoriProduk?->slug === 'buah-durian';
+                                    @endphp
+
+                                    <!-- Stock & Booking Information -->
+                                    <div class="mb-2 sm:mb-4 bg-slate-50 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[10px] sm:text-xs text-slate-600 font-medium">Stok</span>
+                                            <span class="text-[10px] sm:text-sm font-bold {{ ($item->stok ?? 0) > 0 ? 'text-green-600' : 'text-red-500' }}">
+                                                {{ $item->stok ?? 0 }} {{ $item->satuan ?? '' }}
+                                            </span>
+                                        </div>
+                                        @if($itemIsBooking)
+                                            <div class="mt-1.5 pt-1.5 border-t border-slate-200/70 flex items-center justify-between text-[10px] text-slate-500">
+                                                <span class="flex items-center gap-1 font-medium text-slate-600">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                                    Booking Panen
+                                                </span>
+                                                <span class="font-semibold text-slate-700">Min. 2 {{ $item->satuan ?? 'kg' }}</span>
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <!-- Price & Cart Button -->
