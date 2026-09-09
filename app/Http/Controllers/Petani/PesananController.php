@@ -110,11 +110,16 @@ class PesananController extends Controller
         }
 
         $request->validate([
-            'status' => 'required|in:shipping,done,cancelled', 
+            'status' => 'required|in:dikemas,shipping,dikirim,siap_diambil,done,selesai,cancelled', 
         ]);
 
+        $rawStatus = $request->status;
+        $newStatus = $rawStatus;
+        if ($rawStatus === 'dikirim') $newStatus = 'shipping';
+        if ($rawStatus === 'selesai') $newStatus = 'done';
+
         // 3. LOGIKA POTONG SALDO & REFUND KE KONSUMEN
-        if (in_array($pesanan->status, ['paid', 'shipping']) && $request->status == 'cancelled') {
+        if (in_array($pesanan->status, ['paid', 'dikemas', 'shipping', 'siap_diambil']) && $newStatus == 'cancelled') {
             $petani = User::find($petaniId);
             if ($petani && ($pesanan->seller_income ?? 0) > 0) {
                 $petani->saldo = max(0, $petani->saldo - $pesanan->seller_income);
@@ -129,7 +134,7 @@ class PesananController extends Controller
         }
         
         // 4. LOGIKA KEMBALIKAN STOK (Restock)
-        if ($request->status == 'cancelled' && $pesanan->status != 'cancelled') {
+        if ($newStatus == 'cancelled' && $pesanan->status != 'cancelled') {
              foreach ($pesanan->detailPesanan as $detail) {
                 $produk = $detail->produk;
                 if ($produk && $produk->user_id == $petaniId) {
@@ -139,8 +144,53 @@ class PesananController extends Controller
             }
         }
 
-        // 5. Simpan Perubahan Status
-        $pesanan->status = $request->status;
+        // 5. Notifikasi ke Pembeli
+        $isPickup = false;
+        if (!empty($pesanan->alamat_kirim)) {
+            $alamatLower = strtolower($pesanan->alamat_kirim);
+            if (str_contains($alamatLower, 'ambil') || str_contains($alamatLower, 'kebun') || str_contains($alamatLower, 'pickup')) {
+                $isPickup = true;
+            }
+        }
+
+        $judul = "Update Pesanan #" . ($pesanan->kode_pesanan ?? $pesanan->id);
+        $pesan = "";
+        $type = "info";
+
+        if ($newStatus == 'paid') {
+            $pesan = "Pesanan Anda telah DITERIMA oleh pekebun durian dan sedang diproses.";
+            $type = "success";
+        } elseif ($newStatus == 'dikemas') {
+            $pesan = $isPickup 
+                ? "Pesanan Anda sedang DISIAPKAN dan dikemas di kebun mitra."
+                : "Pesanan Anda sedang DIKEMAS oleh pekebun durian dan segera disiapkan untuk pengiriman.";
+            $type = "info";
+        } elseif ($newStatus == 'shipping') {
+            $pesan = "Pesanan Anda sedang DALAM PENGIRIMAN menuju alamat Anda.";
+            $type = "info";
+        } elseif ($newStatus == 'siap_diambil') {
+            $pesan = "Pesanan Anda SIAP DIAMBIL di kebun mitra! Tunjukkan QR Code / E-Kwitansi saat pengambilan.";
+            $type = "success";
+        } elseif ($newStatus == 'cancelled') {
+            $pesan = "Mohon maaf, pesanan Anda DIBATALKAN oleh pekebun durian. Stok telah dikembalikan.";
+            $type = "danger";
+        } elseif ($newStatus == 'done') {
+            $pesan = "Pesanan selesai. Terima kasih telah berbelanja di AgriSmart!";
+            $type = "success";
+        }
+
+        if ($pesan != "" && $pesanan->user_id) {
+            Notifikasi::create([
+                'user_id' => $pesanan->user_id,
+                'judul'   => $judul,
+                'pesan'   => $pesan,
+                'type'    => $type,
+                'is_read' => false
+            ]);
+        }
+
+        // 6. Simpan Perubahan Status
+        $pesanan->status = $newStatus;
         $pesanan->save();
 
         return redirect()->route('petani.pesanan.show', $pesanan->id)
@@ -166,7 +216,7 @@ class PesananController extends Controller
         })
         ->with(['detailPesanan' => function ($query) use ($productIds) {
             $query->whereIn('produk_id', $productIds)->with('produk');
-        }, 'user'])
+        }, 'user:id,name,email,no_telepon,alamat,foto_profil'])
         ->orderBy('created_at', 'desc')
         ->get();
 
@@ -181,11 +231,11 @@ class PesananController extends Controller
         ]);
     }
 
-    // API: Update Status (DIPERBAIKI DENGAN NOTIFIKASI OTOMATIS)
+    // API: Update Status (DIPERBAIKI DENGAN NOTIFIKASI OTOMATIS & PROGRESSIVE STATUS)
     public function apiUpdateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:shipping,done,cancelled'
+            'status' => 'required|in:dikemas,shipping,dikirim,siap_diambil,done,selesai,cancelled'
         ]);
 
         return DB::transaction(function () use ($request, $id) {
@@ -209,7 +259,11 @@ class PesananController extends Controller
             }
 
             $oldStatus = $pesanan->status;
-            $newStatus = $request->status;
+            $rawStatus = $request->status;
+            $newStatus = $rawStatus;
+            if ($rawStatus === 'dikirim') $newStatus = 'shipping';
+            if ($rawStatus === 'selesai') $newStatus = 'done';
+
             $pembeliId = $pesanan->user_id; // AMBIL ID PEMBELI SECARA OTOMATIS
 
             // 1. LOGIKA RESTOCK (Jika batal, kembalikan stok)
@@ -224,7 +278,7 @@ class PesananController extends Controller
             }
 
             // 2. LOGIKA REFUND (Potong Saldo Pekebun & Kembalikan ke Konsumen)
-            if (in_array($oldStatus, ['paid', 'shipping']) && $newStatus == 'cancelled') {
+            if (in_array($oldStatus, ['paid', 'dikemas', 'shipping', 'siap_diambil']) && $newStatus == 'cancelled') {
                 $pendapatan = $pesanan->seller_income ?? 0;
                 
                 if ($pendapatan > 0) {
@@ -242,7 +296,16 @@ class PesananController extends Controller
                 }
             }
 
-            // 3. --- [BARU] LOGIKA KIRIM NOTIFIKASI OTOMATIS ---
+            // 3. DETEKSI METODE: DELIVERY ATAU PICKUP
+            $isPickup = false;
+            if (!empty($pesanan->alamat_kirim)) {
+                $alamatLower = strtolower($pesanan->alamat_kirim);
+                if (str_contains($alamatLower, 'ambil') || str_contains($alamatLower, 'kebun') || str_contains($alamatLower, 'pickup')) {
+                    $isPickup = true;
+                }
+            }
+
+            // 4. LOGIKA KIRIM NOTIFIKASI OTOMATIS
             $judul = "Update Pesanan #" . ($pesanan->kode_pesanan ?? $pesanan->id);
             $pesan = "";
             $type = "info";
@@ -250,28 +313,37 @@ class PesananController extends Controller
             if ($newStatus == 'paid') {
                 $pesan = "Pesanan Anda telah DITERIMA oleh pekebun durian dan sedang diproses.";
                 $type = "success";
+            } elseif ($newStatus == 'dikemas') {
+                if ($isPickup) {
+                    $pesan = "Pesanan Anda sedang DISIAPKAN dan dikemas di kebun mitra.";
+                } else {
+                    $pesan = "Pesanan Anda sedang DIKEMAS oleh pekebun durian dan segera disiapkan untuk pengiriman.";
+                }
+                $type = "info";
             } elseif ($newStatus == 'shipping') {
                 $pesan = "Pesanan Anda sedang DALAM PENGIRIMAN menuju alamat Anda.";
                 $type = "info";
+            } elseif ($newStatus == 'siap_diambil') {
+                $pesan = "Pesanan Anda SIAP DIAMBIL di kebun mitra! Tunjukkan QR Code / E-Kwitansi saat pengambilan.";
+                $type = "success";
             } elseif ($newStatus == 'cancelled') {
-                $pesan = "Mohon maaf, pesanan Anda DIBATALKAN oleh pekebun durian. Stok akan dikembalikan.";
+                $pesan = "Mohon maaf, pesanan Anda DIBATALKAN oleh pekebun durian. Stok telah dikembalikan.";
                 $type = "danger";
             } elseif ($newStatus == 'done') {
-                $pesan = "Pesanan selesai. Terima kasih telah berbelanja!";
+                $pesan = "Pesanan selesai. Terima kasih telah berbelanja di AgriSmart!";
                 $type = "success";
             }
 
             // Buat Notifikasi di Database (Hanya jika ada pesan status)
-            if ($pesan != "") {
+            if ($pesan != "" && $pembeliId) {
                 Notifikasi::create([
-                    'user_id' => $pembeliId, // Ini akan otomatis mengirim ke pembeli yang benar
+                    'user_id' => $pembeliId,
                     'judul'   => $judul,
                     'pesan'   => $pesan,
                     'type'    => $type,
                     'is_read' => false
                 ]);
             }
-            // ------------------------------------------------
 
             $pesanan->status = $newStatus;
             $pesanan->save();
