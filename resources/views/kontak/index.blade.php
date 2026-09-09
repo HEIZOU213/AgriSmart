@@ -14,7 +14,7 @@
     <meta property="og:description" content="Hubungi tim AgriSmart untuk solusi perkebunan durian terbaik.">
     <meta property="og:image" content="{{ asset('images/hero1.png') }}">
 
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <x-favicon />
     <title>Kontak - {{ config('app.name', 'AgriSmart') }}</title>
 
     {{-- FONT: Plus Jakarta Sans --}}
@@ -124,6 +124,8 @@
 
 <body
     class="font-sans antialiased text-slate-700 bg-green-50 flex flex-col min-h-screen selection:bg-green-500 selection:text-white overflow-x-hidden">
+
+    <x-preloader />
 
     {{-- NAVBAR --}}
     <x-navbar />

@@ -40,8 +40,7 @@ class CustomAuthController extends Controller
         ]);
 
         // --- PERUBAHAN: CEK APAKAH OTP AKTIF ---
-        // SEMENTARA DIPAKSA TRUE (BYPASS OTP)
-        if (!filter_var(env('OTP_ENABLED', true), FILTER_VALIDATE_BOOLEAN)) {
+        if (!filter_var(config('auth.otp_enabled', false), FILTER_VALIDATE_BOOLEAN)) {
             // Jika OTP dimatikan, langsung login
             Auth::login($user);
             $request->session()->regenerate();

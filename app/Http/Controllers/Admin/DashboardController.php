@@ -19,17 +19,15 @@ class DashboardController extends Controller
         $totalKonsumen = User::where('role', 'user')->count();
         $totalKonten = KontenEdukasi::count();
 
-        // 2. Statistik Keuangan (LOGIKA BARU)
+        // 2. Statistik Keuangan Marketplace
         
         // A. Hitung Keuntungan Admin (Total kolom admin_fee dari pesanan sukses)
-        // Kita hanya hitung yang statusnya 'paid', 'shipping', atau 'done'
-        // Jangan hitung yang 'pending' atau 'cancelled'
         $keuntunganAdmin = Pesanan::whereIn('status', ['paid', 'shipping', 'done'])
                                   ->sum('admin_fee');
 
-        // B. Hitung Dana Mengendap (Total saldo milik semua pekebun durian)
-        // Ini adalah uang fisik yang ada di rekening Admin, tapi milik Pekebun
-        $danaPetani = User::where('role', 'pekebun')->sum('saldo');
+        // B. Total Volume Transaksi Marketplace (Gross Merchandise Value)
+        $volumeTransaksi = Pesanan::whereIn('status', ['paid', 'shipping', 'done'])
+                                  ->sum('total_harga');
 
         // Masukkan semua ke array $stats
         $stats = [
@@ -40,7 +38,7 @@ class DashboardController extends Controller
             
             // Data Keuangan
             'pendapatan_bersih' => $keuntunganAdmin,
-            'uang_titipan' => $danaPetani
+            'volume_transaksi'  => $volumeTransaksi,
         ];
 
         return view('admin.dashboard', compact('stats'));

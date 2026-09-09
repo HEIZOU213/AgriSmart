@@ -24,7 +24,6 @@ use App\Http\Controllers\KontakController;     // Untuk Kontak Kami
 // Controller Khusus Role (Petani/Konsumen)
 use App\Http\Controllers\Petani\ProdukController as PetaniProdukController;
 use App\Http\Controllers\Petani\PesananController as PetaniPesananController;
-use App\Http\Controllers\Petani\DompetController as PetaniDompetController;
 use App\Http\Controllers\Konsumen\PesananController as KonsumenPesananController;
 
 // --- IMPORT CONTROLLER IOT ---
@@ -146,9 +145,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/petani/iot/toggle/{id}', [IotController::class, 'togglePump']); // On/Off Pompa
         Route::post('/petani/iot/auto/{id}', [IotController::class, 'setAuto']); // Set ke Auto
         Route::get('/iot/data/{serial_number}', [IotController::class, 'getLatestData']);
-
-        // Dompet Petani (Optional)
-        // Route::get('/petani/dompet', [PetaniDompetController::class, 'apiIndex']);
     });
 
     // ====================================================

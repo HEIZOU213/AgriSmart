@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $produk->nama_produk }} - AgriSmart</title>
+    <x-favicon />
 
     {{-- FONTS: Plus Jakarta Sans --}}
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
@@ -177,6 +178,8 @@
 
 <body
     class="font-sans antialiased text-slate-700 bg-white flex flex-col min-h-screen selection:bg-green-500 selection:text-white">
+
+    <x-preloader />
 
     <x-navbar />
 

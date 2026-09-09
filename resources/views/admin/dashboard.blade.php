@@ -125,11 +125,11 @@
 
     <div class="p-6 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
         <div>
-            <h3 class="text-sm text-slate-500 font-medium uppercase tracking-wider">Dana Mengendap (Milik Pekebun)</h3>
+            <h3 class="text-sm text-slate-500 font-medium uppercase tracking-wider">Volume Transaksi Marketplace</h3>
             <p class="text-3xl text-slate-900 font-black mt-1">
-                Rp {{ number_format($stats['uang_titipan'], 0, ',', '.') }}
+                Rp {{ number_format($stats['volume_transaksi'], 0, ',', '.') }}
             </p>
-            <p class="text-xs mt-2 text-slate-400">Uang yang siap ditarik (Withdraw) oleh pekebun durian</p>
+            <p class="text-xs mt-2 text-slate-400">Total perputaran transaksi berhasil di AgriSmart</p>
         </div>
         <div class="p-3 bg-emerald-50 rounded-xl">
             <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
