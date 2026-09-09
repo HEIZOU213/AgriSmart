@@ -108,7 +108,13 @@ PERUBAHAN 1:
                         </svg>
                         <ul class="space-y-0.5">
                             @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
+                                <li>
+                                    @if ($error === 'validation.unique' || str_contains(strtolower($error), 'unique') || str_contains(strtolower($error), 'already been taken'))
+                                        Alamat email ini sudah terdaftar. Silakan gunakan email lain atau masuk ke akun Anda.
+                                    @else
+                                        {{ $error }}
+                                    @endif
+                                </li>
                             @endforeach
                         </ul>
                     </div>
