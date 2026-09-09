@@ -246,44 +246,62 @@ class AuthController extends Controller
         ]);
     }
 
-    // --- LOGIN VIA GOOGLE (API) ---
+    // --- LOGIN VIA GOOGLE (API SINKRON WEB) ---
     public function loginByGoogle(Request $request)
     {
-        // 1. Validasi data yang dikirim Flutter
+        // 1. Validasi data akun Google
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'name' => 'required|string',
-            'google_id' => 'required|string', // ID unik dari Google
+            'google_id' => 'required|string',
+            'photo_url' => 'nullable|string',
+            'foto_profil' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => 'Data Google tidak valid'], 422);
+            return response()->json(['success' => false, 'message' => 'Data akun Google tidak valid', 'errors' => $validator->errors()], 422);
         }
 
+        $email = trim($request->email);
+        $googleId = trim($request->google_id);
+        $name = trim($request->name);
+        $avatar = $request->input('photo_url', $request->input('foto_profil'));
+
         // 2. Cari User berdasarkan Email
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $email)->first();
 
         if ($user) {
-            // A. Jika user sudah ada, update google_id-nya (opsional) & Login
-            // $user->update(['google_id' => $request->google_id]); // Jika punya kolom google_id
+            // Sinkronkan data provider Google sama seperti di web
+            $user->provider = 'google';
+            $user->provider_id = $googleId;
+            if (!empty($avatar) && (empty($user->foto_profil) || str_starts_with($user->foto_profil, 'http'))) {
+                $user->foto_profil = $avatar;
+            }
+            if (empty($user->email_verified_at)) {
+                $user->email_verified_at = now();
+            }
+            $user->save();
         } else {
-            // B. Jika belum ada, Buat User Baru (Register Otomatis)
+            // Buat User Baru persis seperti alur Socialite di routes/web.php
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->google_id . rand(1000,9999)), // Password acak
+                'name' => !empty($name) ? $name : explode('@', $email)[0],
+                'email' => $email,
+                'provider' => 'google',
+                'provider_id' => $googleId,
+                'foto_profil' => $avatar,
+                'email_verified_at' => now(),
                 'role' => 'konsumen',
-                'no_telepon' => null, // Nanti user bisa update sendiri
-                // 'google_id' => $request->google_id, // Aktifkan jika ada kolom ini
+                'password' => Hash::make($googleId . rand(1000, 9999)),
+                'no_telepon' => null,
             ]);
         }
 
-        // 3. Buat Token
+        // 3. Buat Personal Access Token Sanctum untuk sesi mobile
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'message' => 'Login Google Berhasil',
+            'message' => 'Login dengan Akun Google Berhasil!',
             'data' => [
                 'user' => $user,
                 'token' => $token

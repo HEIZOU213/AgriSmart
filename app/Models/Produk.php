@@ -36,6 +36,8 @@ class Produk extends Model
         'harga',
         'stok',
         'foto_produk',
+        'tipe_produk',        // 'ready_stock' atau 'booking_panen'
+        'estimasi_panen',     // Tanggal / waktu panen yang ditentukan petani
     ];
 
     /**

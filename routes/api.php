@@ -132,6 +132,8 @@ Route::middleware(['auth:sanctum', UserActivity::class])->group(function () {
         // Pesanan Masuk
         Route::get('/petani/pesanan', [PetaniPesananController::class, 'apiIndex']);
         Route::post('/petani/pesanan/{id}/update-status', [PetaniPesananController::class, 'apiUpdateStatus']);
+        Route::post('/petani/pesanan/verify-qr', [PetaniPesananController::class, 'apiVerifyQr']);
+        Route::post('/petani/pesanan/{id}/settle', [PetaniPesananController::class, 'apiSettleOrder']);
 
         // --- MANAJEMEN ALAT IOT (PETANI) ---
         Route::get('/petani/iot', [IotController::class, 'index']);        // List semua alat

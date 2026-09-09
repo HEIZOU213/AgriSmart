@@ -192,6 +192,8 @@ class ProdukController extends Controller
             'harga' => 'required|numeric|min:0',
             'stok' => 'required|integer|min:0',
             'deskripsi' => 'nullable|string',
+            'tipe_produk' => 'nullable|string|in:ready_stock,booking_panen',
+            'estimasi_panen' => 'nullable|string|max:255',
         ];
 
         if ($request->hasFile('foto_produk')) {
@@ -212,6 +214,8 @@ class ProdukController extends Controller
             $user = $request->user();
             $data = $request->except(['foto_produk']);
             $data['user_id'] = $user->id; // Set Pemilik Produk
+            $data['tipe_produk'] = $request->input('tipe_produk', 'ready_stock');
+            $data['estimasi_panen'] = $request->input('estimasi_panen');
 
             // Upload Foto jika ada
             if ($request->hasFile('foto_produk')) {
@@ -258,6 +262,8 @@ class ProdukController extends Controller
             'stok'        => 'required|integer|min:0',
             'kategori_produk_id' => 'required|exists:kategori_produk,id',
             'deskripsi'   => 'nullable|string',
+            'tipe_produk' => 'nullable|string|in:ready_stock,booking_panen',
+            'estimasi_panen' => 'nullable|string|max:255',
         ];
 
         if ($request->hasFile('foto_produk')) {
@@ -281,6 +287,12 @@ class ProdukController extends Controller
             $produk->harga       = $request->harga;
             $produk->stok        = $request->stok;
             $produk->kategori_produk_id = $request->kategori_produk_id;
+            if ($request->has('tipe_produk')) {
+                $produk->tipe_produk = $request->tipe_produk;
+            }
+            if ($request->has('estimasi_panen')) {
+                $produk->estimasi_panen = $request->estimasi_panen;
+            }
 
             // Cek Apakah Ada Gambar Baru?
             if ($request->hasFile('foto_produk')) {

@@ -245,6 +245,164 @@ class PesananController extends Controller
             ]);
         });
     }
+
+    /**
+     * API: Verifikasi QR Code E-Kuitansi oleh Petani
+     * Mengambil data pesanan asli dari DB MySQL sehingga harga 100% akurat
+     */
+    public function apiVerifyQr(Request $request)
+    {
+        $qrToken = trim($request->input('qr_token', ''));
+
+        if (empty($qrToken)) {
+            return response()->json(['success' => false, 'message' => 'QR Token tidak boleh kosong'], 400);
+        }
+
+        $kodePesanan = null;
+        $orderId = null;
+
+        // 1. Cek jika qrToken adalah JSON
+        if (str_starts_with($qrToken, '{')) {
+            $json = json_decode($qrToken, true);
+            if (is_array($json)) {
+                $kodePesanan = $json['kode_pesanan'] ?? null;
+                $orderId = $json['id'] ?? $json['order_id'] ?? null;
+            }
+        }
+
+        // 2. Jika qrToken adalah kode pesanan langsung (INV-..., COD-..., BKG-...)
+        if (empty($kodePesanan)) {
+            if (preg_match('/(INV|COD|BKG)-[A-Za-z0-9\-]+/', $qrToken, $matches)) {
+                $kodePesanan = $matches[0];
+            } elseif (is_numeric($qrToken)) {
+                $orderId = (int)$qrToken;
+            } else {
+                $kodePesanan = $qrToken;
+            }
+        }
+
+        // 3. Query pesanan riil dari database
+        $pesanan = null;
+        if (!empty($kodePesanan)) {
+            $pesanan = Pesanan::with(['detailPesanan.produk', 'user'])
+                ->where('kode_pesanan', $kodePesanan)
+                ->first();
+        }
+
+        if (!$pesanan && !empty($orderId)) {
+            $pesanan = Pesanan::with(['detailPesanan.produk', 'user'])->find($orderId);
+        }
+
+        if (!$pesanan) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data pesanan dengan kode QR "' . $qrToken . '" tidak ditemukan di sistem kebun.'
+            ], 404);
+        }
+
+        // 4. Hitung nilai keuangan pesanan secara akurat
+        $total = (double) $pesanan->total_harga;
+        $isBooking = str_starts_with($pesanan->kode_pesanan, 'BKG');
+        $isCod = str_starts_with($pesanan->kode_pesanan, 'COD');
+
+        if ($isBooking) {
+            $type = 'booking_panen';
+            $dpAmount = round($total * 0.5, 2);
+            $remaining = round($total - $dpAmount, 2);
+            $needsSettlement = ($pesanan->status != 'done');
+            $isDpPaid = true;
+            $isFullyPaid = ($pesanan->status == 'done');
+        } elseif ($isCod) {
+            $type = 'ready_stock';
+            $dpAmount = 0.0;
+            $remaining = $total;
+            $needsSettlement = ($pesanan->status != 'done');
+            $isDpPaid = false;
+            $isFullyPaid = ($pesanan->status == 'done');
+        } else {
+            $type = 'ready_stock';
+            $dpAmount = $total;
+            $remaining = 0.0;
+            $needsSettlement = false;
+            $isDpPaid = true;
+            $isFullyPaid = true;
+        }
+
+        // Jika pesanan transfer ready stock dan belum done, otomatis selesaikan
+        if (!$needsSettlement && $pesanan->status != 'done') {
+            $pesanan->status = 'done';
+            $pesanan->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'needs_settlement' => $needsSettlement,
+            'remaining_balance' => $remaining,
+            'total' => $total,
+            'dp_amount' => $dpAmount,
+            'is_cod' => $isCod,
+            'type' => $type,
+            'order' => [
+                'id' => $pesanan->id,
+                'user_id' => $pesanan->user_id,
+                'kode_pesanan' => $pesanan->kode_pesanan,
+                'type' => $type,
+                'total' => $total,
+                'total_harga' => $total,
+                'dp_amount' => $dpAmount,
+                'is_dp_paid' => $isDpPaid,
+                'is_fully_paid' => $isFullyPaid,
+                'payment_method' => $isCod ? 'cod' : 'transfer',
+                'status' => $pesanan->status,
+                'status_pesanan' => $pesanan->status,
+                'status_pembayaran' => $isFullyPaid ? 'paid' : ($isDpPaid ? 'dp_paid' : 'pending_verification'),
+                'alamat_kirim' => $pesanan->alamat_kirim,
+                'created_at' => $pesanan->created_at ? $pesanan->created_at->toIso8601String() : date('c'),
+                'qr_code_token' => $pesanan->kode_pesanan,
+                'buyer_name' => $pesanan->user ? $pesanan->user->name : 'Pelanggan Bengkalis',
+                'user' => $pesanan->user ? ['name' => $pesanan->user->name, 'email' => $pesanan->user->email] : null,
+                'items' => $pesanan->detailPesanan,
+                'detail_pesanan' => $pesanan->detailPesanan,
+            ]
+        ]);
+    }
+
+    /**
+     * API: Selesaikan transaksi pelunasan COD atau Booking Panen di kebun
+     */
+    public function apiSettleOrder(Request $request, $id)
+    {
+        return DB::transaction(function () use ($id) {
+            $pesanan = Pesanan::with('detailPesanan.produk')->find($id);
+
+            if (!$pesanan) {
+                return response()->json(['success' => false, 'message' => 'Pesanan tidak ditemukan'], 404);
+            }
+
+            $pesanan->status = 'done';
+            $pesanan->save();
+
+            $petani = User::find(Auth::id());
+            if ($petani && $pesanan->seller_income > 0) {
+                $petani->increment('saldo', $pesanan->seller_income);
+            }
+
+            // Notifikasi ke pembeli
+            Notifikasi::create([
+                'user_id' => $pesanan->user_id,
+                'judul' => 'Pesanan #' . $pesanan->kode_pesanan . ' Telah Selesai',
+                'pesan' => 'Pembayaran tunai/pelunasan telah diverifikasi oleh pekebun durian di kebun. Terima kasih telah berbelanja!',
+                'type' => 'success',
+                'is_read' => false,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pelunasan berhasil diverifikasi dan pesanan selesai.',
+                'data' => $pesanan
+            ]);
+        });
+    }
 }
 
 

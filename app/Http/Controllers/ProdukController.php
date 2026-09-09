@@ -100,6 +100,11 @@ class ProdukController extends Controller
             }
         }
 
+        // 3b. Filter Tipe Produk (ready_stock vs booking_panen)
+        if ($request->has('tipe_produk') && !empty($request->tipe_produk)) {
+            $query->where('tipe_produk', $request->tipe_produk);
+        }
+
         // 4. Filter Stok
         if ($request->has('stok')) {
             if ($request->stok == 'tersedia') {
