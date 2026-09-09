@@ -847,5 +847,56 @@ class MarketplaceNewCategoriesAndMidtransTest extends TestCase
         $pekebun->refresh();
         $this->assertTrue($pekebun->isMidtransProduction());
     }
+
+    /**
+     * Test: Marketplace views display subtle booking explanation and enforce minimum 2 purchase.
+     */
+    public function test_marketplace_views_render_subtle_keterangan_and_enforce_min_two_purchase()
+    {
+        $pekebun = User::factory()->create(['role' => 'pekebun']);
+        $consumer = User::factory()->create(['role' => 'user']);
+        $buahCat = KategoriProduk::where('slug', 'buah-durian')->first();
+
+        $produk = Produk::create([
+            'user_id' => $pekebun->id,
+            'kategori_produk_id' => $buahCat->id,
+            'nama_produk' => 'Durian Bawor Super',
+            'harga' => 90000,
+            'stok' => 15,
+            'satuan' => 'kg',
+            'tipe_produk' => 'booking_panen',
+            'estimasi_panen' => '25 September 2026',
+        ]);
+
+        // 1. Check catalog view renders subtle indicator
+        $catalogResponse = $this->get(route('produk.index'));
+        $catalogResponse->assertStatus(200);
+        $catalogResponse->assertSee('Booking Panen');
+        $catalogResponse->assertSee('Min. 2 kg');
+
+        // 2. Check detail view renders subtle terms and min=2 input
+        $detailResponse = $this->get(route('produk.show', $produk->id));
+        $detailResponse->assertStatus(200);
+        $detailResponse->assertSee('Ketentuan Pemesanan Buah Durian');
+        $detailResponse->assertSee('Minimal Pembelian:');
+        $detailResponse->assertSee('value="2"', false);
+        $detailResponse->assertSee('min="2"', false);
+        $detailResponse->assertSee('25 September 2026');
+
+        // 3. Consumer submitting quantity < 2 is rejected
+        $rejectResponse = $this->actingAs($consumer)
+            ->post(route('cart.store', $produk->id), [
+                'jumlah' => 1,
+            ]);
+        $rejectResponse->assertSessionHas('error');
+
+        // 4. Consumer submitting quantity 2 succeeds
+        $successResponse = $this->actingAs($consumer)
+            ->post(route('cart.store', $produk->id), [
+                'jumlah' => 2,
+            ]);
+        $successResponse->assertSessionHas('success');
+    }
 }
+
 
