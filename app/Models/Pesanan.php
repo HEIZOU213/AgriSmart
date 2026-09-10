@@ -93,7 +93,15 @@ class Pesanan extends Model
      */
     public function isBookingDurian(): bool
     {
-        return $this->tipe_pesanan === 'booking_durian' || str_starts_with($this->kode_pesanan, 'BKG-');
+        if ($this->tipe_pesanan === 'booking_durian' || str_starts_with((string)$this->kode_pesanan, 'BKG-')) {
+            return true;
+        }
+        if ($this->relationLoaded('detailPesanan')) {
+            return $this->detailPesanan->contains(function ($d) {
+                return $d->produk && ($d->produk->isBookingDurian() || $d->produk->kategoriProduk?->slug === 'buah-durian');
+            });
+        }
+        return false;
     }
 
     /**

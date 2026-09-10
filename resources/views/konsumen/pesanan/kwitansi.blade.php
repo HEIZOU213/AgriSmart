@@ -147,34 +147,40 @@
 
             {{-- Durian Items Table --}}
             <div>
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Detail Buah Durian</h3>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Detail Produk Pesanan</h3>
                 <div class="border border-slate-200 rounded-xl overflow-hidden">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase">
                             <tr>
-                                <th class="py-3 px-4">Produk Durian</th>
-                                <th class="py-3 px-4 text-center">Harga / Kg</th>
-                                <th class="py-3 px-4 text-center">Berat Panen</th>
-                                <th class="py-3 px-4 text-right">Total Harga</th>
+                                <th class="py-3 px-4">Produk</th>
+                                <th class="py-3 px-4 text-center">Harga / Satuan</th>
+                                <th class="py-3 px-4 text-center">Jumlah / Berat</th>
+                                <th class="py-3 px-4 text-right">Total</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200">
                             @foreach($pesanan->detailPesanan as $detail)
                                 <tr>
                                     <td class="py-3.5 px-4 font-semibold text-slate-900">
-                                        {{ $detail->produk?->nama_produk ?? 'Buah Durian' }}
+                                        {{ $detail->produk?->nama_produk ?? 'Produk AgriSmart' }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-mono">
                                         Rp {{ number_format($detail->harga_satuan ?? ($pesanan->harga_per_kg ?? 0), 0, ',', '.') }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
-                                        {{ $pesanan->berat_aktual_kg ? $pesanan->berat_aktual_kg . ' kg' : 'Menunggu Panen' }}
+                                        @if($pesanan->berat_aktual_kg)
+                                            {{ $pesanan->berat_aktual_kg }} kg
+                                        @elseif($pesanan->isBookingDurian())
+                                            Menunggu Panen
+                                        @else
+                                            {{ $detail->jumlah }} {{ $detail->produk?->satuan ?? 'item' }}
+                                        @endif
                                     </td>
                                     <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
                                         @if($pesanan->total_setelah_timbang)
                                             Rp {{ number_format($pesanan->total_setelah_timbang, 0, ',', '.') }}
                                         @else
-                                            (Dihitung saat panen)
+                                            Rp {{ number_format(($detail->harga_satuan ?? 0) * ($detail->jumlah ?? 1), 0, ',', '.') }}
                                         @endif
                                     </td>
                                 </tr>
@@ -204,24 +210,26 @@
                     <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-3">
                         <div class="flex justify-between items-center text-slate-600">
                             <span>Sistem Transaksi:</span>
-                            <span class="font-bold text-slate-800">Booking Buah Durian</span>
+                            <span class="font-bold text-slate-800">{{ $pesanan->isBookingDurian() ? 'Booking Buah Durian' : 'Pembelian Langsung (Ready Stock)' }}</span>
                         </div>
 
-                        <div class="flex justify-between items-center text-slate-600">
-                            <span>Down Payment (DP):</span>
-                            <span class="font-mono font-semibold text-emerald-700">Rp {{ number_format($pesanan->dp_amount ?: 100000, 0, ',', '.') }}</span>
-                        </div>
+                        @if($pesanan->isBookingDurian())
+                            <div class="flex justify-between items-center text-slate-600">
+                                <span>Down Payment (DP):</span>
+                                <span class="font-mono font-semibold text-emerald-700">Rp {{ number_format($pesanan->dp_amount ?: 100000, 0, ',', '.') }}</span>
+                            </div>
 
-                        <div class="flex justify-between items-center text-slate-600">
-                            <span>Status DP:</span>
-                            <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-700">
-                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                                Terbayar {{ $pesanan->dp_paid_at ? '(' . $pesanan->dp_paid_at->format('d/m/Y') . ')' : '' }}
-                            </span>
-                        </div>
+                            <div class="flex justify-between items-center text-slate-600">
+                                <span>Status DP:</span>
+                                <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-700">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                    Terbayar {{ $pesanan->dp_paid_at ? '(' . $pesanan->dp_paid_at->format('d/m/Y') . ')' : '' }}
+                                </span>
+                            </div>
+                        @endif
 
                         <div class="border-t border-slate-200 pt-2 flex justify-between items-center text-slate-600">
-                            <span>Total Harga (Sesuai Berat):</span>
+                            <span>Total Tagihan:</span>
                             <span class="font-mono font-bold text-slate-900">
                                 @if($pesanan->total_setelah_timbang)
                                     Rp {{ number_format($pesanan->total_setelah_timbang, 0, ',', '.') }}
@@ -231,22 +239,33 @@
                             </span>
                         </div>
 
-                        <div class="border-t-2 border-slate-300 pt-2 flex justify-between items-center text-base font-bold">
-                            <span class="text-slate-900">Sisa Pelunasan:</span>
-                            <span class="font-mono {{ ($pesanan->sisa_pelunasan ?? 0) > 0 ? 'text-emerald-700' : 'text-slate-500' }} text-lg">
-                                @if(($pesanan->sisa_pelunasan ?? 0) > 0)
-                                    Rp {{ number_format($pesanan->sisa_pelunasan, 0, ',', '.') }}
-                                @else
-                                    Rp 0 <span class="text-xs font-semibold text-emerald-600">(Lunas)</span>
-                                @endif
-                            </span>
-                        </div>
+                        @if($pesanan->isBookingDurian())
+                            <div class="border-t-2 border-slate-300 pt-2 flex justify-between items-center text-base font-bold">
+                                <span class="text-slate-900">Sisa Pelunasan:</span>
+                                <span class="font-mono {{ ($pesanan->sisa_pelunasan ?? 0) > 0 ? 'text-emerald-700' : 'text-slate-500' }} text-lg">
+                                    @if(($pesanan->sisa_pelunasan ?? 0) > 0)
+                                        Rp {{ number_format($pesanan->sisa_pelunasan, 0, ',', '.') }}
+                                    @else
+                                        Rp 0 <span class="text-xs font-semibold text-emerald-600">(Lunas)</span>
+                                    @endif
+                                </span>
+                            </div>
+                        @else
+                            <div class="border-t-2 border-slate-300 pt-2 flex justify-between items-center text-base font-bold">
+                                <span class="text-slate-900">Status Pembayaran:</span>
+                                <span class="font-mono text-emerald-700 text-base">
+                                    {{ strtoupper($pesanan->status) }}
+                                </span>
+                            </div>
+                        @endif
                     </div>
 
                     {{-- Info Note --}}
-                    <p class="text-[11px] text-slate-400 italic">
-                        * Catatan: Total harga akhir dihitung berdasarkan berat aktual buah durian saat dipanen dikurangi DP (Rp {{ number_format($pesanan->dp_amount ?: 100000, 0, ',', '.') }}) yang telah dibayarkan di awal.
-                    </p>
+                    @if($pesanan->isBookingDurian())
+                        <p class="text-[11px] text-slate-400 italic">
+                            * Catatan: Total harga akhir dihitung berdasarkan berat aktual buah durian saat dipanen dikurangi DP (Rp {{ number_format($pesanan->dp_amount ?: 100000, 0, ',', '.') }}) yang telah dibayarkan di awal.
+                        </p>
+                    @endif
                 </div>
             </div>
         </div>
