@@ -897,6 +897,154 @@ class MarketplaceNewCategoriesAndMidtransTest extends TestCase
             ]);
         $successResponse->assertSessionHas('success');
     }
+
+    /**
+     * Test: Model Pesanan otomatis menghasilkan nomor kwitansi dan QR payload pada event lifecycle.
+     */
+    public function test_pesanan_model_lifecycle_automatically_generates_kwitansi_nomor_and_qr_payload()
+    {
+        $consumer = User::factory()->create(['role' => 'user']);
+        $order = Pesanan::create([
+            'user_id' => $consumer->id,
+            'kode_pesanan' => 'INV-TEST-KW-' . rand(1000, 9999),
+            'total_harga' => 100000,
+            'status' => 'paid',
+            'alamat_kirim' => 'Jl. Uji Kwitansi No. 1',
+        ]);
+
+        $this->assertNotEmpty($order->kwitansi_nomor);
+        $this->assertStringStartsWith('KW-', $order->kwitansi_nomor);
+        $this->assertNotEmpty($order->kwitansi_qr_payload);
+        $this->assertStringContainsString((string)$order->id, $order->kwitansi_qr_payload);
+        $this->assertNotEmpty($order->qr_code_url);
+    }
+
+    /**
+     * Test: Halaman E-Kwitansi dapat diakses oleh Konsumen pemilik dan Pekebun penjual.
+     */
+    public function test_ekwitansi_page_accessible_by_konsumen_and_pekebun()
+    {
+        $pekebun = User::factory()->create(['role' => 'pekebun']);
+        $consumer = User::factory()->create(['role' => 'user']);
+        $stranger = User::factory()->create(['role' => 'user']);
+        $buahCat = KategoriProduk::where('slug', 'buah-durian')->first();
+
+        $produk = Produk::create([
+            'user_id' => $pekebun->id,
+            'kategori_produk_id' => $buahCat->id,
+            'nama_produk' => 'Durian Musang King Kwitansi',
+            'harga' => 120000,
+            'stok' => 10,
+            'satuan' => 'kg',
+        ]);
+
+        $order = Pesanan::create([
+            'user_id' => $consumer->id,
+            'kode_pesanan' => 'BKG-TEST-KW-' . rand(1000, 9999),
+            'tipe_pesanan' => 'booking_durian',
+            'dp_amount' => 100000,
+            'total_harga' => 100000,
+            'status' => 'booked',
+            'alamat_kirim' => 'Jl. Durian Wangi No. 8',
+        ]);
+
+        DetailPesanan::create([
+            'pesanan_id' => $order->id,
+            'produk_id' => $produk->id,
+            'jumlah' => 2,
+            'harga_satuan' => 120000,
+        ]);
+
+        // 1. Konsumen pemilik berhasil membuka E-Kwitansi
+        $consumerRes = $this->actingAs($consumer)->get(route('konsumen.pesanan.kwitansi', $order->id));
+        $consumerRes->assertStatus(200);
+        $consumerRes->assertSee('E-Kwitansi');
+        $consumerRes->assertSee($order->kode_pesanan);
+
+        // 2. Pekebun penjual berhasil membuka E-Kwitansi
+        $pekebunRes = $this->actingAs($pekebun)->get(route('konsumen.pesanan.kwitansi', $order->id));
+        $pekebunRes->assertStatus(200);
+        $pekebunRes->assertSee('E-Kwitansi');
+
+        // 3. User lain ditolak 403
+        $strangerRes = $this->actingAs($stranger)->get(route('konsumen.pesanan.kwitansi', $order->id));
+        $strangerRes->assertStatus(403);
+    }
+
+    /**
+     * Test: API Mobile (/api/orders dan /api/petani/pesanan/verify-qr) kompatibel penuh tanpa regresi.
+     */
+    public function test_mobile_api_endpoints_retain_full_compatibility()
+    {
+        $pekebun = User::factory()->create(['role' => 'pekebun']);
+        $consumer = User::factory()->create(['role' => 'user']);
+        $buahCat = KategoriProduk::where('slug', 'buah-durian')->first();
+
+        $produk = Produk::create([
+            'user_id' => $pekebun->id,
+            'kategori_produk_id' => $buahCat->id,
+            'nama_produk' => 'Durian API Test',
+            'harga' => 100000,
+            'stok' => 20,
+            'satuan' => 'kg',
+        ]);
+
+        $order = Pesanan::create([
+            'user_id' => $consumer->id,
+            'kode_pesanan' => 'BKG-API-' . rand(1000, 9999),
+            'tipe_pesanan' => 'booking_durian',
+            'dp_amount' => 100000,
+            'total_harga' => 100000,
+            'status' => 'booked',
+            'alamat_kirim' => 'Jl. Mobile Flutter No. 10',
+        ]);
+
+        DetailPesanan::create([
+            'pesanan_id' => $order->id,
+            'produk_id' => $produk->id,
+            'jumlah' => 2,
+            'harga_satuan' => 100000,
+        ]);
+
+        // 1. Mobile GET /api/orders
+        $ordersResponse = $this->actingAs($consumer, 'sanctum')->getJson('/api/orders');
+        $ordersResponse->assertStatus(200);
+        $ordersResponse->assertJsonStructure([
+            'success',
+            'data' => [
+                '*' => ['id', 'kode_pesanan', 'total_harga', 'status', 'detail_pesanan']
+            ]
+        ]);
+
+        // 2. Mobile Scanner POST /api/petani/pesanan/verify-qr
+        $verifyResponse = $this->actingAs($pekebun, 'sanctum')->postJson('/api/petani/pesanan/verify-qr', [
+            'qr_token' => $order->kode_pesanan,
+        ]);
+        $verifyResponse->assertStatus(200);
+        $verifyResponse->assertJsonStructure([
+            'success',
+            'needs_settlement',
+            'remaining_balance',
+            'total',
+            'dp_amount',
+            'type',
+            'order' => [
+                'id',
+                'kode_pesanan',
+                'kwitansi_nomor',
+                'total',
+                'dp_amount',
+                'status',
+            ]
+        ]);
+
+        // 3. Mobile Scanner Alias POST /api/petani/pesanan/scan/verify
+        $aliasVerify = $this->actingAs($pekebun, 'sanctum')->postJson('/api/petani/pesanan/scan/verify', [
+            'qr_token' => $order->kwitansi_qr_payload,
+        ]);
+        $aliasVerify->assertStatus(200);
+        $this->assertTrue($aliasVerify->json('success'));
+    }
 }
 
 

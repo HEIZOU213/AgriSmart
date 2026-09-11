@@ -33,9 +33,17 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen py-6 px-4 sm:px-6 lg:px-8">
 
+    @php
+        $backUrl = url()->previous();
+        if (!$backUrl || $backUrl === url()->current()) {
+            $userRole = auth()->user()?->role;
+            $backUrl = in_array($userRole, ['petani', 'pekebun']) ? route('petani.pesanan.index') : route('konsumen.pesanan.index');
+        }
+    @endphp
+
     {{-- Top Action Bar (No Print) --}}
     <div class="max-w-3xl mx-auto mb-6 flex items-center justify-between no-print">
-        <a href="{{ url()->previous() ?: route('konsumen.pesanan.index') }}"
+        <a href="{{ $backUrl }}"
            class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 transition">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
@@ -195,10 +203,14 @@
                 {{-- QR Code Card --}}
                 <div class="sm:col-span-5 bg-slate-50 rounded-2xl p-5 border border-slate-200 text-center space-y-3">
                     <div class="w-44 h-44 mx-auto bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-center">
-                        <img src="{{ $pesanan->qr_code_url }}" alt="QR Code Kwitansi" class="w-full h-full object-contain" />
+                        <img src="{{ $pesanan->qr_code_url }}" 
+                             alt="QR Code Kwitansi" 
+                             class="w-full h-full object-contain"
+                             onerror="if (!this.dataset.fallback) { this.dataset.fallback='1'; this.src='https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=' + encodeURIComponent('{{ $pesanan->kwitansi_qr_payload }}'); }" />
                     </div>
                     <div>
-                        <p class="text-xs font-bold text-slate-800">QR Code Verifikasi & Pelunasan</p>
+                        <p class="text-xs font-mono font-bold text-slate-700">{{ $pesanan->kwitansi_nomor }}</p>
+                        <p class="text-xs font-bold text-slate-800 mt-1">QR Code Verifikasi & Pelunasan</p>
                         <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
                             Pindai QR ini melalui aplikasi scanner pekebun atau smartphone untuk verifikasi keaslian kwitansi dan serah terima durian.
                         </p>

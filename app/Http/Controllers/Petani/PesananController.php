@@ -362,13 +362,16 @@ class PesananController extends Controller
      */
     public function inputTimbangan(Request $request, $id)
     {
-        $petani = Auth::user();
+        $petani = $request->user() ?: Auth::user();
+        if (!$petani) {
+            abort(401, 'Unauthenticated.');
+        }
         $produkIds = Produk::where('user_id', $petani->id)->pluck('id');
         $orderHasPetaniProduct = DetailPesanan::where('pesanan_id', $id)
             ->whereIn('produk_id', $produkIds)
             ->exists();
 
-        if (!$orderHasPetaniProduct) {
+        if (!$orderHasPetaniProduct && $petani->role !== 'admin') {
             abort(403, 'Akses Dilarang.');
         }
 
@@ -444,6 +447,14 @@ class PesananController extends Controller
                 'pesan'   => $pesanNotif,
                 'type'    => 'info',
                 'is_read' => false
+            ]);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Hasil penimbangan berhasil disimpan! Total: Rp ' . number_format($totalSetelahTimbang, 0, ',', '.') . ' (Sisa Pelunasan: Rp ' . number_format($sisaPelunasan, 0, ',', '.') . ')',
+                'data' => $pesanan
             ]);
         }
 

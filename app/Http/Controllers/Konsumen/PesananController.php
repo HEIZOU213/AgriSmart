@@ -291,10 +291,17 @@ class PesananController extends Controller
             $sellerIds = $pesanan->detailPesanan->map(fn($d) => $d->produk?->user_id)->filter()->all();
             $isSeller = in_array($user->id, $sellerIds);
         }
-        $isAdmin = $user && $user->role === 'admin';
+        $isAdmin = $user && in_array($user->role, ['admin', 'superadmin']);
 
         if (!$isOwner && !$isSeller && !$isAdmin) {
             abort(403, 'Akses Kwitansi Ditolak.');
+        }
+
+        // Self-healing: Pastikan nomor kwitansi & QR payload tersimpan permanen di database
+        if (empty($pesanan->getRawOriginal('kwitansi_nomor')) || empty($pesanan->getRawOriginal('kwitansi_qr_payload'))) {
+            $pesanan->kwitansi_nomor = $pesanan->kwitansi_nomor ?: $pesanan->generateKwitansiNomor();
+            $pesanan->kwitansi_qr_payload = $pesanan->kwitansi_qr_payload ?: url('/konsumen/pesanan/' . $pesanan->id . '/kwitansi');
+            $pesanan->saveQuietly();
         }
 
         return view('konsumen.pesanan.kwitansi', compact('pesanan'));

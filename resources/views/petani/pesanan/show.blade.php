@@ -47,15 +47,25 @@
                         @method('PUT')
 
                         <label for="status" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mt-4 mb-1.5">Ubah Status:</label>
+                        @php
+                            $statusOptions = $pesanan->isBookingDurian() ? [
+                                'booked'             => '01. Booked (Booking Panen)',
+                                'menunggu_panen'     => '02. Menunggu Panen',
+                                'menunggu_pelunasan' => '03. Menunggu Pelunasan',
+                                'shipping'           => '04. Shipping (Sedang Dikirim)',
+                                'done'               => '05. Done (Pesanan Selesai)',
+                                'cancelled'          => '06. Cancelled (Batalkan Pesanan)',
+                            ] : [
+                                'shipping'           => '01. Shipping (Sedang Dikirim)',
+                                'done'               => '02. Done (Pesanan Selesai)',
+                                'cancelled'          => '03. Cancelled (Batalkan Pesanan)',
+                            ];
+                        @endphp
                         <x-custom-dropdown 
                             name="status" 
                             id="status" 
                             :value="$pesanan->status" 
-                            :options="[
-                                'shipping' => '01. Shipping (Sedang Dikirim)',
-                                'done' => '02. Done (Pesanan Selesai)',
-                                'cancelled' => '03. Cancelled (Batalkan Pesanan)'
-                            ]" 
+                            :options="$statusOptions" 
                             required 
                         />
 

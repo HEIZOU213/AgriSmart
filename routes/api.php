@@ -99,6 +99,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'apiProcess']); // Proses Pesanan
     Route::get('/orders', [KonsumenPesananController::class, 'apiIndex']); // List Semua Order User
     Route::get('/orders/{id}', [KonsumenPesananController::class, 'apiShow']); // Detail Order
+    Route::get('/konsumen/pesanan', [KonsumenPesananController::class, 'apiIndex']); // Alias endpoint konsumen pesanan
+    Route::get('/konsumen/pesanan/{id}', [KonsumenPesananController::class, 'apiShow']); // Alias endpoint konsumen pesanan detail
     Route::post('/orders/{id}/cancel', [KonsumenPesananController::class, 'apiCancel']); // Batalkan Order
     Route::post('/orders/{id}/selesai', [KonsumenPesananController::class, 'apiSelesai']); // Konfirmasi Selesai Order
     Route::post('/orders/{id}/verify-payment', [CheckoutController::class, 'apiVerifyPayment']); // Verifikasi Pembayaran Midtrans
@@ -139,7 +141,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/petani/pesanan', [PetaniPesananController::class, 'apiIndex']);
         Route::post('/petani/pesanan/{id}/update-status', [PetaniPesananController::class, 'apiUpdateStatus']);
         Route::post('/petani/pesanan/verify-qr', [PetaniPesananController::class, 'apiVerifyQr']);
+        Route::post('/petani/pesanan/scan/verify', [PetaniPesananController::class, 'apiVerifyQr']); // Alias untuk scanner mobile
         Route::post('/petani/pesanan/{id}/settle', [PetaniPesananController::class, 'apiSettleOrder']);
+        Route::post('/petani/pesanan/scan/settle/{id}', [PetaniPesananController::class, 'apiSettleOrder']); // Alias untuk scanner mobile
+        Route::post('/petani/pesanan/{id}/timbangan', [PetaniPesananController::class, 'inputTimbangan']); // Endpoint API timbangan panen
 
         // --- MANAJEMEN ALAT IOT (PETANI) ---
         Route::get('/petani/iot', [IotController::class, 'index']);        // List semua alat

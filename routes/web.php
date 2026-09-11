@@ -289,6 +289,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/konsumen/pesanan/{id}/kwitansi', [KonsumenPesanan::class, 'kwitansi'])
         ->middleware('auth')
         ->name('konsumen.pesanan.kwitansi');
+    Route::get('/petani/pesanan/{id}/kwitansi', [KonsumenPesanan::class, 'kwitansi'])
+        ->middleware(['auth', 'role:pekebun'])
+        ->name('petani.pesanan.kwitansi');
 
     // ====================================================
     // PORTAL ROUTES (role: petani)

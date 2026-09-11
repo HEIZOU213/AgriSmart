@@ -138,11 +138,59 @@ class Pesanan extends Model
     }
 
     /**
+     * Booted lifecycle events
+     */
+    protected static function booted(): void
+    {
+        static::creating(function ($pesanan) {
+            if (empty($pesanan->kwitansi_nomor)) {
+                $pesanan->kwitansi_nomor = 'KW-TMP-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
+            }
+        });
+
+        static::created(function ($pesanan) {
+            $updates = [];
+            if (empty($pesanan->kwitansi_nomor) || str_starts_with($pesanan->kwitansi_nomor, 'KW-TMP-')) {
+                $updates['kwitansi_nomor'] = 'KW-' . date('Ymd') . '-' . str_pad((string)$pesanan->id, 5, '0', STR_PAD_LEFT);
+            }
+            if (empty($pesanan->kwitansi_qr_payload)) {
+                $updates['kwitansi_qr_payload'] = url("/konsumen/pesanan/{$pesanan->id}/kwitansi");
+            }
+
+            if (!empty($updates)) {
+                $pesanan->updateQuietly($updates);
+            }
+        });
+    }
+
+    /**
+     * Self-healing Accessor untuk Nomor Kwitansi
+     */
+    public function getKwitansiNomorAttribute($value): string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+        return $this->id ? $this->generateKwitansiNomor() : 'KW-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -5));
+    }
+
+    /**
+     * Self-healing Accessor untuk QR Payload Kwitansi
+     */
+    public function getKwitansiQrPayloadAttribute($value): string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+        return $this->id ? url("/konsumen/pesanan/{$this->id}/kwitansi") : url('/');
+    }
+
+    /**
      * Helper URL QR Code
      */
     public function getQrCodeUrlAttribute(): string
     {
-        $payload = $this->kwitansi_qr_payload ?: route('konsumen.pesanan.kwitansi', $this->id);
+        $payload = $this->kwitansi_qr_payload ?: ($this->id ? url("/konsumen/pesanan/{$this->id}/kwitansi") : url('/'));
         return \App\Services\QrCodeService::getUrl($payload, 250);
     }
 
@@ -151,7 +199,7 @@ class Pesanan extends Model
      */
     public function getQrCodeSvgAttribute(): string
     {
-        $payload = $this->kwitansi_qr_payload ?: route('konsumen.pesanan.kwitansi', $this->id);
+        $payload = $this->kwitansi_qr_payload ?: ($this->id ? url("/konsumen/pesanan/{$this->id}/kwitansi") : url('/'));
         return \App\Services\QrCodeService::generateSvg($payload, 220);
     }
 
@@ -160,6 +208,8 @@ class Pesanan extends Model
      */
     public function generateKwitansiNomor(): string
     {
-        return 'KW-' . date('Ymd') . '-' . str_pad((string)$this->id, 5, '0', STR_PAD_LEFT);
+        $idPart = $this->id ? str_pad((string)$this->id, 5, '0', STR_PAD_LEFT) : strtoupper(substr(uniqid(), -5));
+        $datePart = $this->created_at ? $this->created_at->format('Ymd') : date('Ymd');
+        return 'KW-' . $datePart . '-' . $idPart;
     }
 }

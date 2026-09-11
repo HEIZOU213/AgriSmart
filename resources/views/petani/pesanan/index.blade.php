@@ -40,6 +40,8 @@
                             placeholder="Semua Status" 
                             :options="[
                                 'pending' => 'Pending',
+                                'booked' => 'Booked (Booking Panen)',
+                                'menunggu_pelunasan' => 'Menunggu Pelunasan',
                                 'paid' => 'Sudah Bayar (Perlu Dikirim)',
                                 'shipping' => 'Pengiriman',
                                 'done' => 'Selesai',
@@ -67,7 +69,6 @@
         {{-- === BAGIAN FILTER END === --}}
 
         {{-- Tabel Data --}}
-        {{-- Tabel Data --}}
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left min-w-[700px] divide-y divide-gray-200">
@@ -88,18 +89,41 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-gray-700">{{ $item->user->name ?? 'User Tidak Ditemukan' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ $item->created_at->format('d M Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap font-semibold text-gray-900">Rp {{ number_format($item->total_harga, 0, ',', '.') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap capitalize">
-                                    <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full 
-                                        {{ $item->status == 'done' ? 'bg-emerald-100 text-emerald-800' : 
-                                          ($item->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                                          ($item->status == 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800')) }}">
-                                        {{ $item->status }}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @php
+                                        $badgeClasses = [
+                                            'pending'            => 'bg-yellow-100 text-yellow-800',
+                                            'booked'             => 'bg-indigo-100 text-indigo-800',
+                                            'menunggu_panen'     => 'bg-amber-100 text-amber-800',
+                                            'menunggu_pelunasan' => 'bg-orange-100 text-orange-800 font-extrabold animate-pulse',
+                                            'paid'               => 'bg-blue-100 text-blue-800',
+                                            'shipping'           => 'bg-purple-100 text-purple-800',
+                                            'done'               => 'bg-emerald-100 text-emerald-800',
+                                            'selesai'            => 'bg-emerald-100 text-emerald-800',
+                                            'cancelled'          => 'bg-red-100 text-red-800',
+                                        ];
+                                        $badgeClass = $badgeClasses[$item->status] ?? 'bg-gray-100 text-gray-800';
+                                        $statusLabel = str_replace('_', ' ', $item->status);
+                                    @endphp
+                                    <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $badgeClass }}">
+                                        {{ ucwords($statusLabel) }}
                                     </span>
+                                    @if($item->isBookingDurian())
+                                        <span class="block text-[10px] font-bold text-emerald-700 mt-0.5">Booking Durian</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="{{ route('petani.pesanan.show', $item->id) }}" class="text-xs px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold rounded-lg transition">
-                                        Lihat & Konfirmasi
-                                    </a>
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ route('petani.pesanan.show', $item->id) }}" class="text-xs px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold rounded-lg transition">
+                                            Lihat & Konfirmasi
+                                        </a>
+                                        @if ($item->status != 'cancelled')
+                                            <a href="{{ route('konsumen.pesanan.kwitansi', $item->id) }}" target="_blank" class="inline-flex items-center gap-1 text-xs px-2.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold rounded-lg transition" title="Lihat E-Kwitansi">
+                                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                E-Kwitansi
+                                            </a>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                         @empty

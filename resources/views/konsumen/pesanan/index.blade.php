@@ -26,11 +26,15 @@
                 {{-- Logic Status Badge --}}
                 @php
                     $statusStyles = [
-                        'pending'   => ['bg' => 'bg-yellow-50', 'text' => 'text-yellow-700', 'ring' => 'ring-yellow-600/20', 'icon' => '🕒'],
-                        'paid'      => ['bg' => 'bg-blue-50', 'text' => 'text-blue-700', 'ring' => 'ring-blue-600/20', 'icon' => '💳'],
-                        'shipping'  => ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'ring' => 'ring-purple-600/20', 'icon' => '🚚'],
-                        'done'      => ['bg' => 'bg-green-50', 'text' => 'text-green-700', 'ring' => 'ring-green-600/20', 'icon' => '✅'],
-                        'cancelled' => ['bg' => 'bg-red-50', 'text' => 'text-red-700', 'ring' => 'ring-red-600/20', 'icon' => '❌'],
+                        'pending'            => ['bg' => 'bg-yellow-50', 'text' => 'text-yellow-700', 'ring' => 'ring-yellow-600/20', 'icon' => '🕒'],
+                        'booked'             => ['bg' => 'bg-indigo-50', 'text' => 'text-indigo-700', 'ring' => 'ring-indigo-600/20', 'icon' => '🌿'],
+                        'menunggu_panen'     => ['bg' => 'bg-amber-50', 'text' => 'text-amber-700', 'ring' => 'ring-amber-600/20', 'icon' => '🌳'],
+                        'menunggu_pelunasan' => ['bg' => 'bg-orange-50', 'text' => 'text-orange-700', 'ring' => 'ring-orange-600/20', 'icon' => '⚖️'],
+                        'paid'               => ['bg' => 'bg-blue-50', 'text' => 'text-blue-700', 'ring' => 'ring-blue-600/20', 'icon' => '💳'],
+                        'shipping'           => ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'ring' => 'ring-purple-600/20', 'icon' => '🚚'],
+                        'done'               => ['bg' => 'bg-green-50', 'text' => 'text-green-700', 'ring' => 'ring-green-600/20', 'icon' => '✅'],
+                        'selesai'            => ['bg' => 'bg-green-50', 'text' => 'text-green-700', 'ring' => 'ring-green-600/20', 'icon' => '✅'],
+                        'cancelled'          => ['bg' => 'bg-red-50', 'text' => 'text-red-700', 'ring' => 'ring-red-600/20', 'icon' => '❌'],
                     ];
                     $style = $statusStyles[$item->status] ?? ['bg' => 'bg-gray-50', 'text' => 'text-gray-700', 'ring' => 'ring-gray-600/20', 'icon' => '📦'];
                 @endphp
@@ -51,7 +55,11 @@
                                 </div>
                                 <div>
                                     <div class="flex items-center gap-2">
-                                        <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded text-center">ORDER</span>
+                                        @if($item->isBookingDurian())
+                                            <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded text-center">BOOKING DURIAN</span>
+                                        @else
+                                            <span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded text-center">ORDER</span>
+                                        @endif
                                         <h3 class="font-bold text-lg text-gray-900 font-mono tracking-tight">#{{ $item->kode_pesanan }}</h3>
                                     </div>
                                     <p class="text-sm text-gray-500 mt-0.5 flex items-center gap-1">
@@ -64,7 +72,7 @@
                             {{-- Badge Status Modern --}}
                             <div class="self-start md:self-center">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide ring-1 ring-inset {{ $style['bg'] }} {{ $style['text'] }} {{ $style['ring'] }}">
-                                    <span>{{ $style['icon'] }}</span> {{ $item->status }}
+                                    <span>{{ $style['icon'] }}</span> {{ str_replace('_', ' ', $item->status) }}
                                 </span>
                             </div>
                         </div>
@@ -81,6 +89,17 @@
                                     <span class="text-sm text-gray-500 font-medium">Rp</span>
                                     <span class="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">{{ number_format($item->total_harga, 0, ',', '.') }}</span>
                                 </div>
+                                @if($item->isBookingDurian())
+                                    <p class="text-xs font-semibold text-emerald-700 mt-1">
+                                        @if($item->status === 'menunggu_pelunasan')
+                                            Sisa Pelunasan: <strong class="text-amber-700">Rp {{ number_format($item->sisa_pelunasan, 0, ',', '.') }}</strong>
+                                        @elseif($item->isLunas())
+                                            Lunas (Panen Selesai)
+                                        @else
+                                            DP Terbayar: Rp {{ number_format($item->dp_amount ?: 100000, 0, ',', '.') }}
+                                        @endif
+                                    </p>
+                                @endif
                             </div>
 
                             {{-- Actions Buttons --}}
@@ -101,6 +120,15 @@
                                         </svg>
                                         Bayar
                                     </button>
+                                @endif
+
+                                {{-- Tombol Bayar Pelunasan (Jika menunggu_pelunasan) --}}
+                                @if ($item->status == 'menunggu_pelunasan' && ($item->sisa_pelunasan ?? 0) > 0)
+                                    <a href="{{ route('konsumen.pesanan.kwitansi', $item->id) }}"
+                                       class="flex-1 sm:flex-none text-center px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-1.5 focus:ring-2 focus:ring-offset-2 focus:ring-amber-400">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                        Bayar Pelunasan
+                                    </a>
                                 @endif
 
                                 @if ($item->status == 'pending')
