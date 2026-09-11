@@ -62,6 +62,14 @@
                         <button type="submit" class="mt-4 w-full px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition">
                             Konfirmasi Perubahan Status
                         </button>
+
+                        <div class="mt-3 pt-3 border-t border-gray-100 text-center">
+                            <a href="{{ route('konsumen.pesanan.kwitansi', $pesanan->id) }}" target="_blank"
+                               class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 hover:text-emerald-800 underline">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                Buka E-Kwitansi & QR Code
+                            </a>
+                        </div>
                     </form>
                 </div>
 
